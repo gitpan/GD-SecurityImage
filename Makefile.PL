@@ -2,6 +2,12 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
+BEGIN {
+   # unlink skip* files
+   unlink 'skip_magick' if -e 'skip_magick';
+   unlink 'skip_gd'     if -e 'skip_gd';
+}
+
 my %prereq;
 
 my $makec = $^O eq 'MSWin32' ? 'nmake' : 'make';

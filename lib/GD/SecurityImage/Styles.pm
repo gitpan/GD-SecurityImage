@@ -8,55 +8,51 @@ sub style_default {
    my $self  = shift;
    my $fx    = $self->{width}  / $self->{lines};
    my $fy    = $self->{height} / $self->{lines};
-   my %color = @_;
 
-   $self->rectangle(0,0,$self->{width}-1,$self->{height}-1, $color{lines}); # put a frame around the image
+   $self->rectangle(0,0,$self->{width}-1,$self->{height}-1, $self->{_COLOR_}{lines}); # put a frame around the image
 
    for my $i (0..$self->{lines}) {
-      $self->line($i * $fx, 0,  $i * $fx     , $self->{height}, $color{lines}); # | line
-      $self->line($i * $fx, 0, ($i * $fx)+$fx, $self->{height}, $color{lines}); # \ line
+      $self->line($i * $fx, 0,  $i * $fx     , $self->{height}, $self->{_COLOR_}{lines}); # | line
+      $self->line($i * $fx, 0, ($i * $fx)+$fx, $self->{height}, $self->{_COLOR_}{lines}); # \ line
    }
 
    for my $i (1..$self->{lines}) {
-      $self->line(0, $i * $fy, $self->{width}, $i * $fy, $color{lines}); # - line
+      $self->line(0, $i * $fy, $self->{width}, $i * $fy, $self->{_COLOR_}{lines}); # - line
    }
 }
 
 sub style_rect {
-   my $self  = shift;
-   my $fx    = $self->{width}  / $self->{lines};
-   my $fy    = $self->{height} / $self->{lines};
-   my %color = @_;
+   my $self = shift;
+   my $fx   = $self->{width}  / $self->{lines};
+   my $fy   = $self->{height} / $self->{lines};
 
-   $self->rectangle(0,0,$self->{width}-1,$self->{height}-1, $color{lines}); # put a frame around the image
+   $self->rectangle(0,0,$self->{width}-1,$self->{height}-1, $self->{_COLOR_}{lines}); # put a frame around the image
 
    for my $i (0..$self->{lines}) {
-      $self->line($i * $fx, 0,  $i * $fx     , $self->{height}, $color{lines}); # | line
+      $self->line($i * $fx, 0,  $i * $fx     , $self->{height}, $self->{_COLOR_}{lines}); # | line
    }
 
    for my $i (1..$self->{lines}) {
-      $self->line(0, $i * $fy, $self->{width}, $i * $fy, $color{lines}); # - line
+      $self->line(0, $i * $fy, $self->{width}, $i * $fy, $self->{_COLOR_}{lines}); # - line
    }
 }
 
 sub style_box {
-   my $self  = shift;
-   my %color = @_;
-   my $w = $self->{lines};
-   $self->filledRectangle(0 , 0 , $self->{width}         , $self->{height}         , $color{text});
-   $self->filledRectangle($w, $w, $self->{width} - $w - 1, $self->{height} - $w - 1, $color{lines} );
+   my $self = shift;
+   my $w    = $self->{lines};
+   $self->filledRectangle(0 , 0 , $self->{width}         , $self->{height}         , $self->{_COLOR_}{text});
+   $self->filledRectangle($w, $w, $self->{width} - $w - 1, $self->{height} - $w - 1, $self->{_COLOR_}{lines} );
 }
 
 sub style_circle {
    my $self  = shift;
    my $cx    = $self->{width}  / 2;
    my $cy    = $self->{height} / 2;
-   my %color = @_;
    my $max   = int $self->{width} / $self->{lines};
       $max++;
 
    for(1..$self->{lines}){
-      $self->arc($cx,$cy,$max*$_,$max*$_,0,360,$color{lines});
+      $self->arc($cx,$cy,$max*$_,$max*$_,0,360,$self->{_COLOR_}{lines});
    }
 }
 
@@ -64,12 +60,11 @@ sub style_ellipse {
    my $self  = shift;
    my $cx    = $self->{width}  / 2;
    my $cy    = $self->{height} / 2;
-   my %color = @_;
    my $max   = int $self->{width} / $self->{lines};
       $max++;
 
    for(1..$self->{lines}){
-      $self->ellipse($cx,$cy,$max*$_*2,$max*$_,$color{lines});
+      $self->ellipse($cx,$cy,$max*$_*2,$max*$_,$self->{_COLOR_}{lines});
    }
 }
 

@@ -4,13 +4,13 @@ use vars qw[@ISA $VERSION];
 use GD::SecurityImage::Styles;
 
 @ISA     = qw(GD::SecurityImage::Styles);
-$VERSION = "1.2";
+$VERSION = "1.3";
 
 sub import {
    # load the drawing interface
    my $class = shift;
    my %opt   = scalar(@_) % 2 ? () : (@_);
-   if ($opt{use_magick}) {
+   if (exists $opt{use_magick} and $opt{use_magick}) {
       require GD::SecurityImage::Magick;
       push @ISA, qw(GD::SecurityImage::Magick);
    } else {
@@ -26,7 +26,8 @@ sub new {
       IS_MAGICK       => defined($Image::Magick::VERSION) ? 1 : 0,
       MAGICK          => {}, # Image::Magick configuration options
       _RANDOM_NUMBER_ => '',
-      _RNDMAX_        => 6, # maximum number of characters in a random string.
+      _RNDMAX_        => 6,  # maximum number of characters in a random string.
+      _COLOR_         => {}, # text and line colors
    };
    bless $self, $class;
    my %options = (
@@ -52,10 +53,7 @@ sub gdf {
    return $self->gdfx(@_);
 }
 
-sub random_str {
-   my $self = shift;
-   return $self->{_RANDOM_NUMBER_};
-}
+sub random_str { shift->{_RANDOM_NUMBER_} }
 
 sub random {
    my $self = shift;
@@ -78,37 +76,58 @@ sub create {
    my $style  = shift || 'default'; # default or rect or box
    my $col1   = shift; # text color
    my $col2   = shift; # line/box color
-      $col1 = [ 0, 0, 0] if(not $col1 || not ref $col1 || ref $col1 ne 'ARRAY' || $#{$col1} != 2);
-      $col2 = [ 0, 0, 0] if(not $col2 || not ref $col2 || ref $col2 ne 'ARRAY' || $#{$col2} != 2);
+      $col1   = [ 0, 0, 0] if(not $col1 || not ref $col1 || ref $col1 ne 'ARRAY' || $#{$col1} != 2);
+      $col2   = [ 0, 0, 0] if(not $col2 || not ref $col2 || ref $col2 ne 'ARRAY' || $#{$col2} != 2);
    my %color  = (
         text  => $self->{IS_MAGICK} ? $col1 : $self->{image}->colorAllocate(@{$col1}),
         lines => $self->{IS_MAGICK} ? $col2 : $self->{image}->colorAllocate(@{$col2}),
    );
 
-   if ($method eq 'normal' and not $self->{gd_font}) {
-      $self->{gd_font} = GD::Font->Giant;
-   }
+   $self->{_COLOR_} = \%color; # always use this?
+   $self->{gd_font} = GD::Font->Giant if $method eq 'normal' and not $self->{gd_font};
 
    $style = $self->can('style_'.$style) ? 'style_'.$style : 'style_default';
    $self->$style(%color) unless $self->{send_ctobg};
-   $self->insert_text($method, \%color);
+   $self->insert_text($method);
    $self->$style(%color) if     $self->{send_ctobg};
    return $self if defined wantarray;
 }
 
-# return $image_data, $image_mime_type, $random_number
-sub out {
+sub particle {
+   # Create random dots. They'll cover all over the surface
    my $self = shift;
-   if ($self->{IS_MAGICK}) {
-      $self->{image}->Set(magick => 'gif');
-      return $self->{image}->ImageToBlob, 'gif', $self->{_RANDOM_NUMBER_};
-   } else {
-      my $type = $self->{image}->can('gif') ? 'gif' : 'jpeg'; # check for older GDs
-      return $self->{image}->$type(), $type, $self->{_RANDOM_NUMBER_};
+   my $big  = $self->{height} > $self->{width} ? $self->{height} : $self->{width};
+   my $f    = shift || $big * 20; # particle density
+   my $dots = shift || 1; # number of multiple dots
+   my $int  = int $big / 20;
+   my @random;
+   for (my $x = $int; $x <= $big; $x += $int) {
+      push @random, $x;
    }
+   my($x, $y, $z);
+   for (1..$f) {
+      $x = int rand $self->{width};
+      $y = int rand $self->{height};
+      foreach $z (1..$dots) {
+         $self->setPixel($x + $z                            , $y + $z                            , $self->{_COLOR_}{text});
+         $self->setPixel($x + $z + $random[int rand @random], $y + $z + $random[int rand @random], $self->{_COLOR_}{text});
+      }
+   }
+   return $self if defined wantarray;
 }
 
 sub raw {shift->{image}} # raw image object
+
+#--------------------[ PRIVATE ]--------------------#
+
+sub r2h {
+   # Convert RGB to Hex
+   my $self = shift;
+   @_ == 3 || return;
+   my $color  = '#';
+      $color .= sprintf("%02x", $_) foreach @_;
+      $color;
+}
 
 1;
 
@@ -138,11 +157,12 @@ GD::SecurityImage - Create a security image with a random string on it.
                                       font   => "/absolute/path/to/your.ttf");
       $image->random($your_random_str);
       $image->create(ttf => 'default');
+      $image->particle;
    my($image_data, $mime_type, $random_number) = $image->out;
 
-or you can just say
+or you can just say (all public methods can be chained)
 
-   my($image, $type, $rnd) = GD::SecurityImage->new->random->create->out;
+   my($image, $type, $rnd) = GD::SecurityImage->new->random->create->particle->out;
 
 to create a security image with the default settings. But that may not be 
 usefull.
@@ -185,6 +205,10 @@ you'll C<die()>.
 
 The module does not I<export> anything actually. But C<import> loads the 
 necessary sub modules.
+
+B<NOTE:> The internal random code generator is used B<only> for 
+demonstration purposes for this module. It may not be I<effective>.
+You must supply your own random code and use this module to display it.
 
 =head1 DESCRIPTION
 
@@ -321,7 +345,7 @@ Draws circles.
 
 =item ellipse
 
-Drawas ellipses.
+Draws ellipses.
 
 =item ec
 
@@ -336,13 +360,51 @@ as a 3-element (red, green and blue) arrayref.
 
    $image->create($method, $style, [0,0,0], [200,200,200]);
 
+=head2 particle
+
+Must be called after C<create>.
+
+Adds random dots to the image. They'll cover all the surface. Accepts
+two parameters; the density (number) of the particles.
+
+   $image->particle($density, $maxdots);
+
+Default value of C<$density> is dependent on your image' s width or height. 
+The greater value of width and height is taken and multiplied by 
+twenty. So; if your width is C<200> and height is C<70>, $density is 
+C<200 * 20 = 4000> (unless you pass your own value).
+
+C<$maxdots> defines the maximum number of dots near a pixel. Default
+value is C<1>. If you set it to C<4>, The selected pixel and 3 other 
+pixels near it will be used and colored.
+
+The color of the particles are the same as the color of your text 
+(defined in L<create|/create>).
+
 =head2 out
 
 This method finally returns the created image, the mime type of the 
 image and the random number generated. Older versions of GD only supports
 C<gif> types, while new versions support C<jpeg> and C<png>.
 
-The returned mime type is either C<gif> or C<jpeg>.
+The returned mime type is either C<gif> or C<jpeg> for C<GD> and 
+C<gif> for C<Image::Magick>.
+
+C<out> accepts arguments:
+
+   @data = $image->out(%args);
+
+currently, you can only set output format with the C<force> key:
+
+   @data = $image->out(force => 'png');
+
+If C<png> is supported by the interface (via C<GD> or C<Image::Magick>); 
+you'll get a png image, if the interface does not support this format, 
+C<out()> method will use it's default configuration.
+
+Currently, you can not define compression values for the formats that 
+support it (eg: jpeg, png), but you can use L<raw|/raw> method instead 
+of C<out> (for a direct communication with the graphic library).
 
 =head2 raw
 
@@ -358,6 +420,12 @@ or the raw C<Image::Magick> object:
 
 Can be usefull, if you want to modify the graphic yourself, or want to
 use another output format like C<png>.
+
+=head1 CAVEAT EMPTOR
+
+Using the default library C<GD> is a better choice. Since it is faster 
+and does not eat that much memory, while C<Image::Magick> is slower and 
+eats more memory.
 
 =head1 SEE ALSO
 

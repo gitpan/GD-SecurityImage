@@ -4,38 +4,40 @@ use strict;
 use Test;
 BEGIN { 
    plan tests => 1;
-   if (-e "skip_magick") {
-      skip("You didn't select Image::Magick. Skipping...", sub{0});
+   if (-e "skip_gd") {
+      skip("You didn't select GD. Skipping...", sub{0});
       exit;
    }
 }
 
 use Cwd;
-use GD::SecurityImage use_magick => 1;
+use GD::SecurityImage;
 
-ttf_test();
-ok(1);
+skip(
+    $GD::VERSION < 1.20 ? "Your version of GD does not implement ttf methods." : 0,
+    \&sprite_test
+);
 
 exit;
 
-sub ttf_test {
+sub sprite_test {
    my $image = GD::SecurityImage->new(
                   width    => 150,
                   height   => 60,
                   ptsize   => 30,
-                  lines    => 40,
+                  lines    => 20,
                   font     => getcwd.'/StayPuft.ttf',
                   bgcolor  => [115, 255, 255],
                   send_ctobg => 1,
    );
 
-   $image->random('MAGICK'); # define our own random string.
-   $image->create(ttf => 'ec', [175,145,75], [170,110,50]);
+   $image->random('159785'); # define our own random string.
+   $image->create(ttf => 'ellipse', [10,10,10], [210,210,50]);
    $image->particle;
 
-   my($image_data, $mime_type, $random_string) = $image->out;
+   my($image_data, $mime_type, $random_string) = $image->out(force => 'png');
 
-   my $file = "im_02_ttf.$mime_type";
+   my $file = "gd_04_particle.$mime_type";
 
    open IMAGE, '>'.$file or die "Can not create the graphic: $!";
    binmode IMAGE;

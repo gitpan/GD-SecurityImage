@@ -2,6 +2,13 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.3 Mon Jun 21 19:11:13 2004
+	=> New method particle().
+	=> Private method r2h().
+	=> Fixed color conversion for Image::Magick.
+	=> out() now accepts arguments.
+	=> Updated pod.
+
 1.2 Fri Jun 18 21:39:08 2004
 	=> Added raw() method.
 	=> Fixed gd_font object key.

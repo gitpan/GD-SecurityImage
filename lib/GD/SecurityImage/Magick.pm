@@ -7,12 +7,19 @@ use constant IM_ASCENDER    => 2;
 
 use Image::Magick;
 
-$VERSION = "1.0";
+$VERSION = "1.1";
+
+sub rgbx {
+   # Convert color data to hex for Image::Magick
+   my $self   = shift;
+   my @data   = (ref $_[0] and ref $_[0] eq 'ARRAY') ? (@{$_[0]}) : (@_);
+   return $self->r2h(@data);
+}
 
 sub init {
    # Create the image object
    my $self = shift;
-   my $bg = sprintf "rgb(%s)", join ",", @{ $self->{bgcolor} }; 
+   my $bg   = $self->rgbx($self->{bgcolor}); 
       $self->{image} = Image::Magick->new;
       $self->{image}->Set(size=> "$self->{width}x$self->{height}");
       $self->{image}->Read('null:' . $bg);
@@ -20,12 +27,23 @@ sub init {
       $self->{MAGICK} = {strokewidth => 0.6};
 }
 
+sub out {
+   my $self = shift;
+   my %opt  = scalar @_ % 2 ? () : (@_);
+   my $type = 'gif'; # default format
+   if ($opt{force}) {
+      my %g = map {$_, $_} $self->{image}->QueryFormat;
+      $type = $g{$opt{force}} if exists $g{$opt{force}};
+   }
+   $self->{image}->Set(magick => $type);
+   return $self->{image}->ImageToBlob, $type, $self->{_RANDOM_NUMBER_};
+}
+
 sub insert_text {
    # Draw text using Image::Magick
    my $self   = shift;
    my $method = shift; # not needed with Image::Magick (always use ttf)
-   my $color  = shift;
-   my $key = $self->{_RANDOM_NUMBER_}; # random string
+   my $key    = $self->{_RANDOM_NUMBER_}; # random string
    my @metric = $self->{image}
                      ->QueryFontMetrics(font      => $self->{font},
                                         text      => $key,
@@ -39,18 +57,24 @@ sub insert_text {
                             encoding  => 'UTF-8',
                             text      => $key,
                             pointsize => $self->{ptsize},
-                            fill      => sprintf("rgb(%s)", join(",", @{$color->{text}})),
+                            fill      => $self->rgbx($self->{_COLOR_}{text}),
                             x         => $x,
                             y         => $y );
 }
 
+sub setPixel {
+   my $self = shift;
+   my($x, $y, $color) = @_;
+   $self->{image}->Set("pixel[$x,$y]" => $self->rgbx($color) );
+}
+
 sub line {
    my $self = shift;
-   my($x1,$y1,$x2,$y2,$color) = @_;
+   my($x1, $y1, $x2, $y2, $color) = @_;
       $self->{image}->Draw(
-         primitive => "line",
-         points    => "$x1,$y1 $x2,$y2",
-         stroke    => sprintf("rgb(%s)", join(",", @{$color})),
+         primitive   => "line",
+         points      => "$x1,$y1 $x2,$y2",
+         stroke      => $self->rgbx($color),
          strokewidth => $self->{MAGICK}{strokewidth},
       );
 }
@@ -59,9 +83,9 @@ sub rectangle {
    my $self = shift;
    my($x1,$y1,$x2,$y2,$color) = @_;
       $self->{image}->Draw(
-         primitive => "rectangle",
-         points    => "$x1,$y1 $x2,$y2",
-         stroke    => sprintf("rgb(%s)", join(",", @{$color})),
+         primitive   => "rectangle",
+         points      => "$x1,$y1 $x2,$y2",
+         stroke      => $self->rgbx($color),
          strokewidth => $self->{MAGICK}{strokewidth},
       );
 }
@@ -72,8 +96,8 @@ sub filledRectangle {
       $self->{image}->Draw(
          primitive   => "rectangle",
          points      => "$x1,$y1 $x2,$y2",
-         fill        => sprintf("rgb(%s)", join(",", @{$color})),
-         stroke      => sprintf("rgb(%s)", join(",", @{$color})),
+         fill        => $self->rgbx($color),
+         stroke      => $self->rgbx($color),
          strokewidth => 0,
       );
 }
@@ -82,9 +106,9 @@ sub ellipse {
    my $self = shift;
    my($cx,$cy,$width,$height,$color) = @_;
       $self->{image}->Draw(
-         primitive => "ellipse",
-         points    => "$cx,$cy $width,$height 0,360",
-         stroke    => sprintf("rgb(%s)", join(",", @{$color})),
+         primitive   => "ellipse",
+         points      => "$cx,$cy $width,$height 0,360",
+         stroke      => $self->rgbx($color),
          strokewidth => $self->{MAGICK}{strokewidth},
       );
 }
@@ -93,9 +117,9 @@ sub arc {
    my $self = shift;
    my($cx,$cy,$width,$height,$start,$end,$color) = @_;
       $self->{image}->Draw(
-         primitive => "ellipse", # I couldn't do that with "arc" primitive. patches are welcome, but this seems to work :)
-         points    => "$cx,$cy $width,$height $start,$end",
-         stroke    => sprintf("rgb(%s)", join(",", @{$color})),
+         primitive   => "ellipse", # I couldn't do that with "arc" primitive. patches are welcome, but this seems to work :)
+         points      => "$cx,$cy $width,$height $start,$end",
+         stroke      => $self->rgbx($color),
          strokewidth => $self->{MAGICK}{strokewidth},
       );
 }
@@ -113,6 +137,8 @@ GD::SecurityImage::Magick - Create a security image with a random string on it.
 See L<GD::SecurityImage>.
 
 =head1 DESCRIPTION
+
+Includes GD method emulations for Image::Magick.
 
 Used internally by L<GD::SecurityImage>. Nothing public here.
 

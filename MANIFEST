@@ -10,6 +10,7 @@ StayPuft.ttf
 t/gd_01_use.t
 t/gd_02_normal.t
 t/gd_03_ttf.t
+t/gd_04_sprite.t
 t/im_01_use.t
 t/im_02_ttf.t
 META.yml                                 Module meta-data (added by MakeMaker)
