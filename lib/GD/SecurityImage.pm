@@ -4,7 +4,7 @@ use vars qw[@ISA $VERSION];
 use GD::SecurityImage::Styles;
 
 @ISA     = qw(GD::SecurityImage::Styles);
-$VERSION = "1.32";
+$VERSION = "1.321";
 
 sub import {
    # load the drawing interface

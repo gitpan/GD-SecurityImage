@@ -3,18 +3,21 @@ use strict;
 use subs qw[save];
 
 use Test;
+use Cwd;
+
 BEGIN { 
-   if (-e "skip_gd") {
+   require GD::SecurityImage;
+   eval "require GD";
+   if (-e "skip_gd" || $@) {
+      my $skip = $@ ? "You don't have GD installed." : "You didn't select GD.";
       plan tests => 1;
-      skip("You didn't select GD. Skipping...", sub{0});
+      skip($skip . " Skipping...", sub{0});
       exit;
    } else {
       plan tests => 6;
+      import GD::SecurityImage;
    }
 }
-
-use GD::SecurityImage;
-use Cwd;
 
 my %same = (
    width      => 80,

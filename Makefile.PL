@@ -1,6 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
+$| = 1;
 
 BEGIN {
    # unlink skip* files
@@ -8,7 +9,7 @@ BEGIN {
    unlink 'skip_gd'     if -e 'skip_gd';
 }
 
-my %prereq;
+my %p = ('GD' => 0, 'Image::Magick' => 0);
 
 my $makec = $^O eq 'MSWin32' ? 'nmake' : 'make';
 
@@ -34,16 +35,15 @@ my $input  = prompt($ask, "1");
 
 print "Your selection is [$input]\n";
 
-%prereq = ('GD' => 0                      ) if $input == 1;
-%prereq = ('Image::Magick' => 0           ) if $input == 2;
-%prereq = ('Image::Magick' => 0, 'GD' => 0) if $input == 3;
+delete $p{'GD'}            if $input == 2;
+delete $p{'Image::Magick'} if $input == 1;
 
 skip_t($input);
 
 WriteMakefile(
     'NAME'         => 'GD::SecurityImage',
     'VERSION_FROM' => 'lib/GD/SecurityImage.pm',
-    'PREREQ_PM'    => \%prereq,
+    'PREREQ_PM'    => \%p,
     ($] >= 5.005 ? (
     'AUTHOR'       => 'Burak Gursoy <burak@cpan.org>',
     'ABSTRACT'     => 'Create a security image with a random string on it',
