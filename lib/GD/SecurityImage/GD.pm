@@ -3,14 +3,14 @@ package GD::SecurityImage::GD;
 use strict;
 use vars qw[$VERSION];
 
-use constant GD_LOW_LEFT_X  => 0;
-use constant GD_LOW_LEFT_Y  => 1;
-use constant GD_LOW_RIGHT_X => 2;
-use constant GD_UP_LEFT_Y   => 7;
+use constant LOW_LEFT_X  => 0;
+use constant LOW_LEFT_Y  => 1;
+use constant LOW_RIGHT_X => 2;
+use constant UP_LEFT_Y   => 7;
 
 use GD;
 
-$VERSION = "1.1";
+$VERSION = "1.11";
 
 sub init {
    # Create the image object
@@ -19,8 +19,8 @@ sub init {
       $self->{image}->colorAllocate(@{ $self->{bgcolor} }); # set background color
 }
 
-# return $image_data, $image_mime_type, $random_number
 sub out {
+   # return $image_data, $image_mime_type, $random_number
    my $self = shift;
    my %opt  = scalar @_ % 2 ? () : (@_);
    my $type;
@@ -33,6 +33,8 @@ sub out {
 }
 
 sub gdfx {
+   # Sets the font for simple GD usage. 
+   # Unfortunately, Image::Magick does not have a similar interface.
    my $self = shift;
    my $font = shift || return;
       $font = lc $font;
@@ -58,8 +60,8 @@ sub insert_text {
                 # I think that libgd also has some problems 
                 # with paths that have spaces in it.
                 ;
-      my $x = ($self->{width}  - ($box[GD_LOW_RIGHT_X] - $box[GD_LOW_LEFT_X])) / 2;
-      my $y = ($self->{height} - ($box[GD_UP_LEFT_Y]   - $box[GD_LOW_LEFT_Y])) / 2;
+      my $x = ($self->{width}  - ($box[LOW_RIGHT_X] - $box[LOW_LEFT_X])) / 2;
+      my $y = ($self->{height} - ($box[UP_LEFT_Y]   - $box[LOW_LEFT_Y])) / 2;
       $self->{image}->$methTTF($self->{_COLOR_}{text}, $self->{font}, $self->{ptsize}, 0, $x, $y, $key);
    } else {
       my $sw = $self->{gd_font}->width * length($key);

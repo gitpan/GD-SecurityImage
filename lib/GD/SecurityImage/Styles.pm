@@ -2,14 +2,12 @@ package GD::SecurityImage::Styles;
 use strict;
 use vars qw[$VERSION];
 
-$VERSION = "1.0";
+$VERSION = "1.1";
 
 sub style_default {
    my $self  = shift;
    my $fx    = $self->{width}  / $self->{lines};
    my $fy    = $self->{height} / $self->{lines};
-
-   $self->rectangle(0,0,$self->{width}-1,$self->{height}-1, $self->{_COLOR_}{lines}); # put a frame around the image
 
    for my $i (0..$self->{lines}) {
       $self->line($i * $fx, 0,  $i * $fx     , $self->{height}, $self->{_COLOR_}{lines}); # | line
@@ -25,8 +23,6 @@ sub style_rect {
    my $self = shift;
    my $fx   = $self->{width}  / $self->{lines};
    my $fy   = $self->{height} / $self->{lines};
-
-   $self->rectangle(0,0,$self->{width}-1,$self->{height}-1, $self->{_COLOR_}{lines}); # put a frame around the image
 
    for my $i (0..$self->{lines}) {
       $self->line($i * $fx, 0,  $i * $fx     , $self->{height}, $self->{_COLOR_}{lines}); # | line

@@ -2,6 +2,16 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.31 Sun Jun 27 00:08:49 2004
+	=> Updated Pod.
+	=> send_ctobg is disabled automatically if style is 
+	   set to 'box'.
+	=> All styles can put a frame around the image now.
+	   And this feature is enabled by default.
+	=> New option 'frame' added to new().
+	=> Renamed constants in GD::SecurityImage::GD.
+	=> Changed tests.
+
 1.3 Mon Jun 21 19:11:13 2004
 	=> New method particle().
 	=> Private method r2h().

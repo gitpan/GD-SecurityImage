@@ -4,7 +4,7 @@ use vars qw[@ISA $VERSION];
 use GD::SecurityImage::Styles;
 
 @ISA     = qw(GD::SecurityImage::Styles);
-$VERSION = "1.3";
+$VERSION = "1.31";
 
 sub import {
    # load the drawing interface
@@ -25,9 +25,10 @@ sub new {
    my $self  = {
       IS_MAGICK       => defined($Image::Magick::VERSION) ? 1 : 0,
       MAGICK          => {}, # Image::Magick configuration options
-      _RANDOM_NUMBER_ => '',
+      _RANDOM_NUMBER_ => '', # random security code
       _RNDMAX_        => 6,  # maximum number of characters in a random string.
       _COLOR_         => {}, # text and line colors
+      _CREATECALLED_  => 0,  # create() called? (check for particle())
    };
    bless $self, $class;
    my %options = (
@@ -41,8 +42,9 @@ sub new {
                gd_font    => $self->gdf($opt{gd_font}) || '',
                bgcolor    => $opt{bgcolor}             || [255, 255, 255],
                send_ctobg => $opt{send_ctobg}          || 0,
+               frame      => defined($opt{frame}) ? $opt{frame} : 1,
    );
-   $self->{$_}    = $options{$_} foreach keys %options;
+   $self->{$_} = $options{$_} foreach keys %options;
    $self->init;
    return $self;
 }
@@ -83,6 +85,8 @@ sub create {
         lines => $self->{IS_MAGICK} ? $col2 : $self->{image}->colorAllocate(@{$col2}),
    );
 
+   $self->{send_ctobg} = 0 if $style eq 'box'; # disable for that style
+
    $self->{_COLOR_} = \%color; # always use this?
    $self->{gd_font} = GD::Font->Giant if $method eq 'normal' and not $self->{gd_font};
 
@@ -90,12 +94,16 @@ sub create {
    $self->$style(%color) unless $self->{send_ctobg};
    $self->insert_text($method);
    $self->$style(%color) if     $self->{send_ctobg};
+   $self->rectangle(0,0,$self->{width}-1,$self->{height}-1, $self->{_COLOR_}{lines})
+      if $self->{frame}; # put a frame around the image
+   $self->{_CREATECALLED_}++;
    return $self if defined wantarray;
 }
 
 sub particle {
    # Create random dots. They'll cover all over the surface
    my $self = shift;
+   die "particle() must be called 'after' create()!" unless $self->{_CREATECALLED_};
    my $big  = $self->{height} > $self->{width} ? $self->{height} : $self->{width};
    my $f    = shift || $big * 20; # particle density
    my $dots = shift || 1; # number of multiple dots
@@ -206,10 +214,6 @@ you'll C<die()>.
 The module does not I<export> anything actually. But C<import> loads the 
 necessary sub modules.
 
-B<NOTE:> The internal random code generator is used B<only> for 
-demonstration purposes for this module. It may not be I<effective>.
-You must supply your own random code and use this module to display it.
-
 =head1 DESCRIPTION
 
 The (so called) I<"Security Images"> are so popular. Most internet 
@@ -250,22 +254,6 @@ The alignment of lines can be vertical, horizontal or angled or
 all of them. If you increase this parameter' s value, the image will
 be more cryptic.
 
-=item rndmax
-
-The length of the random string. Default value is C<6>.
-
-Not necessary and will not be used if you pass your own random
-string.
-
-=item rnd_data
-
-Default character set used to create the random string is C<0..9>.
-But, if you want to use letters also, you can set this paramater.
-This paramater takes an array reference as the value.
-
-Not necessary and will not be used if you pass your own random
-string.
-
 =item font
 
 The absolute path to your TrueType (.ttf) font file. Be aware that 
@@ -287,23 +275,43 @@ The names are case-insensitive; you can pass lower-cased parameters.
 
 =item bgcolor
 
-The background color of the image.
+The background color of the image. Passed as an arrayref with three 
+elements (red, green, blue).
 
 =item send_ctobg
 
-If has a true value, the random security code will be showed on the 
+If has a true value, the random security code will be displayed in the 
 background and the lines will pass over it. 
 (send_ctobg = send code to background)
 
-Do not use with the C<box> style.
+=item frame
+
+If has a true value, a frame will be added around the image. This
+option is enabled by default.
+
+=item rndmax
+
+The length of the random string. Default value is C<6>.
+
+Not necessary and will not be used if you pass your own random
+string.
+
+=item rnd_data
+
+Default character set used to create the random string is C<0..9>.
+But, if you want to use letters also, you can set this paramater.
+This paramater takes an array reference as the value.
+
+Not necessary and will not be used if you pass your own random
+string.
 
 =back
 
 =head2 random
 
-Creates the random security string or sets the random string to 
+Creates the random security string or B<sets the random string> to 
 the value you have passed. If you pass your own random string, be aware 
-that it must be at least six (defined by a class variable) characters 
+that it must be at least six (defined by an object table) characters 
 long.
 
 =head2 random_str
@@ -317,21 +325,21 @@ none are mandatory.
 
    $image->create($method, $style, $text_color, $line_color);
 
-C<$method> can be C<normal> or C<ttf>.
+C<$method> can be B<C<normal>> or B<C<ttf>>.
 
 C<$style> can be one of the following:
 
 =over 4
 
-=item default
+=item B<default>
 
 The default style. Draws horizontal, vertical and angular lines.
 
-=item rect
+=item B<rect>
 
 Draws horizontal and vertical lines
 
-=item box
+=item B<box>
 
 Draws two filled rectangles.
 
@@ -339,44 +347,46 @@ The C<lines> option passed to L<new|/new>, controls the size of the inner rectan
 for this style. If you increase the C<lines>, you'll get a smaller internal 
 rectangle. Using smaller values like C<5> can be better.
 
-=item circle
+=item B<circle>
 
 Draws circles.
 
-=item ellipse
+=item B<ellipse>
 
 Draws ellipses.
 
-=item ec
+=item B<ec>
 
 This is the combination of ellipse and circle styles. Draws both ellipses
 and circles.
 
 =back
 
-The last two arguments are the colors used in the image 
-(text and line color -- respectively) and they are passed 
-as a 3-element (red, green and blue) arrayref.
+The last two arguments (C<$text_color> and C<$line_color>) are the 
+colors used in the image (text and line color -- respectively) and 
+they are passed as a 3-element (red, green and blue) arrayref.
 
    $image->create($method, $style, [0,0,0], [200,200,200]);
 
 =head2 particle
 
-Must be called after C<create>.
+Must be called after L<create|/create>.
 
-Adds random dots to the image. They'll cover all the surface. Accepts
-two parameters; the density (number) of the particles.
+Adds random dots to the image. They'll cover all over the surface. 
+Accepts two parameters; the density (number) of the particles and 
+the maximum number of dots around the main dot.
 
    $image->particle($density, $maxdots);
 
-Default value of C<$density> is dependent on your image' s width or height. 
-The greater value of width and height is taken and multiplied by 
-twenty. So; if your width is C<200> and height is C<70>, $density is 
-C<200 * 20 = 4000> (unless you pass your own value).
+Default value of C<$density> is dependent on your image' s width or 
+height value. The greater value of width and height is taken and 
+multiplied by twenty. So; if your width is C<200> and height is C<70>, 
+C<$density> is C<200 * 20 = 4000> (unless you pass your own value).
+The default value of C<$density> can be too much for smaller images.
 
-C<$maxdots> defines the maximum number of dots near a pixel. Default
-value is C<1>. If you set it to C<4>, The selected pixel and 3 other 
-pixels near it will be used and colored.
+C<$maxdots> defines the maximum number of dots near the default dot. 
+Default value is C<1>. If you set it to C<4>, The selected pixel and 3 
+other pixels near it will be used and colored.
 
 The color of the particles are the same as the color of your text 
 (defined in L<create|/create>).
@@ -390,7 +400,7 @@ C<gif> types, while new versions support C<jpeg> and C<png>.
 The returned mime type is either C<gif> or C<jpeg> for C<GD> and 
 C<gif> for C<Image::Magick>.
 
-C<out> accepts arguments:
+C<out> method accepts arguments:
 
    @data = $image->out(%args);
 
@@ -404,11 +414,14 @@ C<out()> method will use it's default configuration.
 
 Currently, you can not define compression values for the formats that 
 support it (eg: jpeg, png), but you can use L<raw|/raw> method instead 
-of C<out> (for a direct communication with the graphic library).
+of C<out> (for a direct communication with the graphic library -- but 
+probably you do not want to do that, future versions may implement 
+this feature).
 
 =head2 raw
 
-Returns the raw C<GD::Image> object:
+Depending on your usage of the module; returns the raw C<GD::Image> 
+object:
 
    my $i = $image->raw;
    print $i->png;
@@ -421,136 +434,29 @@ or the raw C<Image::Magick> object:
 Can be usefull, if you want to modify the graphic yourself, or want to
 use another output format like C<png>.
 
-=head1 CAVEAT EMPTOR
-
-Using the default library C<GD> is a better choice. Since it is faster 
-and does not eat that much memory, while C<Image::Magick> is slower and 
-eats more memory.
-
-=head1 SEE ALSO
-
-L<GD>, L<ImagePwd>.
-
 =head1 EXAMPLES
 
-=head2 TTF example
-
-   #!/usr/bin/perl -w
-   use strict;
-   use CGI;
-   use GD::SecurityImage;
-
-   my $cgi = CGI->new;
-
-   my $ttf = "/absolute/path/to/your.ttf";
-
-   my $image = GD::SecurityImage->new(
-                  width    => 90,
-                  height   => 35,
-                  ptsize   => 15,
-                  lines    => 10,
-                  rndmax   => 6,
-                  rnd_data => [0..9, 'A'..'Z'],
-                  font     => $ttf,
-                  bgcolor  => [115, 255, 255],
-   );
-
-   $image->random;
-   $image->create(ttf => 'rect', [10,10,10], [210,210,50]);
-
-   my($image_data, $mime_type, $random_string) = $image->out;
-
-   print $cgi->header(-type => "image/$mime_type");
-   print $image_data;
-
-=head2 Normal example
-
-   #!/usr/bin/perl -w
-   use strict;
-   use CGI;
-   use GD::SecurityImage;
-
-   my $cgi = CGI->new;
-
-   my $image = GD::SecurityImage->new(
-                  width    => 90,
-                  height   => 35,
-                  ptsize   => 15,
-                  lines    => 10,
-                  gd_font  => 'giant',
-                  bgcolor  => [115, 255, 255],
-   );
-
-   $image->random('12GH88');
-   $image->create(normal => 'rect', [10,10,10], [210,210,50]);
-
-   my($image_data, $mime_type, $random_string) = $image->out;
-
-   print $cgi->header(-type => "image/$mime_type");
-   print $image_data;
-
-=head2 Image::Magick example
-
-   #!/usr/bin/perl -w
-   use strict;
-   use CGI;
-   use GD::SecurityImage use_magick => 1;
-
-   my $cgi = CGI->new;
-
-   my $ttf = "/absolute/path/to/your.ttf";
-
-   my $image = GD::SecurityImage->new(
-                  width    => 90,
-                  height   => 35,
-                  ptsize   => 15,
-                  lines    => 10,
-                  font     => $ttf,
-                  bgcolor  => [115, 255, 255],
-   );
-
-   $image->random('BLAH');
-   $image->create(ttf => 'ec', [10,10,10], [210,210,50]);
-
-   my($image_data, $mime_type, $random_string) = $image->out;
-
-   print $cgi->header(-type => "image/$mime_type");
-   print $image_data;
-
-=head2 require example
-
-   #!/usr/bin/perl -w
-   use strict;
-   use CGI;
-   require GD::SecurityImage;
-   import  GD::SecurityImage use_magick => 1;
-
-   my $cgi = CGI->new;
-
-   my $ttf = "/absolute/path/to/your.ttf";
-
-   my $image = GD::SecurityImage->new(
-                  width    => 90,
-                  height   => 35,
-                  ptsize   => 15,
-                  lines    => 10,
-                  font     => $ttf,
-                  bgcolor  => [115, 255, 255],
-   );
-
-   $image->random('FOOBAR');
-   $image->create(ttf => 'ec', [10,10,10], [210,210,50]);
-
-   my($image_data, $mime_type, $random_string) = $image->out;
-
-   print $cgi->header(-type => "image/$mime_type");
-   print $image_data;
+See the tests in the distribution.
 
 =head1 ERROR HANDLING
 
 Currently, the module does not check the return values of C<GD>'s and
 C<Image::Magick>' s methods. So, if an error occurs, you may just get 
 an empty image instead of die()ing.
+
+=head1 SEE ALSO
+
+L<GD>, L<Image::Magick>, L<ImagePwd>.
+
+=head1 CAVEAT EMPTOR
+
+Using the default library C<GD> is a better choice. Since it is faster 
+and does not use that much memory, while C<Image::Magick> is slower and 
+uses more memory.
+
+The internal random code generator is used B<only> for demonstration 
+purposes for this module. It may not be I<effective>. You must supply 
+your own random code and use this module to display it.
 
 =head1 BUGS
 

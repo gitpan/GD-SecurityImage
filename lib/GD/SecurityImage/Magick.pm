@@ -2,12 +2,12 @@ package GD::SecurityImage::Magick;
 # GD method emulation class for Image::Magick
 use strict;
 use vars qw[$VERSION];
-use constant IM_WIDTH       => 4;
-use constant IM_ASCENDER    => 2;
+use constant IM_WIDTH    => 4;
+use constant IM_ASCENDER => 2;
 
 use Image::Magick;
 
-$VERSION = "1.1";
+$VERSION = "1.11";
 
 sub rgbx {
    # Convert color data to hex for Image::Magick
@@ -32,8 +32,8 @@ sub out {
    my %opt  = scalar @_ % 2 ? () : (@_);
    my $type = 'gif'; # default format
    if ($opt{force}) {
-      my %g = map {$_, $_} $self->{image}->QueryFormat;
-      $type = $g{$opt{force}} if exists $g{$opt{force}};
+      my %g = map {$_, 1} $self->{image}->QueryFormat;
+      $type = $opt{force} if exists $g{$opt{force}};
    }
    $self->{image}->Set(magick => $type);
    return $self->{image}->ImageToBlob, $type, $self->{_RANDOM_NUMBER_};
