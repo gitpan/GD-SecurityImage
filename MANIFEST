@@ -4,6 +4,7 @@ lib/GD/SecurityImage/Magick.pm
 lib/GD/SecurityImage/Styles.pm
 t/gd.t
 t/magick.t
+t/backend.t
 t/t.api
 eg/demo.pl
 Changes

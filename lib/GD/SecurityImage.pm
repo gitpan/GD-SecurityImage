@@ -1,29 +1,40 @@
 package GD::SecurityImage;
 use strict;
-use vars qw[@ISA $VERSION];
+use vars qw[@ISA $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 
-$VERSION = '1.52';
+$VERSION = '1.53';
 
 sub import {
+   my $class   = shift;
+   my %opt     = scalar(@_) % 2 ? () : (@_);
+   # init/reset globals
+   $BACKEND = ''; # name of the back-end
+   @ISA     = ();
    # load the drawing interface
-   my $class = shift;
-   my %opt   = scalar(@_) % 2 ? () : (@_);
-   if (exists $opt{use_magick} and $opt{use_magick}) {
+   if (exists $opt{use_magick} && $opt{use_magick}) {
       require GD::SecurityImage::Magick;
-      push @ISA, qw(GD::SecurityImage::Magick);
+      $BACKEND = 'Magick';
+   } elsif (exists $opt{backend} && $opt{backend}) {
+      my $be = 'GD::SecurityImage::'.$opt{backend};
+      eval "require $be";
+      die "Unable to locate the $class back-end $be: $@" if $@;
+      $BACKEND = $opt{backend};
    } else {
       require GD::SecurityImage::GD;
-      push @ISA, qw(GD::SecurityImage::GD);
+      $BACKEND = 'GD';
    }
-   push @ISA, qw(GD::SecurityImage::Styles);
+   push @ISA, 'GD::SecurityImage::' . $BACKEND;
+   push @ISA, qw(GD::SecurityImage::Styles); # load styles
 }
 
 sub new {
    my $class = shift;
+      $BACKEND || die "You didn't import $class!";
    my %opt   = scalar @_ % 2 ? () : (@_);
    my $self  = {
-      IS_MAGICK       => defined($Image::Magick::VERSION) ? 1 : 0,
+      IS_MAGICK       => $BACKEND eq 'Magick',
+      IS_GD           => $BACKEND eq 'GD',
       MAGICK          => {}, # Image::Magick configuration options
       GDBOX_EMPTY     => 0,  # GD::SecurityImage::GD::insert_text() failed?
       _RANDOM_NUMBER_ => '', # random security code
