@@ -2,6 +2,18 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.32 Wed Jul 28 15:49:12 2004
+	=> Minimal fix in create().
+	=> There is a bug in PerlMagicks older than 6.0.4.
+	   From <http://www.imagemagick.org/www/Changelog.html>:
+	   "PerlMagick's QueryFontMetrics() incorrectly reports 
+	   `unrecognized attribute'` for the `font' attribute".
+	   Image::Magick test is now skipped if your 
+	   $Image::Magick::VERSION is smaller than 6.0.4.
+	   Please upgrade to 6.0.4, if you want to use Image::Magick
+	   as the backend.
+	=> Added this bug to Pod.
+
 1.31 Sun Jun 27 00:08:49 2004
 	=> Updated Pod.
 	=> send_ctobg is disabled automatically if style is 

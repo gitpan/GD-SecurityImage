@@ -4,7 +4,7 @@ use vars qw[@ISA $VERSION];
 use GD::SecurityImage::Styles;
 
 @ISA     = qw(GD::SecurityImage::Styles);
-$VERSION = "1.31";
+$VERSION = "1.32";
 
 sub import {
    # load the drawing interface
@@ -87,13 +87,13 @@ sub create {
 
    $self->{send_ctobg} = 0 if $style eq 'box'; # disable for that style
 
-   $self->{_COLOR_} = \%color; # always use this?
+   $self->{_COLOR_} = \%color; # set the color hash
    $self->{gd_font} = GD::Font->Giant if $method eq 'normal' and not $self->{gd_font};
 
    $style = $self->can('style_'.$style) ? 'style_'.$style : 'style_default';
-   $self->$style(%color) unless $self->{send_ctobg};
+   $self->$style() unless $self->{send_ctobg};
    $self->insert_text($method);
-   $self->$style(%color) if     $self->{send_ctobg};
+   $self->$style() if     $self->{send_ctobg};
    $self->rectangle(0,0,$self->{width}-1,$self->{height}-1, $self->{_COLOR_}{lines})
       if $self->{frame}; # put a frame around the image
    $self->{_CREATECALLED_}++;
@@ -460,7 +460,24 @@ your own random code and use this module to display it.
 
 =head1 BUGS
 
-Contact the author if you find any. You can also send requests.
+=over 4
+
+=item Image::Magick bug
+
+There is a bug in PerlMagick' s C<QueryFontMetrics()> method. ImageMagick
+versions smaller than 6.0.4 is affected. Below text is from the ImageMagick 
+6.0.4 Changelog: L<http://www.imagemagick.org/www/Changelog.html>.
+
+"2004-05-06 PerlMagick's C<QueryFontMetrics()> incorrectly reports `unrecognized 
+attribute'` for the `font' attribute."
+
+Please upgrade to ImageMagick 6.0.4 or any newer version, if your ImageMagick 
+version is smaller than 6.0.4 and you want to use Image::Magick as the backend
+for GD::SecurityImage.
+
+=back
+
+Contact the author if you find any bugs. You can also send requests.
 
 =head1 AUTHOR
 

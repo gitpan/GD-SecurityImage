@@ -3,10 +3,16 @@ use strict;
 use subs qw[save];
 
 use Test;
+use Image::Magick;
+
 BEGIN { 
    if (-e "skip_magick") {
       plan tests => 1;
       skip("You didn't select Image::Magick. Skipping...", sub{0});
+      exit;
+   } elsif ($Image::Magick::VERSION lt '6.0.4') {
+      plan tests => 1;
+      skip("There is a bug in your PerlMagick version's ($Image::Magick::VERSION) QueryFontMetrics() method. Please upgrade to 6.0.4. Skipping...", sub{0});
       exit;
    } else {
       plan tests => 6;
