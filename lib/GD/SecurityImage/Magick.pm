@@ -7,7 +7,9 @@ use constant IM_ASCENDER => 2;
 
 use Image::Magick;
 
-$VERSION = "1.11";
+$VERSION = "1.12";
+
+sub gdbox_empty {0} # fake method for GD compatibility.
 
 sub rgbx {
    # Convert color data to hex for Image::Magick
@@ -130,7 +132,7 @@ __END__
 
 =head1 NAME
 
-GD::SecurityImage::Magick - Create a security image with a random string on it.
+GD::SecurityImage::Magick -  Image::Magick backend for GD::SecurityImage.
 
 =head1 SYNOPSIS
 

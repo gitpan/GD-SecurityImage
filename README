@@ -1,5 +1,5 @@
 GD::SecurityImage
-===========
+=================
 
 The (so called) "Security Images" are so popular. Most internet 
 software use these in their registration screens to block robot programs
@@ -34,7 +34,7 @@ Which is available on CPAN.
 
 The sample TTF Font "StayPuft.ttf" is taken from John Stracke' s site
 at <http://www.thibault.org/fonts/staypuft/> and only used by the 
-"03_ttf.t" test in the tests directory. 
+tests. 
 
 "StayPuft.ttf" is Copyright (c) 2003 by John Stracke 
 

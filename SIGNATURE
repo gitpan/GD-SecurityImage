@@ -1,0 +1,36 @@
+This file contains message digests of all files listed in MANIFEST,
+signed via the Module::Signature module, version 0.41.
+
+To verify the content in this distribution, first make sure you have
+Module::Signature installed, then type:
+
+    % cpansign -v
+
+It would check each file's integrity, as well as the signature's
+validity.  If "==> Signature verified OK! <==" is not displayed,
+the distribution may already have been compromised, and you should
+not run its Makefile.PL or Build.PL.
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+SHA1 7fcb525d82660d885d725cb7c7f5d01391901d7b Changes
+SHA1 3522ef634f3055bd7b6cf271d7933b7442ac270f MANIFEST
+SHA1 153f4794b16e2b8791fd3815025c762c00cc229f META.yml
+SHA1 d1ad3e25898defd653a9171742f9e0cf25238937 Makefile.PL
+SHA1 4580175eade2a4f0a5069073632d9fa2369293c5 README
+SHA1 98a627763da059ca1e1d6540d4135e6d92b995e5 StayPuft.ttf
+SHA1 260008e96d3116d2d75ba1a8aca74b0544ccaf47 lib/GD/SecurityImage.pm
+SHA1 5ed33e120495a45b81033efa388378ca387105d7 lib/GD/SecurityImage/GD.pm
+SHA1 9947f95a96c5c39e79fce2efd0ab81cb261e94f6 lib/GD/SecurityImage/Magick.pm
+SHA1 7f505076c278de31c770b39c13d63dee650473c5 lib/GD/SecurityImage/Styles.pm
+SHA1 073c28e6332fb76cb1d007516ddca9cbf5c8707f t/01_gd.t
+SHA1 86504950d7983bcd6f67b012cfdbad6417dfbb1f t/02_gd_ttf.t
+SHA1 8b94c73299ac4df7531d7523c432272e1a7c0587 t/03_magick.t
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (MingW32)
+
+iD8DBQFBMLahWQFP8hSD6kQRAkacAKCv2z8jypvGsVCHHe0uup2M5bvrIACgzgNJ
++MkWoEifFA/68/O+9pXTkuc=
+=Yeep
+-----END PGP SIGNATURE-----

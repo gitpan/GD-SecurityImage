@@ -2,6 +2,30 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.33 Sun Aug 22 16:50:42 2004
+	=> Because of libgd's path bug, in some cases,
+	   GD::SecurityImage::GD::insert_text() can not get the 
+	   boundary list. I've added a workaround there. If we don't 
+	   get the list, then we'll use width/2 and height/2 which 
+	   will generate wrong values (since the image will not
+	   include any string and because the underlying library can not 
+	   find the ttf font, that's not the problem), but I can not do 
+	   anything about it.
+	   GD wants an *exact* path with no spaces in it for TTF Fonts.
+	   Just don't put your codes/fonts in paths that have spaces in it.
+	   And don't try to "make test" from a location like this.
+	   You can blame windowz and/or libgd for this.
+	   Also, if Cwd::getcwd() can not get the exact path, we will have
+	   the same problem, but after this version, you'll probably not 
+	   get "Use of uninitialized value" warnings.
+	=> New method gdbox_empty() added to GD::SecurityImage::GD.
+	   Also added a fake gdbox_empty() method to 
+	   GD::SecurityImage::Magick for compatibility.
+	   Under GD::SecurityImage::Magick, this method always returns 
+	   false.
+	=> Minor fix in create().
+	=> Updated Pods. Sub modules have definiton of what they are now.
+
 1.321 Wed Jul 28 21:52:04 2004
 	=> Updated tests. Code didn't change.
 

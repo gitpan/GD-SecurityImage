@@ -2,7 +2,7 @@ package GD::SecurityImage::Styles;
 use strict;
 use vars qw[$VERSION];
 
-$VERSION = "1.1";
+$VERSION = "1.11";
 
 sub style_default {
    my $self  = shift;
@@ -76,7 +76,7 @@ __END__
 
 =head1 NAME
 
-GD::SecurityImage::Styles - Create a security image with a random string on it.
+GD::SecurityImage::Styles - Drawing styles for GD::SecurityImage.
 
 =head1 SYNOPSIS
 

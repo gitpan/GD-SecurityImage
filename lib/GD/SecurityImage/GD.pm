@@ -10,7 +10,7 @@ use constant UP_LEFT_Y   => 7;
 
 use GD;
 
-$VERSION = "1.11";
+$VERSION = "1.2";
 
 sub init {
    # Create the image object
@@ -27,10 +27,12 @@ sub out {
    if($opt{force} and $self->{image}->can($opt{force})){
       $type = $opt{force};
    } else {
-      $type = $self->{image}->can('gif') ? 'gif' : 'jpeg'; # check for older GDs
+      $type = $self->{image}->can('gif') ? 'gif' : 'jpeg'; # check for older GDs and newer GDs as the new versions include gif() again!
    }
    return $self->{image}->$type(), $type, $self->{_RANDOM_NUMBER_};
 }
+
+sub gdbox_empty {shift->{GDBOX_EMPTY}}
 
 sub gdfx {
    # Sets the font for simple GD usage. 
@@ -60,6 +62,16 @@ sub insert_text {
                 # I think that libgd also has some problems 
                 # with paths that have spaces in it.
                 ;
+      # use fake values instead of die-ing :p I hate die-ing :p
+      # I'm beginning to hate tests :p
+      # I'm beginning to hate windows :p
+      # I'm beginning to hate GD :p
+      unless (@box) {
+         $self->{GDBOX_EMPTY} = 1; # set this for error checking.
+         $#box    = 7;
+         # lets initialize to silence the warnings
+         $box[$_] = 1 foreach(LOW_RIGHT_X, LOW_LEFT_X, UP_LEFT_Y, LOW_LEFT_Y);
+      }
       my $x = ($self->{width}  - ($box[LOW_RIGHT_X] - $box[LOW_LEFT_X])) / 2;
       my $y = ($self->{height} - ($box[UP_LEFT_Y]   - $box[LOW_LEFT_Y])) / 2;
       $self->{image}->$methTTF($self->{_COLOR_}{text}, $self->{font}, $self->{ptsize}, 0, $x, $y, $key);
@@ -85,7 +97,7 @@ __END__
 
 =head1 NAME
 
-GD::SecurityImage::GD - Create a security image with a random string on it.
+GD::SecurityImage::GD - GD backend for GD::SecurityImage.
 
 =head1 SYNOPSIS
 

@@ -4,7 +4,7 @@ use vars qw[@ISA $VERSION];
 use GD::SecurityImage::Styles;
 
 @ISA     = qw(GD::SecurityImage::Styles);
-$VERSION = "1.321";
+$VERSION = "1.33";
 
 sub import {
    # load the drawing interface
@@ -25,6 +25,7 @@ sub new {
    my $self  = {
       IS_MAGICK       => defined($Image::Magick::VERSION) ? 1 : 0,
       MAGICK          => {}, # Image::Magick configuration options
+      GDBOX_EMPTY     => 0,  # GD::SecurityImage::GD::insert_text() failed?
       _RANDOM_NUMBER_ => '', # random security code
       _RNDMAX_        => 6,  # maximum number of characters in a random string.
       _COLOR_         => {}, # text and line colors
@@ -88,7 +89,9 @@ sub create {
    $self->{send_ctobg} = 0 if $style eq 'box'; # disable for that style
 
    $self->{_COLOR_} = \%color; # set the color hash
-   $self->{gd_font} = GD::Font->Giant if $method eq 'normal' and not $self->{gd_font};
+   if($method eq 'normal' and not $self->{gd_font}) {
+      $self->{gd_font} = $self->gdf('giant');
+   }
 
    $style = $self->can('style_'.$style) ? 'style_'.$style : 'style_default';
    $self->$style() unless $self->{send_ctobg};
@@ -245,7 +248,7 @@ The height of the image (in pixels).
 =item ptsize
 
 Numerical value. The point size of the ttf character. 
-Not necessarry unless you want to use ttf fonts in the image.
+Only necessarry if you want to use a ttf font in the image.
 
 =item lines
 
@@ -293,8 +296,8 @@ option is enabled by default.
 
 The length of the random string. Default value is C<6>.
 
-Not necessary and will not be used if you pass your own random
-string.
+B<Not necessary and will not be used if you pass your own random>
+B<string.>
 
 =item rnd_data
 
@@ -302,8 +305,8 @@ Default character set used to create the random string is C<0..9>.
 But, if you want to use letters also, you can set this paramater.
 This paramater takes an array reference as the value.
 
-Not necessary and will not be used if you pass your own random
-string.
+B<Not necessary and will not be used if you pass your own random>
+B<string.>
 
 =back
 
@@ -327,7 +330,8 @@ none are mandatory.
 
 C<$method> can be B<C<normal>> or B<C<ttf>>.
 
-C<$style> can be one of the following:
+C<$style> can be one of the following (some of the styles may not work 
+if you are using a really old version of GD):
 
 =over 4
 
@@ -362,6 +366,9 @@ and circles.
 
 =back
 
+Note: if you have a (very) old version of GD, you may not be able 
+to use some of the styles.
+
 The last two arguments (C<$text_color> and C<$line_color>) are the 
 colors used in the image (text and line color -- respectively) and 
 they are passed as a 3-element (red, green and blue) arrayref.
@@ -395,10 +402,11 @@ The color of the particles are the same as the color of your text
 
 This method finally returns the created image, the mime type of the 
 image and the random number generated. Older versions of GD only supports
-C<gif> types, while new versions support C<jpeg> and C<png>.
+C<gif> type, while new versions support C<jpeg> and C<png> 
+(B<update>: beginning with v2.15, GD resumed gif support).
 
 The returned mime type is either C<gif> or C<jpeg> for C<GD> and 
-C<gif> for C<Image::Magick>.
+C<gif> for C<Image::Magick> (if you do not C<force> some other format).
 
 C<out> method accepts arguments:
 
@@ -446,17 +454,30 @@ an empty image instead of die()ing.
 
 =head1 SEE ALSO
 
-L<GD>, L<Image::Magick>, L<ImagePwd>.
+L<GD>, L<Image::Magick>, L<ImagePwd>, L<Authen::Captcha>, 
+
+C<ImageCode> Perl Module (commercial): 
+L<http://www.progland.com/ImageCode.html>.
+
+The CAPTCHA project: L<http://www.captcha.net/>.
 
 =head1 CAVEAT EMPTOR
+
+=over 4
+
+=item *
 
 Using the default library C<GD> is a better choice. Since it is faster 
 and does not use that much memory, while C<Image::Magick> is slower and 
 uses more memory.
 
+=item *
+
 The internal random code generator is used B<only> for demonstration 
 purposes for this module. It may not be I<effective>. You must supply 
 your own random code and use this module to display it.
+
+=back
 
 =head1 BUGS
 
@@ -474,6 +495,20 @@ attribute'` for the `font' attribute."
 Please upgrade to ImageMagick 6.0.4 or any newer version, if your ImageMagick 
 version is smaller than 6.0.4 and you want to use Image::Magick as the backend
 for GD::SecurityImage.
+
+=item GD bug
+
+libgd and GD.pm does not like relative paths and paths that have spaces
+in it. If you pass a font path that is not an B<exact path> or a path that
+have a space in it, you may get an empty image. 
+
+To check if the module failed to find the ttf font (when using C<GD>), a new 
+method added: C<gdbox_empty()>. It must be called after C<create()>:
+
+   $image->create;
+   die "Error loading ttf font for GD!" if $image->gdbox_empty;
+
+C<gdbox_empty()> always returns false, if you are using C<Image::Magick>.
 
 =back
 
