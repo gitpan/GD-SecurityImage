@@ -5,6 +5,7 @@ lib/GD/SecurityImage/Styles.pm
 t/gd.t
 t/magick.t
 t/t.api
+eg/demo.pl
 Changes
 Makefile.PL
 MANIFEST

@@ -4,7 +4,7 @@ use vars qw[@ISA $VERSION];
 use GD::SecurityImage::Styles;
 
 @ISA     = qw(GD::SecurityImage::Styles);
-$VERSION = '1.4_03';
+$VERSION = '1.5';
 
 sub import {
    # load the drawing interface
@@ -49,6 +49,9 @@ sub new {
                thickness  => $opt{thickness}           || 0,
                _ANGLES_   => [], # angle list for scrambled images
    );
+
+   $self->{_RNDMAX_} = $options{rndmax}; 
+
    $self->{$_} = $options{$_} foreach keys %options;
    if($self->{angle}) { # validate angle
       $self->{angle} = 360 + $self->{angle} if $self->{angle} < 0;
@@ -530,7 +533,11 @@ use another output format like C<png>.
 
 =head1 EXAMPLES
 
-See the tests in the distribution.
+See the tests in the distribution. Also see the demo program 
+"eg/demo.pl" for an C<Apache::Session> implementation of C<GD::SecurityImage>.
+
+Download the distribution from a CPAN mirror near you, if you don't have 
+the files.
 
 =head1 ERROR HANDLING
 
@@ -563,6 +570,17 @@ The internal random code generator is used B<only> for demonstration
 purposes for this module. It may not be I<effective>. You must supply 
 your own random code and use this module to display it.
 
+=item [GD] png compression
+
+Support for compression level argument to png() added in v2.07. If
+your GD version is smaller than this, compress option to C<out()>
+will be silently ignored.
+
+=item [GD] setThickness
+
+setThickness implemented in GD v2.07. If your GD version is smaller
+than that and you set thickness option, your code will probably C<die>.
+
 =back
 
 =head1 BUGS
@@ -582,7 +600,7 @@ Please upgrade to ImageMagick 6.0.4 or any newer version, if your ImageMagick
 version is smaller than 6.0.4 and you want to use Image::Magick as the backend
 for GD::SecurityImage.
 
-=item GD bugs
+=item GD bug
 
 =over 4
 
@@ -599,24 +617,6 @@ method added: C<gdbox_empty()>. It must be called after C<create()>:
    die "Error loading ttf font for GD: $@" if $image->gdbox_empty;
 
 C<gdbox_empty()> always returns false, if you are using C<Image::Magick>.
-
-B<Note>: New versions of GD does not have this bug. You can upgrade to 
-v2.16 or any newer version to fix this.
-
-=item png compression
-
-Not a bug, but older versions does not have this.
-
-Support for compression level argument to png() added in v2.07. If
-your GD version is smaller than this, compress option to C<out()>
-will be silently ignored.
-
-=item setThickness
-
-Not a bug, but older versions does not have this.
-
-setThickness implemented in GD v2.07. If your GD version is smaller
-than that and you set thickness option, your code will probably C<die>.
 
 =back
 

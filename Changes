@@ -2,8 +2,19 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.5 Sat Oct 30 17:11:53 2004
+	=> Fixed pod.
+	=> Minor fixes.
+	=> rndmax option to new, now controls the minimum random character
+	   length, when you supply your own random string.
+	=> Updated tests.
+	=> Added a demo program to "eg/demo.pl".
+	   It needs DBI, DBD::mysql (and a MySQL server), Apache::Session, 
+	   String::Random and some CORE modules to run.
+	=> GD still needs an absolute path. Fixed pod.
+
 1.4_03 Mon Oct 11 21:55:37 2004
-	=> Older GDs does not have setThickness. 
+	=> Older GDs do not have setThickness. 
 	   "setThickness" added in "GD 2.07 @ 24 Apr 2003". 
 	   Fixed thickness option in new. 
 	   Updated test api for this.

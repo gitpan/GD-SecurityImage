@@ -2,20 +2,25 @@ package GD::SecurityImage::GD;
 use strict;
 use vars qw[$VERSION $methTTF];
 
-use constant LOW_LEFT_X  => 0; # Lower left  corner x
-use constant LOW_LEFT_Y  => 1; # Lower left  corner y
-use constant LOW_RIGHT_X => 2; # Lower right corner x
-use constant LOW_RIGHT_Y => 3; # Lower right corner y
-use constant UP_RIGHT_X  => 4; # Upper right corner x
-use constant UP_RIGHT_Y  => 5; # Upper right corner y
-use constant UP_LEFT_X   => 6; # Upper left  corner x
-use constant UP_LEFT_Y   => 7; # Upper left  corner y
+use constant LOW_LEFT_X   => 0; # Lower left  corner x
+use constant LOW_LEFT_Y   => 1; # Lower left  corner y
+use constant LOW_RIGHT_X  => 2; # Lower right corner x
+use constant LOW_RIGHT_Y  => 3; # Lower right corner y
+use constant UP_RIGHT_X   => 4; # Upper right corner x
+use constant UP_RIGHT_Y   => 5; # Upper right corner y
+use constant UP_LEFT_X    => 6; # Upper left  corner x
+use constant UP_LEFT_Y    => 7; # Upper left  corner y
+
+use constant _X_          => 0; # character-X
+use constant _Y_          => 1; # character-Y
+use constant CHAR         => 2; # character
+use constant ANGLE        => 3; # character angle
 
 use constant MAX_COMPRESS => 9;
 
 use GD;
 
-$VERSION = "1.41";
+$VERSION = "1.42";
 $methTTF = $GD::VERSION >= 1.31 ? 'stringFT' : 'stringTTF'; # define the tff drawing method.
 
 sub init {
@@ -58,7 +63,6 @@ sub gdfx {
       $font = $f{$font};
       return GD::Font->$font();
    }
-   return;
 }
 
 sub insert_text {
@@ -87,19 +91,23 @@ sub insert_text {
          my $anglex;
          my $total = 0;
          my $space = [$self->ttf_info(0, 'A'),0,'  '];
+         my @randomy;
+         my $sy = $space->[_Y_] || 1;
+         push(@randomy,  $_, - $_) foreach $sy*1.2,$sy, $sy/2, $sy/4, $sy/8;
          foreach (split //, $key) { # get char parameters
             $anglex = $self->random_angle;
-            $total += $space->[0];
+            $total += $space->[_X_];
             push @char, [$self->ttf_info($anglex, $_), $anglex, $_], $space, $space, $space;
          }
          $total *= 2;
          my @config = ($self->{_COLOR_}{text}, $self->{font}, $self->{ptsize});
          my($x,$y);
          foreach my $box (reverse @char) {
-            $x = $self->{width}  / 2 + ($box->[0] - $total);
-            $y = $self->{height} / 2 +  $box->[1];
-            $self->{image}->$methTTF(@config, Math::Trig::deg2rad($box->[2]), $x, $y, $box->[3]);
-            $total -= $space->[0];
+            $x = $self->{width}  / 2 + ($box->[_X_] - $total);
+            $y = $self->{height} / 2 +  $box->[_Y_];
+            $y += $randomy[int rand @randomy];
+            $self->{image}->$methTTF(@config, Math::Trig::deg2rad($box->[CHAR]), $x, $y, $box->[ANGLE]);
+            $total -= $space->[_X_];
          }
       } else {
          my @box = $info->($key);
@@ -144,20 +152,35 @@ sub ttf_info {
    my $text  = shift;
    my $x     = 0;
    my $y     = 0;
-   my @box = GD::Image->$methTTF($self->{_COLOR_}{text},$self->{font}, $self->{ptsize},Math::Trig::deg2rad($angle),0,0,$text);
-   my $bx  = $box[LOW_LEFT_X] - $box[LOW_RIGHT_X];
-   my $by  = $box[LOW_LEFT_Y] - $box[LOW_RIGHT_Y];
-      $by  = $box[ UP_LEFT_Y] - $box[LOW_LEFT_Y ] if $angle == 0  or $angle == 180 or $angle == 360;
-      $bx  = $box[ UP_LEFT_X] - $box[LOW_LEFT_X ] if $angle == 90 or $angle == 270;
-      if ($angle ==   0                 ) { $x += $bx/2; $y -= $by/2;   }
-   elsif ($angle >    0 and $angle < 90 ) {              $y += $by;     }
-   elsif ($angle ==  90                 ) { $x -= $bx/2; $y += $by/2;   }
-   elsif ($angle >   90 and $angle < 180) { $x += $bx;                  }
-   elsif ($angle == 180                 ) { $x += $bx/2; $y -= $by/2;   }
-   elsif ($angle >  180 and $angle < 270) {              $y += $by;     }
-   elsif ($angle == 270                 ) { $x -= $bx/2; $y += $by/2;   }
-   elsif ($angle >  270 and $angle < 360) { $x += $bx;                  }
-   elsif ($angle == 360                 ) { $x += $bx/2; $y -= $by/2;   }
+   my @box   = GD::Image->$methTTF($self->{_COLOR_}{text},$self->{font}, $self->{ptsize},Math::Trig::deg2rad($angle),0,0,$text);
+   my $bx    = $box[LOW_LEFT_X] - $box[LOW_RIGHT_X];
+   my $by    = $box[LOW_LEFT_Y] - $box[LOW_RIGHT_Y];
+
+   if($angle == 0 or $angle == 180 or $angle == 360) {
+      $by  = $box[  UP_LEFT_Y ] - $box[LOW_LEFT_Y ];
+   } elsif ($angle == 90 or $angle == 270) {
+      $bx  = $box[  UP_LEFT_X ] - $box[LOW_LEFT_X ];
+   } elsif($angle > 270 and $angle < 360) {
+      $bx  = $box[ LOW_LEFT_X ] - $box[ UP_LEFT_X ];
+   } elsif ($angle > 180 and $angle < 270) {
+      $by  = $box[ LOW_LEFT_Y ] - $box[LOW_RIGHT_Y];
+      $bx  = $box[ LOW_RIGHT_X] - $box[ UP_RIGHT_X];
+   } elsif($angle > 90 and $angle < 180) {
+      $bx  = $box[ LOW_RIGHT_X] - $box[ LOW_LEFT_X];
+      $by  = $box[ LOW_RIGHT_Y] - $box[ UP_RIGHT_Y];
+   } elsif ($angle > 0 and $angle < 90) {
+      $by  = $box[  UP_LEFT_Y ] - $box[ LOW_LEFT_Y];
+   } else {}
+
+      if ($angle ==   0                 ) { $x += $bx/2; $y -= $by/2; }
+   elsif ($angle >    0 and $angle < 90 ) { $x += $bx/2; $y -= $by/2; }
+   elsif ($angle ==  90                 ) { $x -= $bx/2; $y += $by/2; }
+   elsif ($angle >   90 and $angle < 180) { $x -= $bx/2; $y += $by/2; }
+   elsif ($angle == 180                 ) { $x += $bx/2; $y -= $by/2; }
+   elsif ($angle >  180 and $angle < 270) { $x += $bx/2; $y += $by/2; }
+   elsif ($angle == 270                 ) { $x -= $bx/2; $y += $by/2; }
+   elsif ($angle >  270 and $angle < 360) { $x += $bx/2; $y += $by/2; }
+   elsif ($angle == 360                 ) { $x += $bx/2; $y -= $by/2; }
    return $x, $y;
 }
 

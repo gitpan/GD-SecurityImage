@@ -18,7 +18,7 @@ use constant MAX_COMPRESS => 100;
 
 use Image::Magick;
 
-$VERSION = "1.31";
+$VERSION = "1.32";
 
 sub gdbox_empty {0} # fake method for GD compatibility.
 
@@ -77,6 +77,9 @@ sub insert_text {
    );
    if ($self->{scramble}) {
       my $space = [$info->(' '), 0, ' ']; # get " " parameters
+      my @randomy;
+      my $sy = $space->[ASCENDER] || 1;
+      push(@randomy,  $_, - $_) foreach $sy/2, $sy/4, $sy/8;
       my @char;
       foreach (split //, $key) {
          push @char, [$info->($_), $self->random_angle, $_], $space, $space, $space;
@@ -86,8 +89,8 @@ sub insert_text {
       foreach my $magick (@char) {
          $total -= $magick->[WIDTH] * 2;
          $self->{image}->Annotate(text   => $magick->[CHAR],
-                                  x      => ($self->{width}  - $total - $magick->[WIDTH]   ) / 2,
-                                  y      => ($self->{height}          + $magick->[ASCENDER]) / 2,
+                                  x      =>  ($self->{width}  - $total - $magick->[WIDTH]   ) / 2,
+                                  y      => (($self->{height}          + $magick->[ASCENDER]) / 2) + $randomy[int rand @randomy],
                                   rotate => $magick->[ANGLE],
                                   %same);
       }

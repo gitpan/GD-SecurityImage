@@ -39,7 +39,7 @@ sub random {
       box     => 'BOX012',
       rect    => 'RECT01',
       default => 'DFAULT',
-   }
+   };
 }
 
 sub save {
@@ -109,26 +109,26 @@ package gd_ttf;
 
 sub ec {
    GD::SecurityImage
-   ->new(lines => 40, bgcolor => [0,0,0], tapi->set(thickness => 1)->options)
+   ->new(lines => 16, bgcolor => [0,0,0], tapi->set(thickness => 1)->options)
    ->random(tapi->random->{ec})
    ->create(ttf => 'ec', [84, 207, 112], [0,0,0])
-   ->particle(2000)
+   ->particle(1000)
 }
 
 sub ellipse {
    GD::SecurityImage
-   ->new(lines => 40, bgcolor => [208, 202, 206], tapi->set(thickness => 3)->options)
+   ->new(lines => 15, bgcolor => [208, 202, 206], tapi->set(thickness => 3)->options)
    ->random(tapi->random->{ellipse})
    ->create(ttf => 'ellipse', [184,20,180], [184,20,180])
-   ->particle(1)
+   ->particle(2000)
 }
 
 sub circle {
    GD::SecurityImage
-   ->new(lines => 80, bgcolor => [210, 215, 196],tapi->set(thickness => 1)->options)
+   ->new(lines => 50, bgcolor => [210, 215, 196],tapi->set(thickness => 1)->options)
    ->random(tapi->random->{circle})
    ->create(ttf => 'circle', [63, 143, 167], [210, 215, 196])
-   ->particle(3000)
+   ->particle(3500)
 }
 
 sub box {
@@ -136,20 +136,20 @@ sub box {
    ->new(lines => 6, tapi->set(thickness => 1)->options, frame => 0)
    ->random(tapi->random->{box})
    ->create(ttf => 'box', [245,240,220], [115, 115, 115])
-   ->particle(4000, 2)
+   ->particle(3000, 2)
 }
 
 sub rect {
    GD::SecurityImage
-   ->new(lines => 40, tapi->set(thickness => 1)->options)
+   ->new(lines => 30, tapi->set(thickness => 1)->options)
    ->random(tapi->random->{rect})
    ->create(ttf => 'rect', [63, 143, 167], [226, 223, 169])
-   ->particle(1000)
+   ->particle(2000)
 }
 
 sub default {
    GD::SecurityImage
-   ->new(lines => 15, tapi->set(thickness => 2)->options)
+   ->new(lines => 10, tapi->set(thickness => 2)->options)
    ->random(tapi->random->{default})
    ->create(ttf => 'default', [68,150,125], [255,0,0])
    ->particle(5000)
