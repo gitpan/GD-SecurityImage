@@ -11,9 +11,11 @@ use constant UP_RIGHT_Y  => 5; # Upper right corner y
 use constant UP_LEFT_X   => 6; # Upper left  corner x
 use constant UP_LEFT_Y   => 7; # Upper left  corner y
 
+use constant MAX_COMPRESS => 9;
+
 use GD;
 
-$VERSION = "1.4";
+$VERSION = "1.41";
 $methTTF = $GD::VERSION >= 1.31 ? 'stringFT' : 'stringTTF'; # define the tff drawing method.
 
 sub init {
@@ -29,12 +31,17 @@ sub out {
    my $self = shift;
    my %opt  = scalar @_ % 2 ? () : (@_);
    my $type;
+   my @args = ();
    if($opt{force} and $self->{image}->can($opt{force})){
       $type = $opt{force};
    } else {
       $type = $self->{image}->can('gif') ? 'gif' : 'jpeg'; # check for older GDs and newer GDs as the new versions include gif() again!
    }
-   return $self->{image}->$type(), $type, $self->{_RANDOM_NUMBER_};
+   if ($opt{'compress'}) {
+      push @args, MAX_COMPRESS     if $type eq 'png' and $GD::VERSION >= 2.07;
+      push @args, $opt{'compress'} if $type eq 'jpeg';
+   }
+   return $self->{image}->$type(@args), $type, $self->{_RANDOM_NUMBER_};
 }
 
 sub gdbox_empty {shift->{GDBOX_EMPTY}}

@@ -29,7 +29,7 @@ foreach my $api (keys %API) {
    $tapi->options(args($api));
    my $c = 1;
    foreach my $style ($tapi->styles) {
-      ok($tapi->save($api->$style()->out(force => 'png'), $style, $api, $c++));
+      ok($tapi->save($api->$style()->out(force => 'png', compress => 1), $style, $api, $c++));
    }
 }
 

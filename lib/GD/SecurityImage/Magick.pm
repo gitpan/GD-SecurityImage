@@ -3,20 +3,22 @@ package GD::SecurityImage::Magick;
 use strict;
 use vars qw[$VERSION];
 
-use constant X_PPEM      => 0; # character width 
-use constant Y_PPEM      => 1; # character height
-use constant ASCENDER    => 2; # ascender
-use constant DESCENDER   => 3; # descender
-use constant WIDTH       => 4; # text width
-use constant HEIGHT      => 5; # text height
-use constant MAX_ADVANCE => 6; # maximum horizontal advance
+use constant X_PPEM       => 0; # character width 
+use constant Y_PPEM       => 1; # character height
+use constant ASCENDER     => 2; # ascender
+use constant DESCENDER    => 3; # descender
+use constant WIDTH        => 4; # text width
+use constant HEIGHT       => 5; # text height
+use constant MAX_ADVANCE  => 6; # maximum horizontal advance
 
-use constant ANGLE       => -2;
-use constant CHAR        => -1;
+use constant ANGLE        => -2;
+use constant CHAR         => -1;
+
+use constant MAX_COMPRESS => 100;
 
 use Image::Magick;
 
-$VERSION = "1.3";
+$VERSION = "1.31";
 
 sub gdbox_empty {0} # fake method for GD compatibility.
 
@@ -36,7 +38,7 @@ sub init {
       $self->{image}->Read('null:' . $bg);
       $self->{image}->Set(background => $bg);
       $self->{MAGICK} = {strokewidth => 0.6};
-      $self->setThickness($self->{thickness} * $self->{MAGICK}{strokewidth}) if $self->{thickness};
+      $self->setThickness($self->{thickness}) if $self->{thickness};
 }
 
 sub out {
@@ -47,7 +49,18 @@ sub out {
       my %g = map {$_, 1} $self->{image}->QueryFormat;
       $type = $opt{force} if exists $g{$opt{force}};
    }
+   # compression JPEG  LosslessJPEG  Zip
    $self->{image}->Set(magick => $type);
+   if ($opt{'compress'} and $type =~ m[^(png|jpeg)$]) {
+      #if ($type eq 'gif') {
+      #   $self->{image}->Set(compression => 'LZW');
+      #}
+      if($type eq 'png') {
+         $opt{'compress'} = MAX_COMPRESS;
+         $self->{image}->Set(compression => 'Zip');
+      }
+      $self->{image}->Set(quality => $opt{'compress'});
+   }
    return $self->{image}->ImageToBlob, $type, $self->{_RANDOM_NUMBER_};
 }
 
@@ -152,7 +165,7 @@ sub arc {
 sub setThickness {
    my $self = shift;
    my $thickness = shift;
-   $self->{MAGICK}{strokewidth} = $thickness if $thickness;
+   $self->{MAGICK}{strokewidth} = $thickness * $self->{MAGICK}{strokewidth} if $thickness;
 }
 
 1;

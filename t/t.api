@@ -1,8 +1,11 @@
 package tapi; # test api
 use strict;
-use vars qw[$VERSION %data];
+use vars qw[$VERSION %data $GD $MAGICK];
 
-$VERSION = "0.1";
+$VERSION = "0.2";
+
+$GD     = defined($GD::VERSION)            ? $GD::VERSION            : 0;
+$MAGICK = defined($Image::Magick::VERSION) ? $Image::Magick::VERSION : '0.0.0';
 
 sub styles { qw[default rect box circle ellipse ec] }
 
@@ -19,7 +22,10 @@ sub set {
    unless (scalar @_ %2) {
       if (@_) {
          my %o = @_;
-         $data{$_} = $o{$_} foreach keys %o;
+         foreach(keys %o) {
+            next if $_ eq 'thickness' and $GD and $GD < 2.07;
+            $data{$_} = $o{$_};
+         }
       }
    }
    $class

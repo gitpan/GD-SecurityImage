@@ -4,7 +4,7 @@ use vars qw[@ISA $VERSION];
 use GD::SecurityImage::Styles;
 
 @ISA     = qw(GD::SecurityImage::Styles);
-$VERSION = '1.4_02';
+$VERSION = '1.4_03';
 
 sub import {
    # load the drawing interface
@@ -46,7 +46,7 @@ sub new {
                frame      => defined($opt{frame}) ? $opt{frame} : 1,
                scramble   => $opt{scramble}            || 0,
                angle      => $opt{angle}               || 0,
-               thickness  => $opt{thickness}           || 1,
+               thickness  => $opt{thickness}           || 0,
                _ANGLES_   => [], # angle list for scrambled images
    );
    $self->{$_} = $options{$_} foreach keys %options;
@@ -471,7 +471,11 @@ C<out> method accepts arguments:
 
    @data = $image->out(%args);
 
-currently, you can only set output format with the C<force> key:
+=over 4
+
+=item force
+
+You can set the output format with the C<force> parameter:
 
    @data = $image->out(force => 'png');
 
@@ -479,11 +483,34 @@ If C<png> is supported by the interface (via C<GD> or C<Image::Magick>);
 you'll get a png image, if the interface does not support this format, 
 C<out()> method will use it's default configuration.
 
-Currently, you can not define compression values for the formats that 
-support it (eg: jpeg, png), but you can use L<raw|/raw> method instead 
-of C<out> (for a direct communication with the graphic library -- but 
-probably you do not want to do that, future versions may implement 
-this feature).
+=item compress
+
+And with the C<compress> parameter, you can define the compression 
+for C<png> and quality for C<jpeg>:
+
+   @data = $image->out(force => 'png' , compress => 1);
+   @data = $image->out(force => 'jpeg', compress => 100);
+
+When you use C<compress> with C<png> format, the value of C<compress>
+is ignored and it is only checked if it has a true value. With C<png>
+the compression will always be C<9> (maximum compression). eg:
+
+   @data = $image->out(force => 'png' , compress => 1);
+   @data = $image->out(force => 'png' , compress => 3);
+   @data = $image->out(force => 'png' , compress => 5);
+   @data = $image->out(force => 'png' , compress => 1500);
+
+All will default to C<9>. But this will disable compression:
+
+   @data = $image->out(force => 'png' , compress => 0);
+
+But the behaviour changes if the format is C<jpeg>; the value of
+C<compress> will be used for C<jpeg> quality; which is in the range 
+C<1..100>.
+
+Compression and quality operations are disabled by default.
+
+=back
 
 =head2 raw
 
@@ -540,7 +567,7 @@ your own random code and use this module to display it.
 
 =head1 BUGS
 
-=over 4
+=over 8
 
 =item Image::Magick bug
 
@@ -555,7 +582,11 @@ Please upgrade to ImageMagick 6.0.4 or any newer version, if your ImageMagick
 version is smaller than 6.0.4 and you want to use Image::Magick as the backend
 for GD::SecurityImage.
 
-=item GD bug
+=item GD bugs
+
+=over 4
+
+=item path bug
 
 libgd and GD.pm does not like relative paths and paths that have spaces
 in it. If you pass a font path that is not an B<exact path> or a path that
@@ -571,6 +602,23 @@ C<gdbox_empty()> always returns false, if you are using C<Image::Magick>.
 
 B<Note>: New versions of GD does not have this bug. You can upgrade to 
 v2.16 or any newer version to fix this.
+
+=item png compression
+
+Not a bug, but older versions does not have this.
+
+Support for compression level argument to png() added in v2.07. If
+your GD version is smaller than this, compress option to C<out()>
+will be silently ignored.
+
+=item setThickness
+
+Not a bug, but older versions does not have this.
+
+setThickness implemented in GD v2.07. If your GD version is smaller
+than that and you set thickness option, your code will probably C<die>.
+
+=back
 
 =back
 

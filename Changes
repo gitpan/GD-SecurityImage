@@ -2,6 +2,24 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.4_03 Mon Oct 11 21:55:37 2004
+	=> Older GDs does not have setThickness. 
+	   "setThickness" added in "GD 2.07 @ 24 Apr 2003". 
+	   Fixed thickness option in new. 
+	   Updated test api for this.
+	   Added this to Pod.
+	=> Added "compress" argument to out() for "jpeg" and "png". 
+	=> But GD *again* has a problem here. Compression argument for 
+	   png is implemented in "GD 2.07". out() silently ignores 
+	   compression parameter, if you have an older GD and set output 
+	   format to png.
+	   Added this to Pod.
+	=> Also, jpeg method and quality level for jpeg added 
+	   in "GD 1.26 @ 18 Mar 2000". But currently, I didn't add 
+	   any controls to detect that and I don't know who can 
+	   use that pre-historic versions (other than sf.net!).
+        => It's too hard to stay compatible with older versions!
+
 1.4_02 Sat Oct  9 14:48:18 2004
 	=> Fixed a bug in new for the angle parameter.
 	=> New private method setThickness.
