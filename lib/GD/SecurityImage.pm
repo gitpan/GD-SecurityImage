@@ -3,7 +3,7 @@ use strict;
 use vars qw[@ISA $VERSION];
 use GD::SecurityImage::Styles;
 
-$VERSION = '1.51';
+$VERSION = '1.52';
 
 sub import {
    # load the drawing interface
@@ -157,8 +157,8 @@ sub create {
    my $self   = shift;
    my $method = shift || 'normal';  # ttf or normal
    my $style  = shift || 'default'; # default or rect or box
-   my $col1   = shift; # text color
-   my $col2   = shift; # line/box color
+   my $col1   = shift || [ 0, 0, 0]; # text color
+   my $col2   = shift || [ 0, 0, 0]; # line/box color
 
    $self->{send_ctobg} = 0 if $style eq 'box'; # disable for that style
    $self->{_COLOR_} = { # set the color hash
@@ -642,16 +642,16 @@ Compression and quality operations are disabled by default.
 Depending on your usage of the module; returns the raw C<GD::Image> 
 object:
 
-   my $i = $image->raw;
-   print $i->png;
+   my $gd = $image->raw;
+   print $gd->png;
 
 or the raw C<Image::Magick> object:
 
-   my $i = $image->raw;
-   $i->Write("gif:-");
+   my $magick = $image->raw;
+   $magick->Write("gif:-");
 
-Can be usefull, if you want to modify the graphic yourself, or want to
-use another output format like C<png>.
+Can be usefull, if you want to modify the graphic yourself. If you 
+want to get an I<image format>, see the C<force> option in C<out>.
 
 =head1 EXAMPLES
 

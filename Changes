@@ -2,6 +2,13 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.52 Tue Dec 21 15:07:37 2004
+	=> After implementing HEX colors with cconvert, I forgot to 
+	   set default colors in create() which will throw an exception
+	   without the default color values. 
+	   Reported by Billy Vierra.
+	=> Updated pod.
+
 1.51 Sun Dec 19 00:02:13 2004
 	=> Updated demo program code.
 	=> Updated Makefile.PL.

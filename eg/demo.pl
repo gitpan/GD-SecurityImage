@@ -431,7 +431,7 @@ C<$config{table_name}> to the value you want and also modify the
 C<SQL> code above.
 
 Security images are generated with the sample ttf font "StayPuft.ttf".
-Put it into the same folder as this program of alter C<$config{font}> value.
+Put it into the same folder as this program or alter C<$config{font}> value.
 If you want to use another font file, you may need to alter the image 
 generation options (see the C<%config> hash on top of the program code).
 
