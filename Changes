@@ -2,6 +2,20 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.4_02 Sat Oct  9 14:48:18 2004
+	=> Fixed a bug in new for the angle parameter.
+	=> New private method setThickness.
+	=> New option 'thickness' added to new.
+	=> Replaced buggy/silly "_charw" with "ttf_info" in GD backend. 
+	   Hopefully, this fixes the "scramble" implementation for GD.
+	=> Updated test suite. Now, there is a single test api and two
+	   test files.
+	=> Changed Makefile.PL. "GD" is now hardcoded as a prerequisite.
+	   Removed user input codes. The presence of "Image::Magick"
+	   is now tested inside the test file and magick test will
+	   be skipped if there is no "Image::Magick" 
+	   (request from Barbie -- not exactly this, but similar).
+
 1.4_01 Mon Sep 20 16:46:13 2004
 	=> It looks like newer versions of GD does not have the path 
 	   bug, but I do not know the exact version that this was 

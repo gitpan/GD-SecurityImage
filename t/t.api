@@ -1,0 +1,162 @@
+package tapi; # test api
+use strict;
+use vars qw[$VERSION %data];
+
+$VERSION = "0.1";
+
+sub styles { qw[default rect box circle ellipse ec] }
+
+sub options {
+   my $class = shift;
+   %data = @_ if @_;
+   %data;
+}
+
+sub clear { %data = () }
+
+sub set {
+   my $class = shift;
+   unless (scalar @_ %2) {
+      if (@_) {
+         my %o = @_;
+         $data{$_} = $o{$_} foreach keys %o;
+      }
+   }
+   $class
+}
+
+sub random {
+   {
+      ec      => 'EC0123',
+      ellipse => 'ELLIPS',
+      circle  => 'CIRCLE',
+      box     => 'BOX012',
+      rect    => 'RECT01',
+      default => 'DFAULT',
+   }
+}
+
+sub save {
+   my $class = shift;
+   my ($image, $mime, $random, $style, $ID, $counter) = @_;
+   my $name = sprintf "%s_%02d_%s.%s", $ID, $counter, $style, $mime;
+   local  *SI;
+   open    SI, ">$name" or die "Error writing the image '$name' to disk: $!";
+   binmode SI;
+   print   SI $image;
+   close   SI;
+   print "[OK] $name\n";
+   return 'SUCCESS';
+}
+
+package gd_normal;
+
+sub ec {
+   GD::SecurityImage
+   ->new(lines => 5, bgcolor => [0,0,0], tapi->options)
+   ->random(tapi->random->{ec})
+   ->create(normal => 'ec', [84, 207, 112], [0,0,0])
+   ->particle(100)
+}
+
+sub ellipse {
+   GD::SecurityImage
+   ->new(lines => 10, bgcolor => [208, 202, 206], tapi->options)
+   ->random(tapi->random->{ellipse})
+   ->create(normal => 'ellipse', [31,219,180], [231,219,180])
+   ->particle(100)
+}
+
+sub circle {
+   GD::SecurityImage
+   ->new(lines => 5, bgcolor => [210, 215, 196], tapi->options)
+   ->random(tapi->random->{circle})
+   ->create(normal => 'circle', [63, 143, 167], [90, 195, 176])
+   ->particle(250, 2)
+}
+
+sub box {
+   GD::SecurityImage
+   ->new(lines => 5, tapi->options)
+   ->random(tapi->random->{box})
+   ->create(normal => 'box', [63, 143, 167], [226, 223, 169])
+   ->particle(150, 4)
+}
+
+sub rect {
+   GD::SecurityImage
+   ->new(lines => 10, tapi->options)
+   ->random(tapi->random->{rect})
+   ->create(normal => 'rect', [63, 143, 167], [226, 223, 169])
+   ->particle(100)
+}
+
+sub default {
+   GD::SecurityImage
+   ->new(lines => 10, tapi->options, send_ctobg => 0)
+   ->random(tapi->random->{default})
+   ->create(normal => 'default', [68,150,125], [255,0,0])
+   ->particle(500)
+}
+
+package gd_ttf;
+
+sub ec {
+   GD::SecurityImage
+   ->new(lines => 40, bgcolor => [0,0,0], tapi->set(thickness => 1)->options)
+   ->random(tapi->random->{ec})
+   ->create(ttf => 'ec', [84, 207, 112], [0,0,0])
+   ->particle(2000)
+}
+
+sub ellipse {
+   GD::SecurityImage
+   ->new(lines => 40, bgcolor => [208, 202, 206], tapi->set(thickness => 3)->options)
+   ->random(tapi->random->{ellipse})
+   ->create(ttf => 'ellipse', [184,20,180], [184,20,180])
+   ->particle(1)
+}
+
+sub circle {
+   GD::SecurityImage
+   ->new(lines => 80, bgcolor => [210, 215, 196],tapi->set(thickness => 1)->options)
+   ->random(tapi->random->{circle})
+   ->create(ttf => 'circle', [63, 143, 167], [210, 215, 196])
+   ->particle(3000)
+}
+
+sub box {
+   GD::SecurityImage
+   ->new(lines => 6, tapi->set(thickness => 1)->options, frame => 0)
+   ->random(tapi->random->{box})
+   ->create(ttf => 'box', [245,240,220], [115, 115, 115])
+   ->particle(4000, 2)
+}
+
+sub rect {
+   GD::SecurityImage
+   ->new(lines => 40, tapi->set(thickness => 1)->options)
+   ->random(tapi->random->{rect})
+   ->create(ttf => 'rect', [63, 143, 167], [226, 223, 169])
+   ->particle(1000)
+}
+
+sub default {
+   GD::SecurityImage
+   ->new(lines => 15, tapi->set(thickness => 2)->options)
+   ->random(tapi->random->{default})
+   ->create(ttf => 'default', [68,150,125], [255,0,0])
+   ->particle(5000)
+}
+
+package gd_normal_scramble;   use vars qw[@ISA];@ISA = qw(gd_normal);
+package gd_ttf_scramble;      use vars qw[@ISA];@ISA = qw(gd_ttf);
+package gd_ttf_scramble_fixed;use vars qw[@ISA];@ISA = qw(gd_ttf);
+
+package magick               ;use vars qw[@ISA];@ISA = qw(gd_ttf);
+package magick_scramble      ;use vars qw[@ISA];@ISA = qw(gd_ttf);
+package magick_scramble_fixed;use vars qw[@ISA];@ISA = qw(gd_ttf);
+
+1;
+
+__END__

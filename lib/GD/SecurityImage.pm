@@ -4,7 +4,7 @@ use vars qw[@ISA $VERSION];
 use GD::SecurityImage::Styles;
 
 @ISA     = qw(GD::SecurityImage::Styles);
-$VERSION = '1.4_01';
+$VERSION = '1.4_02';
 
 sub import {
    # load the drawing interface
@@ -46,11 +46,12 @@ sub new {
                frame      => defined($opt{frame}) ? $opt{frame} : 1,
                scramble   => $opt{scramble}            || 0,
                angle      => $opt{angle}               || 0,
+               thickness  => $opt{thickness}           || 1,
                _ANGLES_   => [], # angle list for scrambled images
    );
    $self->{$_} = $options{$_} foreach keys %options;
    if($self->{angle}) { # validate angle
-      $self->{angle} = 360 - $self->{angle} if $self->{angle} < 0;
+      $self->{angle} = 360 + $self->{angle} if $self->{angle} < 0;
       if($self->{angle} > 360) {
          die "Angle parameter can take values in the range -360..360";
       }
@@ -58,7 +59,7 @@ sub new {
 
    if ($self->{scramble}) {
       if ($self->{angle}) {
-         # Does the user wants a fixed angle?
+         # Does the user want a fixed angle?
          push @{ $self->{_ANGLES_} }, $self->{angle};
       } else {
          # Generate angle range. The reason for hardcoding these is; 
@@ -342,8 +343,13 @@ an C<angle> parameter, the characters in your random string will have
 a fixed angle. If you do not set an C<angle> parameter, the angle(s)
 will be random.
 
-Unlike the GD interface, C<$angle> is in C<degree>s and can take values 
+Unlike the GD interface, C<angle> is in C<degree>s and can take values 
 between C<0> and C<360>.
+
+=item thickness
+
+Sets the line drawing width. Can take numerical values. 
+Default values are C<1> for GD and C<0.6> for Image:Magick.
 
 =item rndmax
 

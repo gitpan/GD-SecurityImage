@@ -16,7 +16,7 @@ use constant CHAR        => -1;
 
 use Image::Magick;
 
-$VERSION = "1.2";
+$VERSION = "1.3";
 
 sub gdbox_empty {0} # fake method for GD compatibility.
 
@@ -36,6 +36,7 @@ sub init {
       $self->{image}->Read('null:' . $bg);
       $self->{image}->Set(background => $bg);
       $self->{MAGICK} = {strokewidth => 0.6};
+      $self->setThickness($self->{thickness} * $self->{MAGICK}{strokewidth}) if $self->{thickness};
 }
 
 sub out {
@@ -146,6 +147,12 @@ sub arc {
          stroke      => $self->rgbx($color),
          strokewidth => $self->{MAGICK}{strokewidth},
       );
+}
+
+sub setThickness {
+   my $self = shift;
+   my $thickness = shift;
+   $self->{MAGICK}{strokewidth} = $thickness if $thickness;
 }
 
 1;
