@@ -2,6 +2,26 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.2 Fri Jun 18 21:39:08 2004
+	=> Added raw() method.
+	=> Fixed gd_font object key.
+	=> new style "ec".
+	=> Adapted Image::Magick compatibility (request from Mark Fuller).
+	   I may add Image::Magick spesific styles in future releases.
+	=> New modules added: 
+	      GD::SecurityImage::GD
+	      GD::SecurityImage::Magick
+	      GD::SecurityImage::Styles
+	   and GD::SecurityImage is smaller now ;)
+	=> Renamed old tests to (added 'gd_' to names):
+	      t/gd_01_use.t
+	      t/gd_02_normal.t
+	      t/gd_03_ttf.t
+	=> Added new tests:
+              t/im_01_use.t
+              t/im_02_ttf.t
+        => Altered Makefile.PL and test files to skip tests if the user selects to do so.
+
 1.1 Fri May 14 22:08:39 2004
 	=> Added 'send_ctobg' option to new().
 	=> After testing the code with a *really* old GD 

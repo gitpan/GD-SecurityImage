@@ -1,8 +1,14 @@
 #!/usr/bin/env perl -w
-# Simple test. Just try to use the module.
+# Create the image with GD' s standard fonts.
 use strict;
 use Test;
-BEGIN { plan tests => 1 }
+BEGIN { 
+   plan tests => 1;
+   if (-e "skip_gd") {
+      skip("You didn't select GD. Skipping...", sub{0});
+      exit;
+   }
+}
 
 use GD::SecurityImage; 
 
@@ -22,7 +28,7 @@ $image->create(normal => 'rect', [10,10,10], [210,210,50]);
 
 my($image_data, $mime_type, $random_string) = $image->out;
 
-my $file = "02_normal.$mime_type";
+my $file = "gd_02_normal.$mime_type";
 
 open IMAGE, '>'.$file or die "Can not create the graphic: $!";
 binmode IMAGE;

@@ -1,10 +1,15 @@
 lib/GD/SecurityImage.pm
+lib/GD/SecurityImage/GD.pm
+lib/GD/SecurityImage/Magick.pm
+lib/GD/SecurityImage/Styles.pm
 Changes
 Makefile.PL
 MANIFEST
 README
 StayPuft.ttf
-t/01_use.t
-t/02_normal.t
-t/03_ttf.t
+t/gd_01_use.t
+t/gd_02_normal.t
+t/gd_03_ttf.t
+t/im_01_use.t
+t/im_02_ttf.t
 META.yml                                 Module meta-data (added by MakeMaker)

@@ -1,8 +1,14 @@
 #!/usr/bin/env perl -w
-# Simple test. Just try to use the module.
+# Create the image with a ttf font.
 use strict;
 use Test;
-BEGIN { plan tests => 1 }
+BEGIN { 
+   plan tests => 1;
+   if (-e "skip_gd") {
+      skip("You didn't select GD. Skipping...", sub{0});
+      exit;
+   }
+}
 
 use Cwd;
 use GD::SecurityImage;
@@ -16,12 +22,10 @@ exit;
 
 sub ttf_test {
    my $image = GD::SecurityImage->new(
-                  width    => 110,
-                  height   => 40,
-                  ptsize   => 15,
+                  width    => 150,
+                  height   => 60,
+                  ptsize   => 30,
                   lines    => 20,
-                  rndmax   => 6,
-                  rnd_data => [0..9, 'A'..'Z'],
                   font     => getcwd.'/StayPuft.ttf',
                   bgcolor  => [115, 255, 255],
                   send_ctobg => 1,
@@ -32,7 +36,7 @@ sub ttf_test {
 
    my($image_data, $mime_type, $random_string) = $image->out;
 
-   my $file = "03_ttf.$mime_type";
+   my $file = "gd_03_ttf.$mime_type";
 
    open IMAGE, '>'.$file or die "Can not create the graphic: $!";
    binmode IMAGE;

@@ -2,7 +2,13 @@
 # Simple test. Just try to use the module.
 use strict;
 use Test;
-BEGIN { plan tests => 1 }
+BEGIN { 
+   plan tests => 1;
+   if (-e "skip_gd") {
+      skip("You didn't select GD. Skipping...", sub{0});
+      exit;
+   }
+}
 
 use GD::SecurityImage; 
 
