@@ -18,21 +18,14 @@ use constant MAX_COMPRESS => 100;
 
 use Image::Magick;
 
-$VERSION = "1.32";
+$VERSION = "1.33";
 
 sub gdbox_empty {0} # fake method for GD compatibility.
-
-sub rgbx {
-   # Convert color data to hex for Image::Magick
-   my $self   = shift;
-   my @data   = (ref $_[0] and ref $_[0] eq 'ARRAY') ? (@{$_[0]}) : (@_);
-   return $self->r2h(@data);
-}
 
 sub init {
    # Create the image object
    my $self = shift;
-   my $bg   = $self->rgbx($self->{bgcolor}); 
+   my $bg   = $self->cconvert($self->{bgcolor}); 
       $self->{image} = Image::Magick->new;
       $self->{image}->Set(size=> "$self->{width}x$self->{height}");
       $self->{image}->Read('null:' . $bg);
@@ -61,7 +54,9 @@ sub out {
       }
       $self->{image}->Set(quality => $opt{'compress'});
    }
-   return $self->{image}->ImageToBlob, $type, $self->{_RANDOM_NUMBER_};
+   my @all_random = @{ $self->{_RND_LIST_} };
+      @all_random = ($self->{_RANDOM_NUMBER_}) unless scalar(@all_random) > 0;
+   return $self->{image}->ImageToBlob, $type, @all_random;
 }
 
 sub insert_text {
@@ -73,7 +68,7 @@ sub insert_text {
    my %same   = (font      => $self->{font},
                  encoding  => 'UTF-8',
                  pointsize => $self->{ptsize},
-                 fill      => $self->rgbx($self->{_COLOR_}{text}),
+                 fill      => $self->cconvert($self->{_COLOR_}{text}),
    );
    if ($self->{scramble}) {
       my $space = [$info->(' '), 0, ' ']; # get " " parameters
@@ -97,8 +92,17 @@ sub insert_text {
       # stretch=>{Normal, UltraCondensed, ExtraCondensed, Condensed, SemiCondensed, SemiExpanded, Expanded, ExtraExpanded, UltraExpanded}
    } else {
       my @metric = $info->($key);
-      my $x = ($self->{width}  - $metric[WIDTH]   ) / 2;
-      my $y = ($self->{height} + $metric[ASCENDER]) / 2;
+      my($x, $y);
+      my $tl = $self->{_TEXT_LOCATION_};
+      if ($tl->{_place_}) {
+         # put the text to one of the four corners in the image
+         $x = $tl->{x} eq 'left' ? 2                   : $self->{width}-$metric[WIDTH]-2;
+         $y = $tl->{y} eq 'up'   ? $metric[ASCENDER]+1 : $self->{height}-2;
+         $self->add_strip($x, $y, $metric[WIDTH], $metric[ASCENDER]) if $tl->{strip};
+      } else {
+         $x = ($self->{width}  - $metric[WIDTH]   ) / 2;
+         $y = ($self->{height} + $metric[ASCENDER]) / 2;
+      }
       $self->{image}->Annotate(text => $key, x => $x, y => $y, %same);
    }
 }
@@ -106,7 +110,7 @@ sub insert_text {
 sub setPixel {
    my $self = shift;
    my($x, $y, $color) = @_;
-   $self->{image}->Set("pixel[$x,$y]" => $self->rgbx($color) );
+   $self->{image}->Set("pixel[$x,$y]" => $self->cconvert($color) );
 }
 
 sub line {
@@ -115,7 +119,7 @@ sub line {
       $self->{image}->Draw(
          primitive   => "line",
          points      => "$x1,$y1 $x2,$y2",
-         stroke      => $self->rgbx($color),
+         stroke      => $self->cconvert($color),
          strokewidth => $self->{MAGICK}{strokewidth},
       );
 }
@@ -126,7 +130,7 @@ sub rectangle {
       $self->{image}->Draw(
          primitive   => "rectangle",
          points      => "$x1,$y1 $x2,$y2",
-         stroke      => $self->rgbx($color),
+         stroke      => $self->cconvert($color),
          strokewidth => $self->{MAGICK}{strokewidth},
       );
 }
@@ -137,8 +141,8 @@ sub filledRectangle {
       $self->{image}->Draw(
          primitive   => "rectangle",
          points      => "$x1,$y1 $x2,$y2",
-         fill        => $self->rgbx($color),
-         stroke      => $self->rgbx($color),
+         fill        => $self->cconvert($color),
+         stroke      => $self->cconvert($color),
          strokewidth => 0,
       );
 }
@@ -149,7 +153,7 @@ sub ellipse {
       $self->{image}->Draw(
          primitive   => "ellipse",
          points      => "$cx,$cy $width,$height 0,360",
-         stroke      => $self->rgbx($color),
+         stroke      => $self->cconvert($color),
          strokewidth => $self->{MAGICK}{strokewidth},
       );
 }
@@ -160,7 +164,7 @@ sub arc {
       $self->{image}->Draw(
          primitive   => "ellipse", # I couldn't do that with "arc" primitive. patches are welcome, but this seems to work :)
          points      => "$cx,$cy $width,$height $start,$end",
-         stroke      => $self->rgbx($color),
+         stroke      => $self->cconvert($color),
          strokewidth => $self->{MAGICK}{strokewidth},
       );
 }

@@ -3,8 +3,7 @@ use strict;
 use vars qw[@ISA $VERSION];
 use GD::SecurityImage::Styles;
 
-@ISA     = qw(GD::SecurityImage::Styles);
-$VERSION = '1.5';
+$VERSION = '1.51';
 
 sub import {
    # load the drawing interface
@@ -17,6 +16,7 @@ sub import {
       require GD::SecurityImage::GD;
       push @ISA, qw(GD::SecurityImage::GD);
    }
+   push @ISA, qw(GD::SecurityImage::Styles);
 }
 
 sub new {
@@ -27,9 +27,11 @@ sub new {
       MAGICK          => {}, # Image::Magick configuration options
       GDBOX_EMPTY     => 0,  # GD::SecurityImage::GD::insert_text() failed?
       _RANDOM_NUMBER_ => '', # random security code
+      _RND_LIST_      => [], # random codes list
       _RNDMAX_        => 6,  # maximum number of characters in a random string.
       _COLOR_         => {}, # text and line colors
       _CREATECALLED_  => 0,  # create() called? (check for particle())
+      _TEXT_LOCATION_ => {}, # see set_tl
    };
    bless $self, $class;
    my %options = (
@@ -49,7 +51,11 @@ sub new {
                thickness  => $opt{thickness}           || 0,
                _ANGLES_   => [], # angle list for scrambled images
    );
-
+   if($opt{text_location} && ref $opt{text_location} && ref $opt{text_location} eq 'HASH') {
+      $self->{_TEXT_LOCATION_} = { %{$opt{text_location}}, _place_ => 1 };
+   } else {
+      $self->{_TEXT_LOCATION_}{_place_} = 0;
+   }
    $self->{_RNDMAX_} = $options{rndmax}; 
 
    $self->{$_} = $options{$_} foreach keys %options;
@@ -106,22 +112,59 @@ sub random {
    return $self if defined wantarray;
 }
 
+sub cconvert { # convert color codes
+   # GD           : return color index number
+   # Image::Magick: return hex color code
+   my $self   = shift;
+   my $data   = shift || die "Empty parameter passed to cconvert!";
+   my $is_hex = $self->is_hex($data);
+   if($data && $self->{IS_MAGICK} && $is_hex) {
+      return $data; # data is a hex color code and Image::Magick has hex support
+   }
+   if(  $data              &&
+      ! $is_hex            &&
+      ! ref($data)         &&
+      $data !~ m{[^0-9]}   &&
+      $data >= 0
+      ) {
+      if ($self->{IS_MAGICK}) {
+         die "The number '$data' can not be transformed to a color code!";
+      } else {
+         # data is a GD color index number ...
+         # ... or it is any number! since there is no way to determine this. 
+         # GD object' s rgb() method returns 0,0,0 upon failure...
+         return $data;
+      }
+   }
+   my @rgb = $self->h2r($data);
+   if(@rgb and $self->{IS_MAGICK}) {
+      return $data;
+   } else {
+      $data = \@rgb if @rgb;
+      # initialize if not valid
+      if(not $data || not ref $data || ref $data ne 'ARRAY' || $#{$data} != 2) {
+         $data = [0, 0, 0];
+      }
+      foreach my $i (0..$#{$data}) { # check for bad values
+         $data->[$i] = 0 if $data->[$i] > 255 or $data->[$i] < 0;
+      }
+   }
+   return $self->{IS_MAGICK} ? $self->r2h(@{$data}) # convert to hex
+                             : $self->{image}->colorAllocate(@{$data});
+}
+
 sub create {
    my $self   = shift;
    my $method = shift || 'normal';  # ttf or normal
    my $style  = shift || 'default'; # default or rect or box
    my $col1   = shift; # text color
    my $col2   = shift; # line/box color
-      $col1   = [ 0, 0, 0] if(not $col1 || not ref $col1 || ref $col1 ne 'ARRAY' || $#{$col1} != 2);
-      $col2   = [ 0, 0, 0] if(not $col2 || not ref $col2 || ref $col2 ne 'ARRAY' || $#{$col2} != 2);
-   my %color  = (
-        text  => $self->{IS_MAGICK} ? $col1 : $self->{image}->colorAllocate(@{$col1}),
-        lines => $self->{IS_MAGICK} ? $col2 : $self->{image}->colorAllocate(@{$col2}),
-   );
 
    $self->{send_ctobg} = 0 if $style eq 'box'; # disable for that style
-
-   $self->{_COLOR_} = \%color; # set the color hash
+   $self->{_COLOR_} = { # set the color hash
+        text  => $self->cconvert($col1),
+        lines => $self->cconvert($col2),
+   };
 
    # be a smart module and auto-disable ttf if we are under a prehistoric GD
    unless ($self->{IS_MAGICK}) {
@@ -168,6 +211,53 @@ sub particle {
 
 sub raw {shift->{image}} # raw image object
 
+sub change_random {
+   my $self = shift;
+   my $new  = shift;
+   return unless defined $new;
+   push @{ $self->{_RND_LIST_} }, $self->{_RANDOM_NUMBER_};
+   $self->{_RANDOM_NUMBER_} = $new;
+}
+
+sub set_tl { # set text location
+   # x      => 'left|right',  # text-X
+   # y      => 'up|low|down', # text-Y
+   # strip  => 1|0,           # add strip?
+   # gd     => 1|0,           # use default GD font?
+   # ptsize => 10,            # point size
+   # color  => '#000000',     # text color
+   # scolor => '#FFFFFF',     # strip color
+   # text   => 'blah',        # modifies random code
+   my $self = shift;
+   my %o    = scalar(@_) % 2 ? () : (@_);
+   return unless %o;
+
+   $self->{_TEXT_LOCATION_}->{_place_} = 1;
+   $self->change_random(delete $o{text}) if $o{text};
+   $self->{_COLOR_}{text} = $self->cconvert(delete $o{color}) if $o{color};
+   $o{scolor}             = $self->cconvert($o{scolor})       if $o{scolor};
+   $self->{ptsize}        = delete $o{ptsize} if $o{ptsize};
+
+   $self->{scramble}      = 0; # disable
+
+   $self->{_TEXT_LOCATION_}->{$_} = $o{$_} foreach keys %o;
+   $self;
+}
+
+sub add_strip { # adds a strip to the background of the text
+   my $self = shift;
+   my($x, $y, $box_w, $box_h) = @_;
+   my $tl    = $self->{_TEXT_LOCATION_};
+   my $black = $self->cconvert($self->{_COLOR_}{text} ? $self->{_COLOR_}{text} : [0,0,0]);
+   my $white = $self->cconvert($tl->{scolor}          ? $tl->{scolor}          : [255,255,255]);
+   my $x2    = $tl->{x} eq 'left' ? $box_w : $self->{width};
+   my $y2    = $self->{height} - $box_h;
+   my $i     = $self->{IS_MAGICK} ? $self : $self->{image};
+   my $up    = $tl->{y} eq 'up';
+   $i->filledRectangle($up ? ($x-1, 0, $x2, $y+1) : ($x-1, $y2-1, $x2  , $self->{height}  ), $black);
+   $i->filledRectangle($up ? ($x  , 1, $x2-2, $y) : ($x  , $y2  , $x2-2, $self->{height}-2), $white);
+}
+
 #--------------------[ PRIVATE ]--------------------#
 
 sub r2h {
@@ -177,6 +267,21 @@ sub r2h {
    my $color  = '#';
       $color .= sprintf("%02x", $_) foreach @_;
       $color;
+}
+
+sub h2r {
+   # Convert Hex to RGB
+   my $self  = shift;
+   my $color = shift;
+   return if ref $color;
+   my @rgb   = $color =~ m[^#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$]i;
+   return @rgb ? map { hex $_ } @rgb : undef;
+}
+
+sub is_hex {
+   my $self = shift;
+   my $data = shift;
+   return $data =~ m[^#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$]i;
 }
 
 1;
@@ -270,6 +375,25 @@ the mime type of the graphic and the created random string.
 The module also has some I<"styles"> that are used to create the background 
 of the image.
 
+=head1 COLOR PARAMETERS
+
+Version 1.51 and later of this module is a little smarter than the 
+older versions. You can now use RGB and HEX values as the color 
+parameters:
+
+   $color  = '#80C0F0';     # HEX
+   $color2 = [15, 100, 75]; # RGB
+   $i->create($meth, $style, $color, $color2)
+
+   $i->create(ttf => 'box', '#80C0F0', '#0F644B')
+
+RGB values must be passed as an array reference including the three
+I<B<R>ed>, I<B<G>reen> and I<B<B>lue> values.
+
+Color conversion is transparent to the user. You can use hex values
+under both C<GD> and C<Image::Magick>. They' ll be automatically converted
+to RGB if you are under C<GD>.
+
 =head1 METHODS
 
 =head2 new
@@ -319,8 +443,7 @@ The names are case-insensitive; you can pass lower-cased parameters.
 
 =item bgcolor
 
-The background color of the image. Passed as an arrayref with three 
-elements (red, green, blue).
+The background color of the image.
 
 =item send_ctobg
 
@@ -432,8 +555,7 @@ Note: if you have a (very) old version of GD, you may not be able
 to use some of the styles.
 
 The last two arguments (C<$text_color> and C<$line_color>) are the 
-colors used in the image (text and line color -- respectively) and 
-they are passed as a 3-element (red, green and blue) arrayref.
+colors used in the image (text and line color -- respectively):
 
    $image->create($method, $style, [0,0,0], [200,200,200]);
 
@@ -463,7 +585,7 @@ The color of the particles are the same as the color of your text
 =head2 out
 
 This method finally returns the created image, the mime type of the 
-image and the random number generated. Older versions of GD only supports
+image and the random number(s) generated. Older versions of GD only supports
 C<gif> type, while new versions support C<jpeg> and C<png> 
 (B<update>: beginning with v2.15, GD resumed gif support).
 
@@ -541,9 +663,8 @@ the files.
 
 =head1 ERROR HANDLING
 
-Currently, the module does not check the return values of C<GD>'s and
-C<Image::Magick>' s methods. So, if an error occurs, you may just get 
-an empty image instead of die()ing.
+C<die> is called in some methods if something fails. You may need to 
+C<eval> your code to catch exceptions.
 
 =head1 SEE ALSO
 

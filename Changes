@@ -2,6 +2,25 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.51 Sun Dec 19 00:02:13 2004
+	=> Updated demo program code.
+	=> Updated Makefile.PL.
+	=> New private method cconvert for transparent GD/Image::Magick 
+	   color conversion.
+	=> Removed GD::SecurityImage::Magick::rgbx().
+	=> The module now supports hex color codes like "#ffffff".
+	=> Updated pod.
+
+	=> [NOT DOCUMENTED] New private method add_strip.
+	=> [NOT DOCUMENTED] New method set_tl.
+	=> [NOT DOCUMENTED] New method change_random.
+	=> [NOT DOCUMENTED] New parameter 'text_location' added to new.
+	=> [NOT DOCUMENTED] With text_location option, you can now add info boxes to 
+	   the 4 corners of the image (or you can use this for something else).
+	=> [NOT DOCUMENTED] Behavior of out() changed. If set_tl is used and
+	   you change the random code (text option) several times, it may 
+	   be an array.
+
 1.5 Sat Oct 30 17:11:53 2004
 	=> Fixed pod.
 	=> Minor fixes.

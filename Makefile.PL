@@ -25,6 +25,7 @@ WriteMakefile(
                         'GD'         => 0,
                         'Math::Trig' => 0,
     },
+    (MM->can('signature_target') ? (SIGN => 1) : ()),
     ($] >= 5.005 ? (
     'AUTHOR'       => 'Burak Gursoy <burak@cpan.org>',
     'ABSTRACT'     => 'Security image (captcha) generator',

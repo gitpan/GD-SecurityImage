@@ -20,14 +20,14 @@ use constant MAX_COMPRESS => 9;
 
 use GD;
 
-$VERSION = "1.42";
+$VERSION = "1.43";
 $methTTF = $GD::VERSION >= 1.31 ? 'stringFT' : 'stringTTF'; # define the tff drawing method.
 
 sub init {
    # Create the image object
    my $self = shift;
       $self->{image} = GD::Image->new($self->{width}, $self->{height});
-      $self->{image}->colorAllocate(@{ $self->{bgcolor} }); # set background color
+      $self->cconvert($self->{bgcolor}); # set background color
       $self->setThickness($self->{thickness}) if $self->{thickness};
 }
 
@@ -46,7 +46,9 @@ sub out {
       push @args, MAX_COMPRESS     if $type eq 'png' and $GD::VERSION >= 2.07;
       push @args, $opt{'compress'} if $type eq 'jpeg';
    }
-   return $self->{image}->$type(@args), $type, $self->{_RANDOM_NUMBER_};
+   my @all_random = @{ $self->{_RND_LIST_} };
+      @all_random = ($self->{_RANDOM_NUMBER_}) unless @all_random;
+   return $self->{image}->$type(@args), $type, @all_random;
 }
 
 sub gdbox_empty {shift->{GDBOX_EMPTY}}
@@ -74,17 +76,17 @@ sub insert_text {
       require Math::Trig;
       # don' t draw. we just need info...
       my $info = sub {
-                      my $txt = shift;
-                      my $ang = shift || 0;
-                         $ang = Math::Trig::deg2rad($ang) if $ang;
-                      my @box = GD::Image->$methTTF($self->{_COLOR_}{text},$self->{font},$self->{ptsize},$ang,0,0,$txt);
-                      unless (@box) { # use fake values instead of die-ing
-                         $self->{GDBOX_EMPTY} = 1; # set this for error checking.
-                         $#box    = 7;
-                         # lets initialize to silence the warnings
-                         $box[$_] = 1 for 0..7;
-                      }
-                      return @box;
+         my $txt = shift;
+         my $ang = shift || 0;
+            $ang = Math::Trig::deg2rad($ang) if $ang;
+         my @box = GD::Image->$methTTF($self->{_COLOR_}{text},$self->{font},$self->{ptsize},$ang,0,0,$txt);
+         unless (@box) { # use fake values instead of die-ing
+            $self->{GDBOX_EMPTY} = 1; # set this for error checking.
+            $#box    = 7;
+            # lets initialize to silence the warnings
+            $box[$_] = 1 for 0..$#box;
+         }
+         return @box;
       };
       if ($self->{scramble}) {
          my @char;
@@ -103,16 +105,35 @@ sub insert_text {
          my @config = ($self->{_COLOR_}{text}, $self->{font}, $self->{ptsize});
          my($x,$y);
          foreach my $box (reverse @char) {
-            $x = $self->{width}  / 2 + ($box->[_X_] - $total);
-            $y = $self->{height} / 2 +  $box->[_Y_];
+            $x  = $self->{width}  / 2 + ($box->[_X_] - $total);
+            $y  = $self->{height} / 2 +  $box->[_Y_];
             $y += $randomy[int rand @randomy];
             $self->{image}->$methTTF(@config, Math::Trig::deg2rad($box->[CHAR]), $x, $y, $box->[ANGLE]);
             $total -= $space->[_X_];
          }
       } else {
-         my @box = $info->($key);
-         my $x   = ($self->{width}  - ($box[LOW_RIGHT_X] - $box[LOW_LEFT_X])) / 2;
-         my $y   = ($self->{height} - ($box[UP_LEFT_Y]   - $box[LOW_LEFT_Y])) / 2;
+         my(@box,$x,$y);
+         my $tl = $self->{_TEXT_LOCATION_};
+         if ($tl->{_place_}) {
+            # put the text to one of the four corners in the image
+            my $white = $self->cconvert([255,255,255]);
+            my $black = $self->cconvert($self->{_COLOR_}{text});
+            if ($tl->{gd}) { # draw with standard gd fonts
+               $self->place_gd($key, $tl->{x}, $tl->{y});
+               return; # by-pass ttf method call...
+            } else {
+               @box = $info->($key);
+               $x   = $tl->{x} eq 'left'? 0                                    : ($self->{width}  - ($box[LOW_RIGHT_X] - $box[LOW_LEFT_X]));
+               $y   = $tl->{y} eq 'up'  ? ($box[LOW_LEFT_Y] - $box[UP_LEFT_Y]) :  $self->{height}-2;
+               if ($tl->{strip}) {
+                  $self->add_strip($x, $y, $box[LOW_RIGHT_X] - $box[LOW_LEFT_X], $box[LOW_LEFT_Y] - $box[UP_LEFT_Y]);
+               }
+            }
+         } else {
+            @box = $info->($key);
+            $x = ($self->{width}  - ($box[LOW_RIGHT_X] - $box[LOW_LEFT_X])) / 2;
+            $y = ($self->{height} - ($box[UP_LEFT_Y]   - $box[LOW_LEFT_Y])) / 2;
+         }
          $self->{image}->$methTTF($self->{_COLOR_}{text}, $self->{font}, $self->{ptsize}, 0, $x, $y, $key);
       }
    } else {
@@ -144,6 +165,36 @@ sub insert_text {
          $self->{image}->string($self->{gd_font}, $x, $y, $key, $self->{_COLOR_}{text});
       }
    }
+}
+
+sub place_gd {
+   my $self  = shift;
+   my($key, $tX, $tY) = @_;
+   my $tl    = $self->{_TEXT_LOCATION_};
+   my $black = $self->cconvert($self->{_COLOR_}{text});
+   my $white = $self->cconvert($tl->{scolor});
+   my $font  = GD::Font->Tiny;
+   my $fx    = (length($key)+1)*$font->width;
+   my $x1    = $self->{width} - $fx;
+   my $y1    = $tY eq 'up' ? 0 : $self->{height} - $font->height;
+   if ($tY eq 'up') {
+      if($tX eq 'left') {
+         $self->filledRectangle(0, $y1  , $fx  , $font->height+2, $black);
+         $self->filledRectangle(1, $y1+1, $fx-1, $font->height+1, $white);
+      } else {
+         $self->filledRectangle($x1-$font->width - 1, $y1  , $self->{width}  , $font->height+2, $black);
+         $self->filledRectangle($x1-$font->width    , $y1+1, $self->{width}-2, $font->height+1, $white);
+      }
+   } else {
+      if($tX eq 'left') {
+         $self->filledRectangle(0, $y1-2, $fx  , $self->{height}  , $black);
+         $self->filledRectangle(1    , $y1-1, $fx-1, $self->{height}-2, $white);
+      } else {
+         $self->filledRectangle($x1-$font->width - 1, $y1-2, $self->{width}  , $self->{height}  , $black);
+         $self->filledRectangle($x1-$font->width    , $y1-1, $self->{width}-2, $self->{height}-2, $white);
+      }
+   }
+   $self->{image}->string($font, $tX eq 'left' ? 2 : $x1, $tY eq 'up' ? $y1+1 : $y1-1, $key, $self->{_COLOR_}{text});
 }
 
 sub ttf_info {
