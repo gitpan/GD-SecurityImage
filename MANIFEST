@@ -1,0 +1,10 @@
+lib/GD/SecurityImage.pm
+Changes
+Makefile.PL
+MANIFEST
+README
+StayPuft.ttf
+t/01_use.t
+t/02_normal.t
+t/03_ttf.t
+META.yml                                 Module meta-data (added by MakeMaker)
