@@ -4,7 +4,7 @@ use vars qw[@ISA $VERSION];
 use GD::SecurityImage::Styles;
 
 @ISA     = qw(GD::SecurityImage::Styles);
-$VERSION = "1.33";
+$VERSION = '1.4_01';
 
 sub import {
    # load the drawing interface
@@ -44,8 +44,29 @@ sub new {
                bgcolor    => $opt{bgcolor}             || [255, 255, 255],
                send_ctobg => $opt{send_ctobg}          || 0,
                frame      => defined($opt{frame}) ? $opt{frame} : 1,
+               scramble   => $opt{scramble}            || 0,
+               angle      => $opt{angle}               || 0,
+               _ANGLES_   => [], # angle list for scrambled images
    );
    $self->{$_} = $options{$_} foreach keys %options;
+   if($self->{angle}) { # validate angle
+      $self->{angle} = 360 - $self->{angle} if $self->{angle} < 0;
+      if($self->{angle} > 360) {
+         die "Angle parameter can take values in the range -360..360";
+      }
+   }
+
+   if ($self->{scramble}) {
+      if ($self->{angle}) {
+         # Does the user wants a fixed angle?
+         push @{ $self->{_ANGLES_} }, $self->{angle};
+      } else {
+         # Generate angle range. The reason for hardcoding these is; 
+         # it'll be less random for 0..60 range
+         push @{ $self->{_ANGLES_} }, (0,5,8,15,22,26,29,33,35,36,40,43,45,53,56);
+         push @{ $self->{_ANGLES_} }, map {360 - $_} @{ $self->{_ANGLES_} }; # push negatives
+      }
+   }
    $self->init;
    return $self;
 }
@@ -54,6 +75,14 @@ sub gdf {
    my $self = shift;
    return if $self->{IS_MAGICK};
    return $self->gdfx(@_);
+}
+
+sub random_angle {
+   my $self   = shift;
+   my @angles = @{ $self->{_ANGLES_} };
+   my @r;
+   push @r, $angles[int rand @angles] for 0..$#angles;
+   return $r[int rand @r];
 }
 
 sub random_str { shift->{_RANDOM_NUMBER_} }
@@ -89,6 +118,12 @@ sub create {
    $self->{send_ctobg} = 0 if $style eq 'box'; # disable for that style
 
    $self->{_COLOR_} = \%color; # set the color hash
+
+   # be a smart module and auto-disable ttf if we are under a prehistoric GD
+   unless ($self->{IS_MAGICK}) {
+      $method = 'normal' if defined $GD::VERSION and $GD::VERSION < 1.20;
+   }
+
    if($method eq 'normal' and not $self->{gd_font}) {
       $self->{gd_font} = $self->gdf('giant');
    }
@@ -146,7 +181,7 @@ __END__
 
 =head1 NAME
 
-GD::SecurityImage - Create a security image with a random string on it.
+GD::SecurityImage - Security image (captcha) generator.
 
 =head1 SYNOPSIS
 
@@ -162,10 +197,11 @@ GD::SecurityImage - Create a security image with a random string on it.
    my($image_data, $mime_type, $random_number) = $image->out;
 
    # use external ttf font
-   my $image = GD::SecurityImage->new(width  => 100,
-                                      height => 40,
-                                      lines  => 10,
-                                      font   => "/absolute/path/to/your.ttf");
+   my $image = GD::SecurityImage->new(width    => 100,
+                                      height   => 40,
+                                      lines    => 10,
+                                      font     => "/absolute/path/to/your.ttf",
+                                      scramble => 1);
       $image->random($your_random_str);
       $image->create(ttf => 'default');
       $image->particle;
@@ -176,7 +212,7 @@ or you can just say (all public methods can be chained)
    my($image, $type, $rnd) = GD::SecurityImage->new->random->create->particle->out;
 
 to create a security image with the default settings. But that may not be 
-usefull.
+useful.
 
 If you C<require> the module, you B<must> import it also:
 
@@ -221,10 +257,11 @@ necessary sub modules.
 
 The (so called) I<"Security Images"> are so popular. Most internet 
 software use these in their registration screens to block robot programs
-(which may register tons of  fake member accounts). This module gives
-you a basic interface to create such an image. The final output is
-the actual graphic data, the mime type of the graphic and the created
-random string.
+(which may register tons of  fake member accounts). Security images are
+basicly, graphical CAPTCHAs (Completely Automated Public Turing Test to 
+Tell Computers and Humans Apart). This module gives you a basic interface 
+to create such an image. The final output is the actual graphic data, 
+the mime type of the graphic and the created random string.
 
 The module also has some I<"styles"> that are used to create the background 
 of the image.
@@ -291,6 +328,22 @@ background and the lines will pass over it.
 
 If has a true value, a frame will be added around the image. This
 option is enabled by default.
+
+=item scramble
+
+If set, the characters will be scrambled. If you enable this option,
+be sure to use a wider image, since the characters will be separeted 
+with three spaces.
+
+=item angle
+
+Sets the angle for scrambled characters. Beware that, if you pass
+an C<angle> parameter, the characters in your random string will have
+a fixed angle. If you do not set an C<angle> parameter, the angle(s)
+will be random.
+
+Unlike the GD interface, C<$angle> is in C<degree>s and can take values 
+between C<0> and C<360>.
 
 =item rndmax
 
@@ -506,9 +559,12 @@ To check if the module failed to find the ttf font (when using C<GD>), a new
 method added: C<gdbox_empty()>. It must be called after C<create()>:
 
    $image->create;
-   die "Error loading ttf font for GD!" if $image->gdbox_empty;
+   die "Error loading ttf font for GD: $@" if $image->gdbox_empty;
 
 C<gdbox_empty()> always returns false, if you are using C<Image::Magick>.
+
+B<Note>: New versions of GD does not have this bug. You can upgrade to 
+v2.16 or any newer version to fix this.
 
 =back
 

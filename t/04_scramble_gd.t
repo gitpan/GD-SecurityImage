@@ -20,12 +20,11 @@ BEGIN {
 }
 
 my %same = (
-   width      => 300,
-   height     => 80,
+   width      => 200,
+   height     => 20,
    send_ctobg => 1,
-   font       => getcwd.'/StayPuft.ttf',
-   ptsize     => 40,
-
+   gd_font    => 'giant',
+   scramble   => 1,
 );
 
 my $counter = 1;
@@ -55,48 +54,48 @@ sub save {
 
 sub ec {
    return GD::SecurityImage
-          ->new(lines => 40, bgcolor => [0,0,0], %same)
+          ->new(lines => 1, bgcolor => [0,0,0], %same)
           ->random('EC0123')
-          ->create(ttf => 'ec', [84, 207, 112], [0,0,0])
-          ->particle(3000)
+          ->create(normal => 'ec', [84, 207, 112], [0,0,0])
+          ->particle(150,2)
 }
 
 sub ellipse {
    return GD::SecurityImage
-          ->new(lines => 70, bgcolor => [208, 202, 206], %same)
+          ->new(lines => 8, bgcolor => [208, 202, 206], %same)
           ->random('ELLIPSE')
-          ->create(ttf => 'ellipse', [231,219,180], [231,219,180])
-          ->particle
+          ->create(normal => 'ellipse', [156,101,49], [156,101,49])
+          ->particle(300)
 }
 
 sub circle {
    return GD::SecurityImage
-          ->new(lines => 70, bgcolor => [210, 215, 196], %same)
+          ->new(lines => 4, bgcolor => [210, 215, 196], %same)
           ->random('CIRCLE')
-          ->create(ttf => 'circle', [63, 143, 167], [210, 215, 196])
-          ->particle
+          ->create(normal => 'circle', [163, 100, 167], [210, 215, 196])
+          ->particle(300)
 }
 
 sub box {
    return GD::SecurityImage
-          ->new(lines => 10, %same, frame => 0)
+          ->new(lines => 4, %same)
           ->random('BOX012')
-          ->create(ttf => 'box', [255,255,255], [115, 115, 115])
-          ->particle(8000, 2)
+          ->create(normal => 'box', [63, 143, 167], [226, 223, 169])
+          ->particle(300,2)
 }
 
 sub rect {
    return GD::SecurityImage
-          ->new(lines => 40, %same)
+          ->new(lines => 8, %same)
           ->random('RECT01')
-          ->create(ttf => 'rect', [63, 143, 167], [226, 223, 169])
-          ->particle
+          ->create(normal => 'rect', [63, 25, 167], [226, 223, 169])
+          ->particle(300)
 }
 
 sub default {
    return GD::SecurityImage
-          ->new(lines => 15, %same)
+          ->new(lines => 4, %same)
           ->random('DEFAULT')
-          ->create(ttf => 'default', [68,150,125], [255,0,0])
-          ->particle(10000)
+          ->create(normal => 'default', [68,150,125], [255,0,0])
+          ->particle(250)
 }

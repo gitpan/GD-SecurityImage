@@ -9,7 +9,7 @@ BEGIN {
    unlink 'skip_gd'     if -e 'skip_gd';
 }
 
-my %p = ('GD' => 0, 'Image::Magick' => 0);
+my %p = ('GD' => 0, 'Image::Magick' => 0, 'Math::Trig' => 0);
 
 my $makec = $^O eq 'MSWin32' ? 'nmake' : 'make';
 
@@ -46,7 +46,7 @@ WriteMakefile(
     'PREREQ_PM'    => \%p,
     ($] >= 5.005 ? (
     'AUTHOR'       => 'Burak Gursoy <burak@cpan.org>',
-    'ABSTRACT'     => 'Create a security image with a random string on it',
+    'ABSTRACT'     => 'Security image (captcha) generator',
      ) : ()),
 );
 

@@ -27,6 +27,7 @@ my %same = (
 );
 
 my $counter = 1;
+(my $ID = $0) =~ s[.+?(\d+)_.*$][$1];
 
 generate();
 
@@ -40,7 +41,7 @@ sub generate {
 
 sub save {
    my ($image, $mime, $random, $style) = @_;
-   my $name = sprintf "gd_%02d_%s.%s", $counter, $style, $mime;
+   my $name = sprintf "%s_%02d_%s.%s", $ID, $counter, $style, $mime;
    local  *SI;
    open    SI, ">$name" or die "Error writing the image '$name' to disk: $!";
    binmode SI;

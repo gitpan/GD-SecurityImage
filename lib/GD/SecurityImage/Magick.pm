@@ -2,12 +2,21 @@ package GD::SecurityImage::Magick;
 # GD method emulation class for Image::Magick
 use strict;
 use vars qw[$VERSION];
-use constant IM_WIDTH    => 4;
-use constant IM_ASCENDER => 2;
+
+use constant X_PPEM      => 0; # character width 
+use constant Y_PPEM      => 1; # character height
+use constant ASCENDER    => 2; # ascender
+use constant DESCENDER   => 3; # descender
+use constant WIDTH       => 4; # text width
+use constant HEIGHT      => 5; # text height
+use constant MAX_ADVANCE => 6; # maximum horizontal advance
+
+use constant ANGLE       => -2;
+use constant CHAR        => -1;
 
 use Image::Magick;
 
-$VERSION = "1.12";
+$VERSION = "1.2";
 
 sub gdbox_empty {0} # fake method for GD compatibility.
 
@@ -46,22 +55,35 @@ sub insert_text {
    my $self   = shift;
    my $method = shift; # not needed with Image::Magick (always use ttf)
    my $key    = $self->{_RANDOM_NUMBER_}; # random string
-   my @metric = $self->{image}
-                     ->QueryFontMetrics(font      => $self->{font},
-                                        text      => $key,
-                                        pointsize => $self->{ptsize});
-   # Text is not in the middle. There is a minimal error placing the text.
-   # Some manual altering is required unless there is a better way...
-   my $x = ($self->{width}  - $metric[IM_WIDTH]   ) / 2;
-   my $y = ($self->{height} + $metric[IM_ASCENDER]) / 2;
-
-   $self->{image}->Annotate(font      => $self->{font},
-                            encoding  => 'UTF-8',
-                            text      => $key,
-                            pointsize => $self->{ptsize},
-                            fill      => $self->rgbx($self->{_COLOR_}{text}),
-                            x         => $x,
-                            y         => $y );
+   my $info   = sub {$self->{image}->QueryFontMetrics(font => $self->{font}, text => shift, pointsize => $self->{ptsize})};
+   my %same   = (font      => $self->{font},
+                 encoding  => 'UTF-8',
+                 pointsize => $self->{ptsize},
+                 fill      => $self->rgbx($self->{_COLOR_}{text}),
+   );
+   if ($self->{scramble}) {
+      my $space = [$info->(' '), 0, ' ']; # get " " parameters
+      my @char;
+      foreach (split //, $key) {
+         push @char, [$info->($_), $self->random_angle, $_], $space, $space, $space;
+      }
+      my $total = 0;
+         $total += $_->[WIDTH] foreach @char;
+      foreach my $magick (@char) {
+         $total -= $magick->[WIDTH] * 2;
+         $self->{image}->Annotate(text   => $magick->[CHAR],
+                                  x      => ($self->{width}  - $total - $magick->[WIDTH]   ) / 2,
+                                  y      => ($self->{height}          + $magick->[ASCENDER]) / 2,
+                                  rotate => $magick->[ANGLE],
+                                  %same);
+      }
+      # stretch=>{Normal, UltraCondensed, ExtraCondensed, Condensed, SemiCondensed, SemiExpanded, Expanded, ExtraExpanded, UltraExpanded}
+   } else {
+      my @metric = $info->($key);
+      my $x = ($self->{width}  - $metric[WIDTH]   ) / 2;
+      my $y = ($self->{height} + $metric[ASCENDER]) / 2;
+      $self->{image}->Annotate(text => $key, x => $x, y => $y, %same);
+   }
 }
 
 sub setPixel {

@@ -5,6 +5,11 @@ lib/GD/SecurityImage/Styles.pm
 t/01_gd.t
 t/02_gd_ttf.t
 t/03_magick.t
+t/04_scramble_gd.t
+t/05_scramble_gd_ttf.t
+t/06_scramble_magick.t
+t/07_scramble_gd_ttf_fixed.t
+t/08_scramble_magick_fixed.t
 Changes
 Makefile.PL
 MANIFEST

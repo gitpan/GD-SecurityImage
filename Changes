@@ -2,6 +2,30 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.4_01 Mon Sep 20 16:46:13 2004
+	=> It looks like newer versions of GD does not have the path 
+	   bug, but I do not know the exact version that this was 
+	   fixed. Anyway, it looks like v2.16 does not have that bug. 
+	   Also added this to Pod.
+	=> The module now automatically drops to 'normal' mode if
+	   you are using GD and your GD version is smaller than 1.20
+	   and you have selected 'ttf' method.
+	   Q: Why?
+	   A: v1.19 and below does not have ttf support. (As mentioned
+	      in earlier releases) -- also: sf.net has GD v1.19 :).
+	   Module does this silently, so you'll not get any warnings about
+	   that.
+	=> New parameters scramble and angle added to new(). If you enable 
+	   scramble, you have to generate a bigger image, since characters 
+	   have three spaces between them.
+	=> I've decided to change the description of the module. Now it
+	   has the word "captcha" in it (for search engines).
+	=> Added some new constants to both backends.
+	=> Module now requires Math::Trig (which is a CORE module) for 
+	   degree to radian calculation.
+	=> New tests for scramble.
+	=> New private method random_angle.
+
 1.33 Sun Aug 22 16:50:42 2004
 	=> Because of libgd's path bug, in some cases,
 	   GD::SecurityImage::GD::insert_text() can not get the 
