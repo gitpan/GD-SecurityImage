@@ -18,7 +18,6 @@ my $image = GD::SecurityImage->new(
 );
 
 $image->random; # let the module create this
-printf STDERR "\nRandom string: %s\n", $image->random_str;
 $image->create(normal => 'rect', [10,10,10], [210,210,50]);
 
 my($image_data, $mime_type, $random_string) = $image->out;

@@ -2,5 +2,18 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.1 Fri May 14 22:08:39 2004
+	=> Added 'send_ctobg' option to new().
+	=> After testing the code with a *really* old GD 
+	   (1.19 -- which has no ttf support), I've realized 
+	   that stringFT was implemented in GD 1.31. 
+	   So, the ttf test now has a skip option.
+	=> Also added stringTTF check for backward compatibility.
+	   stringTTF => (GD 1.20 @ 30 Aug 1999 )
+	   stringFT  => (GD 1.31 @ 26 Sep 2001 )
+	=> Fixed pod. There was an '=item' instead of '=head'.
+	=> Added new styles 'circle' and 'ellipse'.
+	=> Updated 03_ttf.t
+
 1.0 Mon Apr 26 21:40:45 2004
 	=> First release.

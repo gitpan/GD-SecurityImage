@@ -9,7 +9,7 @@ use constant LOW_LEFT_Y  => 1;
 use constant LOW_RIGHT_X => 2;
 use constant UP_LEFT_Y   => 7;
 
-$VERSION = "1.0";
+$VERSION = "1.1";
 
 sub new {
    my $class = shift;
@@ -17,15 +17,16 @@ sub new {
    my $self  = {};
    bless $self, $class;
    my %options = (
-               width    => $opt{width}    || 80,
-               height   => $opt{height}   || 30,
-               ptsize   => $opt{ptsize}   || 20,
-               lines    => $opt{lines}    || 10,
-               rndmax   => $opt{rndmax}   || 6,
-               rnd_data => $opt{rnd_data} || [0..9],
-               font     => $opt{font}     || '',
-               gd_font  => $self->gdf($opt{gd_font}) || GD::Font->Giant,
-               bgcolor  => $opt{bgcolor}  || [255, 255, 255],
+               width      => $opt{width}    || 80,
+               height     => $opt{height}   || 30,
+               ptsize     => $opt{ptsize}   || 20,
+               lines      => $opt{lines}    || 10,
+               rndmax     => $opt{rndmax}   || 6,
+               rnd_data   => $opt{rnd_data} || [0..9],
+               font       => $opt{font}     || '',
+               gd_font    => $self->gdf($opt{gd_font}) || GD::Font->Giant,
+               bgcolor    => $opt{bgcolor}  || [255, 255, 255],
+               send_ctobg => $opt{send_ctobg},
    );
    $self->{$_}    = $options{$_} foreach keys %options;
    $self->{image} = GD::Image->new($self->{width}, $self->{height});
@@ -78,20 +79,21 @@ sub create {
    );
 
    $style = $self->can('style_'.$style) ? 'style_'.$style : 'style_default';
-   $self->$style(%color);
+   $self->$style(%color) unless $self->{send_ctobg};
 
    my $key = $self->{_RANDOM_NUMBER_}; # random string
 
    if ($method eq 'ttf') {
+      my $methTTF = $GD::VERSION >= 1.31 ? 'stringFT' : 'stringTTF';
       # don' t draw. we just need info...
-      my @box = GD::Image->stringFT($color{text},$self->{font},$self->{ptsize},0,0,0,$key)
+      my @box = GD::Image->$methTTF($color{text},$self->{font},$self->{ptsize},0,0,0,$key)
                 # or die "I can not get the boundary list: $@"
                 # I think that libgd also has some problems 
                 # with paths that have spaces in it.
                 ; 
       my $x = ($self->{width}  - ($box[LOW_RIGHT_X] - $box[LOW_LEFT_X])) / 2;
       my $y = ($self->{height} - ($box[UP_LEFT_Y]   - $box[LOW_LEFT_Y])) / 2;
-      $self->{image}->stringFT($color{text}, $self->{font}, $self->{ptsize}, 0, $x, $y, $key);
+      $self->{image}->$methTTF($color{text}, $self->{font}, $self->{ptsize}, 0, $x, $y, $key);
    } else {
       my $sw = $self->{gd_font}->width * length($key);
       my $sh = $self->{gd_font}->height;
@@ -100,6 +102,7 @@ sub create {
       $self->{image}->string($self->{gd_font}, $x, $y, $key, $color{text});
    }
 
+   $self->$style(%color) if $self->{send_ctobg};
    return $self if defined wantarray;
 }
 
@@ -152,6 +155,36 @@ sub style_box {
    $self->{image}->filledRectangle(0 , 0 , $self->{width}         , $self->{height}         , $color{text});
    $self->{image}->filledRectangle($w, $w, $self->{width} - $w - 1, $self->{height} - $w - 1, $color{lines} );
 }
+
+
+sub style_circle {
+   my $self  = shift;
+   my $cx    = $self->{width}  / 2;
+   my $cy    = $self->{height} / 2;
+   my %color = @_;
+   my $max   = int $self->{width} / $self->{lines};
+      $max++;
+
+   for(1..$self->{lines}){
+      $self->{image}->arc($cx,$cy,$max*$_,$max*$_,0,360,$color{lines});
+   }
+}
+
+sub style_ellipse {
+   my $self  = shift;
+   my $cx    = $self->{width}  / 2;
+   my $cy    = $self->{height} / 2;
+   my %color = @_;
+   my $max   = int $self->{width} / $self->{lines};
+      $max++;
+
+   for(1..$self->{lines}){
+      $self->{image}->ellipse($cx,$cy,$max*$_*2,$max*$_,$color{lines});
+   }
+}
+
+#$image->ellipse($cx,$cy,$width,$height,$color)
+
 
 1;
 
@@ -269,6 +302,14 @@ The names are case-insensitive; you can pass lower-cased parameters.
 
 The background color of the image.
 
+=item send_ctobg
+
+If has a true value, the random security code will be showed on the 
+background and the lines will pass over it. 
+(send_ctobg = send code to background)
+
+Do not use with the C<box> style.
+
 =back
 
 =head2 random
@@ -277,7 +318,7 @@ Creates the random security string or sets the random string to
 the value you have passed. If you pass your own random string, be aware 
 that it must be at least six characters long.
 
-=item random_str
+=head2 random_str
 
 Returns the random string. Must be called after C<random()>.
 
@@ -289,7 +330,7 @@ none are mandatory.
    $image->create($method, $style, $text_color, $line_color);
 
 C<$method> can be C<normal> or C<ttf>.
-C<$style> can be C<default> or C<rect> or C<box>.
+C<$style> can be C<default> or C<rect> or C<box> or C<circle> or C<ellipse>.
 The last two arguments are the colors used in the image and they are 
 passed as a 3-element (red, green and blue) arrayref.
 
