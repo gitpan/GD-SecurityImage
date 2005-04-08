@@ -20,7 +20,7 @@ use constant MAX_COMPRESS => 9;
 
 use GD;
 
-$VERSION = "1.43";
+$VERSION = "1.44";
 $methTTF = $GD::VERSION >= 1.31 ? 'stringFT' : 'stringTTF'; # define the tff drawing method.
 
 sub init {
@@ -29,6 +29,9 @@ sub init {
       $self->{image} = GD::Image->new($self->{width}, $self->{height});
       $self->cconvert($self->{bgcolor}); # set background color
       $self->setThickness($self->{thickness}) if $self->{thickness};
+   if($GD::VERSION < 2.07) {
+      $self->{DISABLED}{$_} = 1 foreach qw[ellipse setThickness _png_compression];
+   }
 }
 
 sub out {
@@ -36,14 +39,20 @@ sub out {
    my $self = shift;
    my %opt  = scalar @_ % 2 ? () : (@_);
    my $type;
-   my @args = ();
    if($opt{force} and $self->{image}->can($opt{force})){
       $type = $opt{force};
    } else {
-      $type = $self->{image}->can('gif') ? 'gif' : 'jpeg'; # check for older GDs and newer GDs as the new versions include gif() again!
+      # define the output format. png is first due to various problems with gif() format
+      foreach (qw( png gif jpeg )) {
+         if($self->{image}->can($_)) {
+            $type = $_;
+            last;
+         }
+      }
    }
+   my @args = ();
    if ($opt{'compress'}) {
-      push @args, MAX_COMPRESS     if $type eq 'png' and $GD::VERSION >= 2.07;
+      push @args, MAX_COMPRESS     if $type eq 'png' and not $self->{DISABLED}{_png_compression};
       push @args, $opt{'compress'} if $type eq 'jpeg';
    }
    my @all_random = @{ $self->{_RND_LIST_} };
@@ -269,7 +278,7 @@ Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2004 Burak Gürsoy. All rights reserved.
+Copyright 2004-2005 Burak Gürsoy. All rights reserved.
 
 =head1 LICENSE
 

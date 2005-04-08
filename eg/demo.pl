@@ -1,12 +1,12 @@
 #!/usr/bin/perl -w
 # -> GD::SecurityImage demo program
-# -> Burak Gürsoy
+# -> Burak Gürsoy (c) 2005. 
+# See the document section after "__END__" for license and other information.
 package demo;
 use strict;
-use vars qw[$VERSION %config];
+use vars qw[$VERSION %config $IS_GD];
+use CGI qw[header escapeHTML];
 use Cwd;
-
-$VERSION = "1.11";
 
 %config = (
    database   => 'gdsi',                 # database name (for session storage)
@@ -14,7 +14,7 @@ $VERSION = "1.11";
    user       => 'root',                 # database user name
    pass       => '',                     # database user's password
    font       => getcwd."/StayPuft.ttf", # ttf font
-   itype      => 'gif',                  # image format. set this to gif or png or jpeg
+   itype      => 'png',                  # image format. set this to gif or png or jpeg
    use_magick => 0,                      # use Image::Magick or GD
    img_stat   => 1,                      # display statistics on the image?
 );
@@ -26,11 +26,17 @@ $VERSION = "1.11";
 #   a_session text
 #);
 
+#--------------> START PROGRAM <--------------#
+
+$VERSION = "1.2";
+
 BEGIN {
-   use CGI::Carp qw[fatalsToBrowser];
-   use CGI       qw[header escapeHTML];
    my @errors;
-   my $test = sub { eval "require ".$_[0]; push @errors, [$_[0], $@] if $@};
+   my $test = sub {
+      local $SIG{__DIE__}; # Storable' s [eval "use Log::Agent";] line breaks the handler, since it is not a common module and does not exist generally...
+      eval "require $_[0]";
+      push @errors, [$_[0], $@] if $@
+   };
    $test->($_) foreach qw[DBI DBD::mysql Apache::Session::MySQL String::Random GD::SecurityImage Time::HiRes];
    if (@errors) {
       my $err = header;
@@ -40,25 +46,44 @@ BEGIN {
       print $err;
       exit;
    }
+   $SIG{__DIE__} = sub {
+      my $err  = header;
+         $err .= qq~<h1 style="color:red;font-weight:bold">FATAL ERROR</h1>~;
+         $err .= "@_";
+      print $err;
+      exit;
+   };
 }
 
-#--------------> START PROGRAM <--------------#
+TEST_FONT_EXISTENCE: {
+   unless($config{use_magick}) {
+      if ($config{font} =~ m[\s]s) {
+         die "The font path '$config{font}' has a space in it. GD hates spaces!";
+      }
+   }
+   if (open FONTFILE, $config{font}) {
+      close FONTFILE;
+   } else {
+      die qq~I can not open/find the font file in '$config{font}'~;
+   }
+}
 
-run() unless caller;
+run() unless caller; # if you require this, you'll need to call demo::run()
 
 sub run {
    my $START = Time::HiRes::time();
-   my $self = bless {}, __PACKAGE__;
+   my $self  = bless {}, __PACKAGE__;
+
    import GD::SecurityImage use_magick => $config{use_magick};
 
-   $self->{cgi} = CGI->new;
+   $IS_GD           = $GD::SecurityImage::BACKEND eq 'GD';
+   $self->{cgi}     = CGI->new;
    $self->{program} = $self->{cgi}->url;my @jp;($self->{program},@jp) = split /\?/, $self->{program};
-   my %options = $self->all_options;
-   my %styles  = $self->all_styles;
-   $self->{CPAN} = "http://search.cpan.org/dist";
-
-   my @optz = keys %options;
-   my @styz = keys %styles;
+   $self->{CPAN}    = "http://search.cpan.org/dist";
+   my %options      = $self->all_options;
+   my %styles       = $self->all_styles;
+   my @optz         = keys %options;
+   my @styz         = keys %styles;
 
    $self->{rnd_opt} = $options{$optz[int rand @optz]};
    $self->{rnd_sty} = $styles{ $styz[int rand @styz]};
@@ -92,7 +117,7 @@ sub run {
    my $help    = $self->{cgi}->param('help');
    my $output  = "";
 
-   my $HEADER = sub {
+   my $HEADER  = sub {
       my %o = @_;
       $self->{cgi}->header(
          -type   => $o{type} ? $o{type} : ($display ? 'image/'.$config{itype} : 'text/html'), 
@@ -108,7 +133,7 @@ sub run {
          $output .= qq~<b>'$code' == '$session{security_code}'</b><br>Congratulations! You have passed the test!<br><br><a href="$self->{program}">Try again</a>~;
       } else {
          $code    = CGI::escapeHTML($code);
-         $output .= qq~<b>'$code' != '$session{security_code}'</b><br><span style="color:red;font-weight:bold">You have failed to identify yourself as a human!</span><br>~.form();
+         $output .= qq~<b>'$code' != '$session{security_code}'</b><br><span style="color:red;font-weight:bold">You have failed to identify yourself as a human!</span><br>~.$self->form();
       }
    } elsif ($help) {
       $output .= $self->help;
@@ -116,8 +141,9 @@ sub run {
       my($image, $mime, $random) = $self->create_image($session{security_code}, $START = Time::HiRes::time());
       $output  = $HEADER->(type => "image/$mime");
       $output .= $image;
+      binmode STDOUT;
    } else {
-      $output .= form();
+      $output .= $self->form();
    }
 
    unless($display) { # don't do these if we are displaying the image.
@@ -128,14 +154,14 @@ sub run {
                  ? qq~<a href="$self->{CPAN}/GD"         target="_blank">GD</a> v$GD::VERSION~ 
                  : qq~<a href="$self->{CPAN}/PerlMagick" target="_blank">Image::Magick</a> v$Image::Magick::VERSION~;
       my $bench = sprintf "Execution time: %.3f seconds", Time::HiRes::time() - $START;
-      $output .= qq*</b>
-      <span class="small"> | <a href   = "http://search.cpan.org/~burak"
-         target = "_blank">\$CPAN/Burak G&uuml;rsoy</a> | $bench | <a href="#" onClick="javascript:help()">?<a/></span>
+      $output .= qq*</b><span class="small">
+      | <a href="http://search.cpan.org/~burak" target="_blank">\$CPAN/Burak G&uuml;rsoy</a>
+      | $bench
+      | <a href="#" onClick="javascript:help()">?<a/></span>
       </p>
       </body>
       </html>*;
    }
-
    untie %session;
    $dbh->disconnect;
    print $output;
@@ -262,9 +288,12 @@ sub create_image { # create a security image with random options and styles
          %{ $self->{rnd_opt} })
    ->random  ($code)
    ->create  (ttf => $s->{name}, $s->{text_color}, $s->{line_color})
-   ->particle($s->{dots} ? ($s->{particle},$s->{dots}) 
+   ->particle($s->{dots} ? ($s->{particle}, $s->{dots}) 
                          : ($s->{particle})
    );
+   if ($i->gdbox_empty) {
+      die qq~An error occurred while opening the font file '$config{font}'. Please set font option to an "exact" path not relative. Error: $@~;
+   }
    if ($config{img_stat}) {
       $i->set_tl(x      => 'right',
                  y      => 'up',
@@ -272,7 +301,7 @@ sub create_image { # create a security image with random options and styles
                  strip  => 1,
                  color  => "#000000",
                  scolor => "#FFFFFF",
-                 ptsize => $i->{IS_MAGICK} ? 12 : 8,
+                 ptsize => $i->{IS_MAGICK} ? 12 : 8, # low-level access to an object table is not a good thing, since the author can change/delete it without notification in later releases ;)
                  text   => sprintf "Security Image generated at %.3f seconds", Time::HiRes::time() - $START,
       )->insert_text('ttf');
    }
@@ -335,7 +364,7 @@ sub all_options {
       angle      => 32,
    },
    );
-   return defined($GD::VERSION) ? (%gd) : (%magick);
+   return $IS_GD ? (%gd) : (%magick);
 }
 
 sub all_styles {
@@ -387,6 +416,8 @@ sub all_styles {
    },
 }
 
+1;
+
 __END__
 
 =head1 NAME
@@ -428,7 +459,9 @@ a table with this SQL code:
 
 If you want to use another table name (not C<sessions>), set the 
 C<$config{table_name}> to the value you want and also modify the 
-C<SQL> code above.
+C<SQL> code above. Witrh the default configuration option, this 
+program assumes that you have a database name C<gdsi>. Change this
+option to the database name you want to use.
 
 Security images are generated with the sample ttf font "StayPuft.ttf".
 Put it into the same folder as this program or alter C<$config{font}> value.
@@ -448,7 +481,7 @@ Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2004 Burak Gürsoy. All rights reserved.
+Copyright 2004-2005 Burak Gürsoy. All rights reserved.
 
 =head1 LICENSE
 

@@ -1,20 +1,21 @@
-
 use ExtUtils::MakeMaker;
 
-my $makec = $^O eq 'MSWin32' ? 'nmake ' : 'make  ';
+my $make = $^O eq 'MSWin32'
+           ? 'nmake'
+           : 'make ';
 
 print qq~
- ------------------------------------------------------------
+.------------------------------------------------------------.
 | You are about to install "GD::SecurityImage".              |
 |                                                            |
 | Although it is in the GD:: namespace, the module is also   |
 | compatible with Image::Magick. If you have "Image::Magick" | 
 | installed, the required tests for "Image::Magick" will be  |
-| performed (if you do a `$makec test`).                     |
+| performed (if you do a `$make test`).                      |
 |                                                            |
 | Note that "Image::Magick" is *not* a prerequisite for      |
 | "GD::SecurityImage", but "GD" is.                          |
- ------------------------------------------------------------
+‘------------------------------------------------------------’
 
 ~;
 

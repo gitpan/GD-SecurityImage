@@ -2,7 +2,7 @@ package GD::SecurityImage::Styles;
 use strict;
 use vars qw[$VERSION];
 
-$VERSION = "1.11";
+$VERSION = "1.12";
 
 sub style_default {
    my $self  = shift;
@@ -54,6 +54,7 @@ sub style_circle {
 
 sub style_ellipse {
    my $self  = shift;
+   return $self->style_default if $self->{DISABLED}{ellipse}; # GD < 2.07
    my $cx    = $self->{width}  / 2;
    my $cy    = $self->{height} / 2;
    my $max   = int $self->{width} / $self->{lines};
@@ -66,7 +67,7 @@ sub style_ellipse {
 
 sub style_ec {
    my $self  = shift;
-      $self->style_ellipse(@_);
+      $self->style_ellipse(@_) unless $self->{DISABLED}{ellipse}; # GD < 2.07
       $self->style_circle(@_);
 }
 
@@ -98,7 +99,7 @@ Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2004 Burak Gürsoy. All rights reserved.
+Copyright 2004-2005 Burak Gürsoy. All rights reserved.
 
 =head1 LICENSE
 

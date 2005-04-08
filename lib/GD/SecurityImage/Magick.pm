@@ -18,9 +18,7 @@ use constant MAX_COMPRESS => 100;
 
 use Image::Magick;
 
-$VERSION = "1.33";
-
-sub gdbox_empty {0} # fake method for GD compatibility.
+$VERSION = "1.34";
 
 sub init {
    # Create the image object
@@ -42,12 +40,8 @@ sub out {
       my %g = map {$_, 1} $self->{image}->QueryFormat;
       $type = $opt{force} if exists $g{$opt{force}};
    }
-   # compression JPEG  LosslessJPEG  Zip
    $self->{image}->Set(magick => $type);
    if ($opt{'compress'} and $type =~ m[^(png|jpeg)$]) {
-      #if ($type eq 'gif') {
-      #   $self->{image}->Set(compression => 'LZW');
-      #}
       if($type eq 'png') {
          $opt{'compress'} = MAX_COMPRESS;
          $self->{image}->Set(compression => 'Zip');
@@ -89,7 +83,6 @@ sub insert_text {
                                   rotate => $magick->[ANGLE],
                                   %same);
       }
-      # stretch=>{Normal, UltraCondensed, ExtraCondensed, Condensed, SemiCondensed, SemiExpanded, Expanded, ExtraExpanded, UltraExpanded}
    } else {
       my @metric = $info->($key);
       my($x, $y);
@@ -203,7 +196,7 @@ Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2004 Burak Gürsoy. All rights reserved.
+Copyright 2004-2005 Burak Gürsoy. All rights reserved.
 
 =head1 LICENSE
 

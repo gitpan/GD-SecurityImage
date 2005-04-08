@@ -21,7 +21,7 @@ BEGIN {
 
 require 't/t.api';
 my $tapi = 'tapi';
-$tapi->clear;
+   $tapi->clear;
 
 my $font = getcwd.'/StayPuft.ttf';
 
@@ -57,7 +57,7 @@ sub args {
       scramble   => 1,
    },
    gd_ttf_scramble =>  {
-      width      => 270,
+      width      => 300,
       height     => 80,
       send_ctobg => 1,
       font       => $font,
@@ -65,7 +65,7 @@ sub args {
       scramble   => 1,
    },
    gd_ttf_scramble_fixed =>  {
-      width      => 330,
+      width      => 350,
       height     => 80,
       send_ctobg => 1,
       font       => $font,

@@ -1,9 +1,9 @@
 package GD::SecurityImage;
 use strict;
-use vars qw[@ISA $VERSION $BACKEND];
+use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 
-$VERSION = '1.53';
+$VERSION = '1.54';
 
 sub import {
    my $class   = shift;
@@ -35,6 +35,8 @@ sub new {
    my $self  = {
       IS_MAGICK       => $BACKEND eq 'Magick',
       IS_GD           => $BACKEND eq 'GD',
+      IS_CORE         => $BACKEND eq 'GD' || $BACKEND eq 'Magick',
+      DISABLED        => {}, # list of methods that a backend (or some older version of backend) can't do
       MAGICK          => {}, # Image::Magick configuration options
       GDBOX_EMPTY     => 0,  # GD::SecurityImage::GD::insert_text() failed?
       _RANDOM_NUMBER_ => '', # random security code
@@ -128,6 +130,9 @@ sub cconvert { # convert color codes
    # Image::Magick: return hex color code
    my $self   = shift;
    my $data   = shift || die "Empty parameter passed to cconvert!";
+   unless($self->{IS_CORE}) {
+      return $self->backend_cconvert($data);
+   }
    my $is_hex = $self->is_hex($data);
    if($data && $self->{IS_MAGICK} && $is_hex) {
       return $data; # data is a hex color code and Image::Magick has hex support
@@ -151,7 +156,7 @@ sub cconvert { # convert color codes
    if(@rgb and $self->{IS_MAGICK}) {
       return $data;
    } else {
-      $data = \@rgb if @rgb;
+      $data = [@rgb] if @rgb;
       # initialize if not valid
       if(not $data || not ref $data || ref $data ne 'ARRAY' || $#{$data} != 2) {
          $data = [0, 0, 0];
@@ -295,6 +300,17 @@ sub is_hex {
    return $data =~ m[^#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$]i;
 }
 
+sub AUTOLOAD {
+   my $self = shift;
+   (my $name = $AUTOLOAD) =~ s,.*:,,;
+   if ($name eq 'gdbox_empty') { # fake method for GD compatibility. only GD has this
+      return 0;
+   }
+   die "Unknown ".ref($self)." method '$name'!";
+}
+
+sub DESTROY {}
+
 1;
 
 __END__
@@ -378,7 +394,7 @@ necessary sub modules.
 The (so called) I<"Security Images"> are so popular. Most internet 
 software use these in their registration screens to block robot programs
 (which may register tons of  fake member accounts). Security images are
-basicly, graphical CAPTCHAs (Completely Automated Public Turing Test to 
+basicaly, graphical CAPTCHAs (Completely Automated Public Turing Test to 
 Tell Computers and Humans Apart). This module gives you a basic interface 
 to create such an image. The final output is the actual graphic data, 
 the mime type of the graphic and the created random string.
@@ -402,7 +418,7 @@ RGB values must be passed as an array reference including the three
 I<B<R>ed>, I<B<G>reen> and I<B<B>lue> values.
 
 Color conversion is transparent to the user. You can use hex values
-under both C<GD> and C<Image::Magick>. They' ll be automatically converted
+under both C<GD> and C<Image::Magick>. They' ll be automagically converted
 to RGB if you are under C<GD>.
 
 =head1 METHODS
@@ -553,7 +569,7 @@ Draws circles.
 
 =item B<ellipse>
 
-Draws ellipses.
+Draws ellipses. 
 
 =item B<ec>
 
@@ -565,10 +581,15 @@ and circles.
 Note: if you have a (very) old version of GD, you may not be able 
 to use some of the styles.
 
+You can use this code to get all available style names:
+
+   my @styles = grep {s/^style_//} keys %GD::SecurityImage::Styles::;
+
 The last two arguments (C<$text_color> and C<$line_color>) are the 
 colors used in the image (text and line color -- respectively):
 
    $image->create($method, $style, [0,0,0], [200,200,200]);
+   $image->create($method, $style, '#000000', '#c8c8c8');
 
 =head2 particle
 
@@ -596,11 +617,11 @@ The color of the particles are the same as the color of your text
 =head2 out
 
 This method finally returns the created image, the mime type of the 
-image and the random number(s) generated. Older versions of GD only supports
+image and the random number(s) generated. Older versions of GD only support
 C<gif> type, while new versions support C<jpeg> and C<png> 
 (B<update>: beginning with v2.15, GD resumed gif support).
 
-The returned mime type is either C<gif> or C<jpeg> for C<GD> and 
+The returned mime type is C<png> or C<gif> or C<jpeg> for C<GD> and 
 C<gif> for C<Image::Magick> (if you do not C<force> some other format).
 
 C<out> method accepts arguments:
@@ -662,7 +683,40 @@ or the raw C<Image::Magick> object:
    $magick->Write("gif:-");
 
 Can be usefull, if you want to modify the graphic yourself. If you 
-want to get an I<image format>, see the C<force> option in C<out>.
+want to get an I<image format> (also see the C<force> option in C<out>).
+
+=begin BACKEND_AUTHORS
+
+If you want to write a new back-end to GD::SecurityImage, you must define 
+this mandatory methods.
+
+   init			initializes your image object
+   out			defines output format and returns the image data
+   insert_text		inserts text to the image
+   setPixel		sets a pixel' s color defined by it's (x,y) values
+   line			draws a line
+   rectangle		draws a rectangle
+   filledRectangle	draws a filled rectangle
+   ellipse		draws an ellipse
+   arc			draws an arc
+   setThickness		sets the thickness of the lines when drawing something
+
+and
+
+   backend_cconvert	for HEX & RGB color handling
+
+See GD::SecurityImage::Magick for the first part of methods and see 
+cconvert() method in GD::SecurityImage to define such a method. Your 
+backend_cconvert() method must be capable of handling both HEX and RGB 
+values. The parametes passed to drawing methods (like line()) are 
+in GD format. See the L<GD> module for examples.
+
+You can then name your distro as 'GD::SecurityImage::X' and anyone can use 
+it like:
+
+   use GD::SecurityImage backend => 'X';
+
+=end BACKEND_AUTHORS
 
 =head1 EXAMPLES
 
@@ -679,12 +733,26 @@ C<eval> your code to catch exceptions.
 
 =head1 SEE ALSO
 
-L<GD>, L<Image::Magick>, L<ImagePwd>, L<Authen::Captcha>, 
+=over 4
 
-C<ImageCode> Perl Module (commercial): 
-L<http://www.progland.com/ImageCode.html>.
+=item *
+
+L<GD>, L<Image::Magick>, L<ImagePwd>, L<Authen::Captcha>.
+
+=item *
+
+C<ImageCode> Perl Module (commercial): L<http://www.progland.com/ImageCode.html>.
+
+=item *
 
 The CAPTCHA project: L<http://www.captcha.net/>.
+
+=item *
+
+A definition of CAPTCHA (From Wikipedia, the free encyclopedia):
+L<http://en.wikipedia.org/wiki/Captcha>.
+
+=back
 
 =head1 CAVEAT EMPTOR
 
@@ -713,6 +781,16 @@ will be silently ignored.
 setThickness implemented in GD v2.07. If your GD version is smaller
 than that and you set thickness option, your code will probably C<die>.
 
+=item [GD] ellipse
+
+C<ellipse()> method added in GD 2.07. 
+
+If your GD version is smaller than 2.07 and you use C<ellipse>, 
+the C<default> style will be returned.
+
+If your GD is smaller than 2.07 and you use C<ec>, only the circles will
+be drawn.
+
 =back
 
 =head1 BUGS
@@ -738,8 +816,8 @@ for GD::SecurityImage.
 
 =item path bug
 
-libgd and GD.pm does not like relative paths and paths that have spaces
-in it. If you pass a font path that is not an B<exact path> or a path that
+libgd and GD.pm don't like relative paths and paths that have spaces
+in them. If you pass a font path that is not an B<exact path> or a path that
 have a space in it, you may get an empty image. 
 
 To check if the module failed to find the ttf font (when using C<GD>), a new 
@@ -749,6 +827,23 @@ method added: C<gdbox_empty()>. It must be called after C<create()>:
    die "Error loading ttf font for GD: $@" if $image->gdbox_empty;
 
 C<gdbox_empty()> always returns false, if you are using C<Image::Magick>.
+
+=item GIF - Old libgb or libgd without GIF support enabled
+
+If your GD has a C<gif> method, but you get empty images with C<gif()>
+method, you have to update your libgd or compile it with GIF enabled.
+
+You can test if C<gif> is working from the command line:
+
+   perl -MGD -e '$_=GD::Image->new;$_->colorAllocate(0,0,0);print$_->gif'
+
+or under windows:
+
+   perl -MGD -e "$_=GD::Image->new;$_->colorAllocate(0,0,0);print$_->gif"
+
+If it dies, your GD is very old. 
+If it prints nothing, your libgd was compiled without GIF enabled (upgrade or re-compile). 
+If it prints out a junk that starts with 'GIF87a', everything is OK.
 
 =back
 
@@ -762,7 +857,7 @@ Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2004 Burak Gürsoy. All rights reserved.
+Copyright 2004-2005 Burak Gürsoy. All rights reserved.
 
 =head1 LICENSE
 

@@ -34,13 +34,13 @@ Which is available on CPAN.
 
 The sample TTF Font "StayPuft.ttf" is taken from John Stracke' s site
 at <http://www.thibault.org/fonts/staypuft/> and only used by the 
-tests. 
+tests. You can use another True Type in your code.
 
 "StayPuft.ttf" is Copyright (c) 2003 by John Stracke 
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2004 Burak Gürsoy <burak@cpan.org>. All rights reserved.
+Copyright (c) 2004-2005 Burak Gürsoy <burak@cpan.org>. All rights reserved.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

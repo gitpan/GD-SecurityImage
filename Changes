@@ -2,6 +2,34 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.54 Fri Apr  8 23:11:32 2005
+	=> Updated pods.
+	=> If anyone adds a back-end, one must define a method
+	   to deal with colors: 'backend_cconvert'. cconvert()
+	   will forward all calls to backend_cconvert() if 
+	   $BACKEND is different than /^(GD|Magick)$/. Note that
+	   this method must be capable of handling both HEX and RGB.
+	=> Finally documented this. See BACKEND_AUTHORS section in
+	   the pod (If you have a HTML version, probably you can not
+	   see this).
+	=> Removed gdbox_empty from GD::SecurityImage::Magick
+	=> The module now has an AUTOLOAD method.
+	=> Added a check for gdbox_empty in AUTOLOAD for non-GD 
+	   backends.
+	=> Ooops! ellipse() added in GD 2.07 :p Thanks to ActiveState
+	   build logs. I missed that one (looks like all CPAN Testers 
+	   are using recent GDs).
+	   Added a global mechanism to check this and any incompatibilities.
+	   If GD < 2.07 and you call ellipse() it will fall-back to default()
+	   style. If you call ec() style, it'll disable ellipse() call and only
+	   draw circles.
+	=> Updated GD::SecurityImage::Styles.
+	=> Updated demo program. Also, changed default type to 'png' after 
+	   a little conversation with Eric Gorr. :) (some installations may 
+	   have gif() method but don't have gif support enabled. This results
+	   with an empty image. Cause: old libgd).
+	=> Default image type in GD::SecurityImage::GD::out() changed to 'png'.
+
 1.53 Wed Jan  5 18:21:59 2005
 	=> Added a new option 'backend' to import(). With this
 	   option you can now include other back-ends:
@@ -23,7 +51,6 @@ Time zone is GMT+2.
 
 	   Probably cconvert() also needs a fix to support such a thing.
 	   I'll deal with that later.
-	   [NOT DOCUMENTED]
 	=> If you have loaded Image::Magick outside and then you call 
 	   GD::SecurityImage with the GD backend (or simply use it)
 	   your code dies with a weird error. Since it setups the 

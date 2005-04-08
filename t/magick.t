@@ -35,7 +35,7 @@ BEGIN {
 
 require 't/t.api';
 my $tapi = 'tapi';
-$tapi->clear;
+   $tapi->clear;
 
 my $font = getcwd.'/StayPuft.ttf';
 
