@@ -2,6 +2,7 @@ lib/GD/SecurityImage.pm
 lib/GD/SecurityImage/GD.pm
 lib/GD/SecurityImage/Magick.pm
 lib/GD/SecurityImage/Styles.pm
+lib/GD/SecurityImage/AC.pm
 t/gd.t
 t/magick.t
 t/backend.t

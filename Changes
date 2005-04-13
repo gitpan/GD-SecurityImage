@@ -2,6 +2,12 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.55 Wed Apr 13 17:58:37 2005
+	=> New sub-module GD::SecurityImage::AC added as an
+	   Authen::Captcha drop-in replacement module.
+	   I currently didn't add any tests for this module.
+	=> New method 'backends' to list available back-ends.
+
 1.54 Fri Apr  8 23:11:32 2005
 	=> Updated pods.
 	=> If anyone adds a back-end, one must define a method

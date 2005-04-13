@@ -3,7 +3,7 @@ use strict;
 use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 
-$VERSION = '1.54';
+$VERSION = '1.55';
 
 sub import {
    my $class   = shift;
@@ -92,6 +92,36 @@ sub new {
    }
    $self->init;
    return $self;
+}
+
+sub backends {
+   my $self  = shift;
+   my $class = ref($self) || $self;
+   my(@list, @dir_list);
+   foreach my $inc (@INC) {
+      my $dir = "$inc/GD/SecurityImage";
+      next unless -d $dir;
+      opendir DIR, $dir or die "opendir($dir) failed: $!";
+      my @dir = readdir DIR;
+      closedir DIR;
+      push @dir_list, $dir;
+      foreach my $file (@dir) {
+         next if -d $file;
+         next if $file =~ m[^\.];
+         next if $file =~ m[^(Styles|AC)\.pm$];
+         $file =~ s[\.pm$][];
+         push @list, $file;
+      }
+   }
+   if (defined wantarray) {
+      return @list;
+   } else {
+      print "Available back-ends in $class v$VERSION are:\n\t"
+            .join("\n\t", @list)
+            ."\n\n"
+            ."Search directories:\n\t"
+            .join("\n\t", @dir_list);
+   }
 }
 
 sub gdf {
@@ -402,6 +432,9 @@ the mime type of the graphic and the created random string.
 The module also has some I<"styles"> that are used to create the background 
 of the image.
 
+If you are an C<Authen::Captcha> user, see L<GD::SecurityImage::AC>
+for migration from C<Authen::Captcha> to C<GD::SecurityImage>.
+
 =head1 COLOR PARAMETERS
 
 Version 1.51 and later of this module is a little smarter than the 
@@ -685,6 +718,36 @@ or the raw C<Image::Magick> object:
 Can be usefull, if you want to modify the graphic yourself. If you 
 want to get an I<image format> (also see the C<force> option in C<out>).
 
+=head1 UTILITY METHODS
+
+=head2 backends
+
+Returns a list of available GD::SecurityImage back-ends.
+
+   my @be = GD::SecurityImage->backends;
+
+or
+
+   my @be = $image->backends;
+
+If called in a void context, prints a verbose list of available 
+GD::SecurityImage back-ends:
+
+   Available back-ends in GD::SecurityImage v1.55 are:
+           GD
+           Magick
+   
+   Search directories:
+              /some/@INC/dir/containing/GDSI
+
+you can see the output with this command:
+
+   perl -MGD::SecurityImage -e 'GD::SecurityImage->backends'
+
+or under windows:
+
+   perl -MGD::SecurityImage -e "GD::SecurityImage->backends"
+
 =begin BACKEND_AUTHORS
 
 If you want to write a new back-end to GD::SecurityImage, you must define 
@@ -738,6 +801,10 @@ C<eval> your code to catch exceptions.
 =item *
 
 L<GD>, L<Image::Magick>, L<ImagePwd>, L<Authen::Captcha>.
+
+=item *
+
+L<GD::SecurityImage::AC>: C<Authen::Captcha> drop-in replacement module.
 
 =item *
 

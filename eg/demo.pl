@@ -459,7 +459,7 @@ a table with this SQL code:
 
 If you want to use another table name (not C<sessions>), set the 
 C<$config{table_name}> to the value you want and also modify the 
-C<SQL> code above. Witrh the default configuration option, this 
+C<SQL> code above. With the default configuration option, this 
 program assumes that you have a database name C<gdsi>. Change this
 option to the database name you want to use.
 
