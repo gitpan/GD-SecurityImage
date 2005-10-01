@@ -2,6 +2,19 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.56 Sat Oct  1 14:14:34 2005
+	=> Added GD::SecurityImage backend => 'AC';
+	=> Updated demo Pod.
+	=> Added some tips to the pod.
+	=> Updated licenses.
+	=> Updated Makefile.PL. Removed Math::Trig from prerequisities,
+	   since it is in CORE since perl 5.004.
+	=> GD::SecurityImage::AC is now untainted (I hope).
+	   Reported by Michael B Krypel. Still no tests for this
+	   module.
+	=> Existence of setThickness() is now explicitly checked for
+	   GD < 2.07.
+
 1.55 Wed Apr 13 17:58:37 2005
 	=> New sub-module GD::SecurityImage::AC added as an
 	   Authen::Captcha drop-in replacement module.

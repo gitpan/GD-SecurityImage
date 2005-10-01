@@ -7,7 +7,7 @@ use Digest::MD5 qw(md5_hex);
 use File::Spec;
 use Fcntl qw(:flock);
 
-$VERSION = '1.0';
+$VERSION = '1.01';
 
 sub new {
    my $class = shift;
@@ -21,7 +21,14 @@ sub new {
    }
    $self->{_keep_failures} = $opts{keep_failures} ? 1 : 0;
    srand( time() ^ ($$ + ($$ << 15)) ) if $] < 5.005; # create a random seed if perl version less than 5.005
+   $self->unt_output_folder;
    $self;
+}
+
+sub unt_output_folder { # todo
+   my $self = shift;
+   $self->{_output_folder} =~ /(.*)/;
+   $self->{_output_folder} = $1;
 }
 
 sub gdsi {
@@ -98,7 +105,9 @@ sub check_code {
          if ( ($md5 ne $crypt) && ($rvalue != -1) && $self->{_keep_failures}) { # solution was wrong, not expired, and we're keeping failures
             $new .= $line."\n";
          } else {
-            unlink($png_file) or die "Can't remove [$png_file]: $!\n"; # remove the found crypt so it can't be used again
+            if (-e $png_file and !-d) {
+               unlink($png_file) or die "Can't remove [$png_file]: $!\n"; # remove the found crypt so it can't be used again
+            }
          }
       } elsif (($now - $data_time) > $self->{_expire}) {
          unlink($png_file) or die "Can't remove [$png_file]: $!\n"; # removed expired crypt
@@ -134,8 +143,12 @@ sub generate_code {
    my $new   = "";
    my $db    = $self->database_file;
    foreach my $line ($self->database_data) { # clean expired codes and images
-      $line =~ s/\n//;
-      my ($data_time,$data_code) = split(/::/,$line);
+      chomp $line;
+      my ($data_time, $data_code) = split /::/, $line;
+      $data_code =~ m/^([a-fA-F0-9]+)$/;
+      $data_code = $1 or die "Bad session key!";
+      $data_time =~ m/^([0-9]+)$/s;
+      $data_time = $1 or die "Bad timeout data!";
       if (($now - $data_time) > $self->{_expire} || $data_code eq $md5) {   # remove expired captcha, or a dup
          my $png_file = File::Spec->catfile($self->{_output_folder},$data_code . ".png");
          unlink($png_file) or die "Can't remove png file [$png_file]\n";
@@ -176,7 +189,8 @@ sub AUTOLOAD { # junk methods
 
 sub DESTROY {}
 
-package Authen::Captcha; # enable emulation by name
+package # we declare this in two lines to by-pass CPAN indexer...
+        Authen::Captcha; # enable emulation by name
 use base qw[GD::SecurityImage::AC];
 
 1;
@@ -234,11 +248,20 @@ line in your programs with
 
    use GD::SecurityImage::AC;
 
-to enable GD::SecurityImage interface. Regular GD::SecurityImage interface 
-is supported with an extra method: C<gdsi>.
+to enable GD::SecurityImage interface. Alternatively, you can use
+
+   use GD::SecurityImage backend => 'AC';
+
+Regular GD::SecurityImage interface is supported with an extra method: 
+C<gdsi>. Also see the C<CAVEATS> section for incompatibilities.
 
 This module uses: C<GD::SecurityImage>, C<Digest::MD5>, C<File::Spec> and 
 C<Fcntl> modules.
+
+If you are writing a captcha handler from scratch, this module is not
+recommended. You must use GD::SecurityImage directly. This module can
+bu used for older Authen::Captcha applications only. And features are
+(and will be) limited with Authen::Captcha capabilities.
 
 =head1 METHODS
 
@@ -334,7 +357,8 @@ L<Authen::Captcha> Copyright 2003 by First Productions, Inc. & Seth Jackson.
 
 =head1 LICENSE
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
+This library is free software; you can redistribute it and/or modify 
+it under the same terms as Perl itself, either Perl version 5.8.6 or, 
+at your option, any later version of Perl 5 you may have available.
 
 =cut

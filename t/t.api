@@ -1,11 +1,12 @@
 package tapi; # test api
 use strict;
-use vars qw[$VERSION %data $GD $MAGICK];
+use vars qw[$VERSION %data $GD $MAGICK $PROBLEM];
 
 $VERSION = "0.2";
 
-$GD     = defined($GD::VERSION)            ? $GD::VERSION            : 0;
-$MAGICK = defined($Image::Magick::VERSION) ? $Image::Magick::VERSION : '0.0.0';
+$GD      = defined($GD::VERSION)            ? $GD::VERSION            : 0;
+$MAGICK  = defined($Image::Magick::VERSION) ? $Image::Magick::VERSION : '0.0.0';
+$PROBLEM = ($GD && $GD < 2.07) ? 1 : 0;
 
 sub styles { qw[default rect box circle ellipse ec] }
 
@@ -13,6 +14,12 @@ sub options {
    my $class = shift;
    %data = @_ if @_;
    %data;
+}
+
+sub _can {
+   my $name = shift || '';
+   return 'circle' if $PROBLEM && ($name =~ m[^(ellipse|ec)$]);
+   return $name;
 }
 
 sub clear { %data = () }
@@ -69,7 +76,7 @@ sub ellipse {
    GD::SecurityImage
    ->new(lines => 10, bgcolor => [208, 202, 206], tapi->options)
    ->random(tapi->random->{ellipse})
-   ->create(normal => 'ellipse', [31,219,180], [231,219,180])
+   ->create(normal => tapi->_can('ellipse'), [31,219,180], [231,219,180])
    ->particle(100)
 }
 
@@ -119,7 +126,7 @@ sub ellipse {
    GD::SecurityImage
    ->new(lines => 15, bgcolor => [208, 202, 206], tapi->set(thickness => 3)->options)
    ->random(tapi->random->{ellipse})
-   ->create(ttf => 'ellipse', [184,20,180], [184,20,180])
+   ->create(ttf => tapi->_can('ellipse'), [184,20,180], [184,20,180])
    ->particle(2000)
 }
 

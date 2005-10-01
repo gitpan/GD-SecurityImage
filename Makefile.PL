@@ -20,15 +20,12 @@ print qq~
 ~;
 
 WriteMakefile(
-    'NAME'         => 'GD::SecurityImage',
-    'VERSION_FROM' => 'lib/GD/SecurityImage.pm',
-    'PREREQ_PM'    => {
-                        'GD'         => 0,
-                        'Math::Trig' => 0,
-    },
-    (MM->can('signature_target') ? (SIGN => 1) : ()),
-    ($] >= 5.005 ? (
-    'AUTHOR'       => 'Burak Gursoy <burak@cpan.org>',
-    'ABSTRACT'     => 'Security image (captcha) generator',
-     ) : ()),
+   NAME         => 'GD::SecurityImage',
+   VERSION_FROM => 'lib/GD/SecurityImage.pm',
+   PREREQ_PM    => {'GD' => 0},
+   (MM->can('signature_target') ? (SIGN => 1) : ()),
+   ($] >= 5.005 ? (
+   AUTHOR       => 'Burak Gursoy <burak@cpan.org>',
+   ABSTRACT     => 'Security image (captcha) generator',
+   ) : ()),
 );

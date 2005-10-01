@@ -28,7 +28,7 @@ use Cwd;
 
 #--------------> START PROGRAM <--------------#
 
-$VERSION = "1.2";
+$VERSION = '1.21';
 
 BEGIN {
    my @errors;
@@ -431,7 +431,7 @@ This is a CGI program. Run from web.
 =head1 DESCRIPTION
 
 This program demonstrates the abilities of C<GD::SecurityImage>.
-The program needs these CPAN modules: 
+It needs these CPAN modules: 
 
    DBI
    DBD::mysql
@@ -460,7 +460,7 @@ a table with this SQL code:
 If you want to use another table name (not C<sessions>), set the 
 C<$config{table_name}> to the value you want and also modify the 
 C<SQL> code above. With the default configuration option, this 
-program assumes that you have a database name C<gdsi>. Change this
+program assumes that you have a database named C<gdsi>. Change this
 option to the database name you want to use.
 
 Security images are generated with the sample ttf font "StayPuft.ttf".
@@ -468,8 +468,38 @@ Put it into the same folder as this program or alter C<$config{font}> value.
 If you want to use another font file, you may need to alter the image 
 generation options (see the C<%config> hash on top of the program code).
 
-Note that this is only a demo, no security checks are performed. And it may 
-not be secure or memory friendly.
+=head1 CAVEAT EMPTOR
+
+Note that, this is only a demo. Use at your own risk!
+
+=over 4
+
+=item *
+
+No security checks are performed.
+
+=item *
+
+This demo may not be secure or memory friendly.
+
+=item *
+
+You don't have to use the bundled sample font. If you don't like it, 
+just use some other font that you like, but be sure to adjust several 
+parameters for a I<human readable> graphic.
+
+=item *
+
+There are several pre-defined I<"styles"> for generating images. You 
+can create your own style(s) playing with the parameters.
+
+=item *
+
+Do B<not> use this demo's code as a base for your application. Your own
+implementation will probably be much more cleaner and shorter. This
+demo includes dirty and undocumented code!
+
+=back
 
 =head1 SEE ALSO
 

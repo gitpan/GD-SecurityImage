@@ -20,7 +20,7 @@ use constant MAX_COMPRESS => 9;
 
 use GD;
 
-$VERSION = "1.44";
+$VERSION = '1.45';
 $methTTF = $GD::VERSION >= 1.31 ? 'stringFT' : 'stringTTF'; # define the tff drawing method.
 
 sub init {
@@ -250,7 +250,13 @@ sub rectangle       {shift->{image}->rectangle(@_)      }
 sub filledRectangle {shift->{image}->filledRectangle(@_)}
 sub ellipse         {shift->{image}->ellipse(@_)        }
 sub arc             {shift->{image}->arc(@_)            }
-sub setThickness    {shift->{image}->setThickness(@_)   }
+
+sub setThickness {
+   my $self = shift;
+   if($self->{image}->can('setThickness')) { # $GD::VERSION >= 2.07
+      $self->{image}->setThickness(@_);
+   }
+}
 
 1;
 
@@ -282,7 +288,8 @@ Copyright 2004-2005 Burak Gürsoy. All rights reserved.
 
 =head1 LICENSE
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
+This library is free software; you can redistribute it and/or modify 
+it under the same terms as Perl itself, either Perl version 5.8.6 or, 
+at your option, any later version of Perl 5 you may have available.
 
 =cut

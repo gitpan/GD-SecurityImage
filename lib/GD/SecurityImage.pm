@@ -3,7 +3,7 @@ use strict;
 use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 
-$VERSION = '1.55';
+$VERSION = '1.56';
 
 sub import {
    my $class   = shift;
@@ -19,7 +19,7 @@ sub import {
       my $be = 'GD::SecurityImage::'.$opt{backend};
       eval "require $be";
       die "Unable to locate the $class back-end $be: $@" if $@;
-      $BACKEND = $opt{backend};
+      $BACKEND = $opt{backend} eq 'AC' ? 'GD' : $opt{backend};
    } else {
       require GD::SecurityImage::GD;
       $BACKEND = 'GD';
@@ -716,7 +716,7 @@ or the raw C<Image::Magick> object:
    $magick->Write("gif:-");
 
 Can be usefull, if you want to modify the graphic yourself. If you 
-want to get an I<image format> (also see the C<force> option in C<out>).
+want to get an I<image type> see the C<force> option in C<out>.
 
 =head1 UTILITY METHODS
 
@@ -794,71 +794,23 @@ the files.
 C<die> is called in some methods if something fails. You may need to 
 C<eval> your code to catch exceptions.
 
-=head1 SEE ALSO
+=head1 TIPS
 
-=over 4
+If you look at the demo program (not just look at it, try to run it)
+you'll see that the random code changes after every request (successful 
+or not). If you do not change the random code after a failed request and 
+display the random code inside HTML (like I<"Wrong! It must be E<lt>randomE<gt>">),
+then you are doing a logical mistake, since the user (or robot) can now 
+copy & paste the random code into your validator without looking at the 
+security image and will pass the test. Just don't do that. Random code 
+must change after every validation.
 
-=item *
-
-L<GD>, L<Image::Magick>, L<ImagePwd>, L<Authen::Captcha>.
-
-=item *
-
-L<GD::SecurityImage::AC>: C<Authen::Captcha> drop-in replacement module.
-
-=item *
-
-C<ImageCode> Perl Module (commercial): L<http://www.progland.com/ImageCode.html>.
-
-=item *
-
-The CAPTCHA project: L<http://www.captcha.net/>.
-
-=item *
-
-A definition of CAPTCHA (From Wikipedia, the free encyclopedia):
-L<http://en.wikipedia.org/wiki/Captcha>.
-
-=back
-
-=head1 CAVEAT EMPTOR
-
-=over 4
-
-=item *
-
-Using the default library C<GD> is a better choice. Since it is faster 
-and does not use that much memory, while C<Image::Magick> is slower and 
-uses more memory.
-
-=item *
-
-The internal random code generator is used B<only> for demonstration 
-purposes for this module. It may not be I<effective>. You must supply 
-your own random code and use this module to display it.
-
-=item [GD] png compression
-
-Support for compression level argument to png() added in v2.07. If
-your GD version is smaller than this, compress option to C<out()>
-will be silently ignored.
-
-=item [GD] setThickness
-
-setThickness implemented in GD v2.07. If your GD version is smaller
-than that and you set thickness option, your code will probably C<die>.
-
-=item [GD] ellipse
-
-C<ellipse()> method added in GD 2.07. 
-
-If your GD version is smaller than 2.07 and you use C<ellipse>, 
-the C<default> style will be returned.
-
-If your GD is smaller than 2.07 and you use C<ec>, only the circles will
-be drawn.
-
-=back
+If you want to be a little more strict, you can also add a timeout key 
+to the session (this feature currently does not exits in the demo) and
+expire the related random code after the timeout. Since robots can call 
+the image generator directly (without requiring the HTML form), they can 
+examine the image for a while without changing it. A timeout implemetation
+may prevent this.
 
 =head1 BUGS
 
@@ -895,7 +847,7 @@ method added: C<gdbox_empty()>. It must be called after C<create()>:
 
 C<gdbox_empty()> always returns false, if you are using C<Image::Magick>.
 
-=item GIF - Old libgb or libgd without GIF support enabled
+=item GIF - Old libgd or libgd without GIF support enabled
 
 If your GD has a C<gif> method, but you get empty images with C<gif()>
 method, you have to update your libgd or compile it with GIF enabled.
@@ -918,6 +870,72 @@ If it prints out a junk that starts with 'GIF87a', everything is OK.
 
 Contact the author if you find any bugs. You can also send requests.
 
+=head1 CAVEAT EMPTOR
+
+=over 4
+
+=item *
+
+Using the default library C<GD> is a better choice. Since it is faster 
+and does not use that much memory, while C<Image::Magick> is slower and 
+uses more memory.
+
+=item *
+
+The internal random code generator is used B<only> for demonstration 
+purposes for this module. It may not be I<effective>. You must supply 
+your own random code and use this module to display it.
+
+=item [GD] png compression
+
+Support for compression level argument to png() added in v2.07. If
+your GD version is smaller than this, compress option to C<out()>
+will be silently ignored.
+
+=item [GD] setThickness
+
+setThickness implemented in GD v2.07. If your GD version is smaller
+than that and you set thickness option, nothing will happen.
+
+=item [GD] ellipse
+
+C<ellipse()> method added in GD 2.07. 
+
+If your GD version is smaller than 2.07 and you use C<ellipse>, 
+the C<default> style will be returned.
+
+If your GD is smaller than 2.07 and you use C<ec>, only the circles will
+be drawn.
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item *
+
+L<GD>, L<Image::Magick>, L<ImagePwd>, L<Authen::Captcha>.
+
+=item *
+
+L<GD::SecurityImage::AC>: C<Authen::Captcha> drop-in replacement module.
+
+=item *
+
+C<ImageCode> Perl Module (commercial): L<http://www.progland.com/ImageCode.html>.
+
+=item *
+
+The CAPTCHA project: L<http://www.captcha.net/>.
+
+=item *
+
+A definition of CAPTCHA (From Wikipedia, the free encyclopedia):
+L<http://en.wikipedia.org/wiki/Captcha>.
+
+=back
+
 =head1 AUTHOR
 
 Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
@@ -928,7 +946,8 @@ Copyright 2004-2005 Burak Gürsoy. All rights reserved.
 
 =head1 LICENSE
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
+This library is free software; you can redistribute it and/or modify 
+it under the same terms as Perl itself, either Perl version 5.8.6 or, 
+at your option, any later version of Perl 5 you may have available.
 
 =cut
