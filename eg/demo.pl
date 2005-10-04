@@ -28,7 +28,7 @@ use Cwd;
 
 #--------------> START PROGRAM <--------------#
 
-$VERSION = '1.21';
+$VERSION = '1.3';
 
 BEGIN {
    my @errors;
@@ -282,10 +282,11 @@ sub create_image { # create a security image with random options and styles
    my $code  = shift;
    my $START = shift;
    my $s     = $self->{rnd_sty};
-   my $i     = GD::SecurityImage
-   ->new(lines   => $s->{lines},
-         bgcolor => $s->{bgcolor},
-         %{ $self->{rnd_opt} })
+   my $i     = GD::SecurityImage->new(
+      lines   => $s->{lines},
+      bgcolor => $s->{bgcolor},
+      %{ $self->{rnd_opt} },
+   )
    ->random  ($code)
    ->create  (ttf => $s->{name}, $s->{text_color}, $s->{line_color})
    ->particle($s->{dots} ? ($s->{particle}, $s->{dots}) 
@@ -314,8 +315,8 @@ sub create_image { # create a security image with random options and styles
 sub all_options {
    my %gd = (
    gd_ttf => {
-      width      => 210,
-      height     => 60,
+      width      => 220,
+      height     => 90,
       send_ctobg => 1,
       font       => $config{font},
       ptsize     => 30,
@@ -341,7 +342,7 @@ sub all_options {
    my %magick = (
    magick => {
       width      => 250,
-      height     => 80,
+      height     => 100,
       send_ctobg => 1,
       font       => $config{font},
       ptsize     => 50,
@@ -515,7 +516,8 @@ Copyright 2004-2005 Burak Gürsoy. All rights reserved.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
+This program is free software; you can redistribute it and/or modify 
+it under the same terms as Perl itself, either Perl version 5.8.6 or, 
+at your option, any later version of Perl 5 you may have available.
 
 =cut

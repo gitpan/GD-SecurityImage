@@ -260,7 +260,7 @@ C<Fcntl> modules.
 
 If you are writing a captcha handler from scratch, this module is not
 recommended. You must use GD::SecurityImage directly. This module can
-bu used for older Authen::Captcha applications only. And features are
+be used for older Authen::Captcha applications only. And features are
 (and will be) limited with Authen::Captcha capabilities.
 
 =head1 METHODS

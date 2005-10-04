@@ -14,17 +14,17 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 a33a8226f474e9553483d4f5aa61e83b60fcf94b Changes
+SHA1 7b1133f7e6935170dc1c00d54d1efebc667bb1dc Changes
 SHA1 480bb51c56dbd03052c7b6e46b6b844677594e78 MANIFEST
-SHA1 ba714749840ba0b45adb489f2f465ac8b4a75635 META.yml
+SHA1 76157bf34978d0c14c5e790633816a0a13618333 META.yml
 SHA1 b647ff0ebac4e4aca9a0c7c3740d9c5439df2605 Makefile.PL
 SHA1 eee23c66a5c6a6c91a9cdd41a24f2b4759decf48 README
 SHA1 98a627763da059ca1e1d6540d4135e6d92b995e5 StayPuft.ttf
-SHA1 da5f1075e52ba7ef62c2582fdd007dfad8ca3f00 eg/demo.pl
-SHA1 957bf2393d5081335a2b9d68b059f837114fe355 lib/GD/SecurityImage.pm
-SHA1 ce19cb00318812cafe13d0a7ceaecc625e74ea85 lib/GD/SecurityImage/AC.pm
-SHA1 4d1ffcc50df7838ff4c34f1e233bb14f7ecdf90d lib/GD/SecurityImage/GD.pm
-SHA1 8db2b7d0f3c4f9a14cadddfa8abf2bc426428af7 lib/GD/SecurityImage/Magick.pm
+SHA1 55894072f9bee228dac37b7799745baf45978772 eg/demo.pl
+SHA1 5f9f9fc8b2ba9c08c4df60b4196ebe7ca0003cc4 lib/GD/SecurityImage.pm
+SHA1 9bea967b93e03f5b6d70b7775e0d693081eeaccc lib/GD/SecurityImage/AC.pm
+SHA1 ec8bf044f73eec845d727ad04b0e2a088422406b lib/GD/SecurityImage/GD.pm
+SHA1 081db12d5053923a0a0802f9817f3658e531c721 lib/GD/SecurityImage/Magick.pm
 SHA1 5dbc05a8fbbae93b78b36625a1a8d777f28a3d98 lib/GD/SecurityImage/Styles.pm
 SHA1 a2cc3b53de043ffb410ba72a1eefc211f3642d13 t/backend.t
 SHA1 ad0d746c5d98852855e54bc60bbca8b8ff3309e4 t/gd.t
@@ -33,7 +33,7 @@ SHA1 dc255c226dfa5ef46e05a550117fd691561a4e86 t/t.api
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (MingW32)
 
-iD8DBQFDPpoDWQFP8hSD6kQRAjXeAJ9uk3p6uSqAb3AY5qdlJXwSB0FZkwCgphBX
-9BnlWQ0T7TDwgAqqAUKM464=
-=CBlF
+iD8DBQFDQsrOWQFP8hSD6kQRAnUvAJwK6cTfJmy5JU0IvTh3l5tDb6yDNwCghqBU
+5TphDTl1mpvXSt5Kmp4n9kY=
+=0ENi
 -----END PGP SIGNATURE-----

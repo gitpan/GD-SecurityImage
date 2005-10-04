@@ -2,6 +2,14 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.57 Tue Oct  4 18:24:12 2005
+	=> Fixed typos in pods.
+	=> Added RT Wishlist item #14618. 'angle' parameter is now
+	   used when scramble is not enabled. But this'll require 
+	   a taller image, since the random code is centered
+	   inside the image. Added info about this into the pod.
+        => Updated demo.
+
 1.56 Sat Oct  1 14:14:34 2005
 	=> Added GD::SecurityImage backend => 'AC';
 	=> Updated demo Pod.

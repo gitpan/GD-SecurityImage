@@ -18,7 +18,7 @@ use constant MAX_COMPRESS => 100;
 
 use Image::Magick;
 
-$VERSION = "1.34";
+$VERSION = '1.35';
 
 sub init {
    # Create the image object
@@ -96,7 +96,12 @@ sub insert_text {
          $x = ($self->{width}  - $metric[WIDTH]   ) / 2;
          $y = ($self->{height} + $metric[ASCENDER]) / 2;
       }
-      $self->{image}->Annotate(text => $key, x => $x, y => $y, %same);
+      $self->{image}->Annotate(%same,
+         text   => $key, 
+         x      => $x, 
+         y      => $y,
+         rotate => $self->{angle} ? 360 - $self->{angle} : 0,
+      );
    }
 }
 

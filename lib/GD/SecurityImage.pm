@@ -3,7 +3,7 @@ use strict;
 use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 
-$VERSION = '1.56';
+$VERSION = '1.57';
 
 sub import {
    my $class   = shift;
@@ -48,21 +48,21 @@ sub new {
    };
    bless $self, $class;
    my %options = (
-               width      => $opt{width}               || 80,
-               height     => $opt{height}              || 30,
-               ptsize     => $opt{ptsize}              || 20,
-               lines      => $opt{lines}               || 10,
-               rndmax     => $opt{rndmax}              || $self->{_RNDMAX_},
-               rnd_data   => $opt{rnd_data}            || [0..9],
-               font       => $opt{font}                || '',
-               gd_font    => $self->gdf($opt{gd_font}) || '',
-               bgcolor    => $opt{bgcolor}             || [255, 255, 255],
-               send_ctobg => $opt{send_ctobg}          || 0,
-               frame      => defined($opt{frame}) ? $opt{frame} : 1,
-               scramble   => $opt{scramble}            || 0,
-               angle      => $opt{angle}               || 0,
-               thickness  => $opt{thickness}           || 0,
-               _ANGLES_   => [], # angle list for scrambled images
+      width      => $opt{width}               || 80,
+      height     => $opt{height}              || 30,
+      ptsize     => $opt{ptsize}              || 20,
+      lines      => $opt{lines}               || 10,
+      rndmax     => $opt{rndmax}              || $self->{_RNDMAX_},
+      rnd_data   => $opt{rnd_data}            || [0..9],
+      font       => $opt{font}                || '',
+      gd_font    => $self->gdf($opt{gd_font}) || '',
+      bgcolor    => $opt{bgcolor}             || [255, 255, 255],
+      send_ctobg => $opt{send_ctobg}          || 0,
+      frame      => defined($opt{frame}) ? $opt{frame} : 1,
+      scramble   => $opt{scramble}            || 0,
+      angle      => $opt{angle}               || 0,
+      thickness  => $opt{thickness}           || 0,
+      _ANGLES_   => [], # angle list for scrambled images
    );
    if($opt{text_location} && ref $opt{text_location} && ref $opt{text_location} eq 'HASH') {
       $self->{_TEXT_LOCATION_} = { %{$opt{text_location}}, _place_ => 1 };
@@ -285,6 +285,7 @@ sub set_tl { # set text location
    $self->{ptsize}        = delete $o{ptsize} if $o{ptsize};
 
    $self->{scramble}      = 0; # disable
+   $self->{angle}         = 0; # disable RT:14618
 
    $self->{_TEXT_LOCATION_}->{$_} = $o{$_} foreach keys %o;
    $self;
@@ -519,15 +520,20 @@ option is enabled by default.
 =item scramble
 
 If set, the characters will be scrambled. If you enable this option,
-be sure to use a wider image, since the characters will be separeted 
+be sure to use a wider image, since the characters will be separated 
 with three spaces.
 
 =item angle
 
-Sets the angle for scrambled characters. Beware that, if you pass
+Sets the angle for scrambled/normal characters. Beware that, if you pass
 an C<angle> parameter, the characters in your random string will have
 a fixed angle. If you do not set an C<angle> parameter, the angle(s)
 will be random.
+
+When the scramble option is not enabled, this parameter still controls
+the angle of the text. Bu since the text will be centered inside the 
+image, using this parameter without scramble option will require a 
+taller image. Clipping will occur with smaller height values.
 
 Unlike the GD interface, C<angle> is in C<degree>s and can take values 
 between C<0> and C<360>.
@@ -540,9 +546,6 @@ Default values are C<1> for GD and C<0.6> for Image:Magick.
 =item rndmax
 
 The length of the random string. Default value is C<6>.
-
-B<Not necessary and will not be used if you pass your own random>
-B<string.>
 
 =item rnd_data
 

@@ -20,7 +20,7 @@ use constant MAX_COMPRESS => 9;
 
 use GD;
 
-$VERSION = '1.45';
+$VERSION = '1.46';
 $methTTF = $GD::VERSION >= 1.31 ? 'stringFT' : 'stringTTF'; # define the tff drawing method.
 
 sub init {
@@ -143,7 +143,13 @@ sub insert_text {
             $x = ($self->{width}  - ($box[LOW_RIGHT_X] - $box[LOW_LEFT_X])) / 2;
             $y = ($self->{height} - ($box[UP_LEFT_Y]   - $box[LOW_LEFT_Y])) / 2;
          }
-         $self->{image}->$methTTF($self->{_COLOR_}{text}, $self->{font}, $self->{ptsize}, 0, $x, $y, $key);
+         if ($self->{angle}) {
+            require Math::Trig;
+            $self->{angle} = Math::Trig::deg2rad($self->{angle});
+         } else {
+            $self->{angle} = 0;
+         }
+         $self->{image}->$methTTF($self->{_COLOR_}{text}, $self->{font}, $self->{ptsize}, $self->{angle}, $x, $y, $key);
       }
    } else {
       if ($self->{scramble}) {
