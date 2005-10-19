@@ -2,6 +2,11 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.57_01 Wed Oct 19 14:31:22 2005
+        => Converted to Module::Build from ExtUtils::MakeMaker.
+	=> Nothing changed in modules. Just a test for PAUSE indexer
+	   and Module::Build.
+
 1.57 Tue Oct  4 18:24:12 2005
 	=> Fixed typos in pods.
 	=> Added RT Wishlist item #14618. 'angle' parameter is now

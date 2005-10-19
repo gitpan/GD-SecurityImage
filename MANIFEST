@@ -10,8 +10,9 @@ t/t.api
 eg/demo.pl
 Changes
 Makefile.PL
+Build.PL
 MANIFEST
 README
 StayPuft.ttf
-SIGNATURE
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml
+SIGNATURE    Added here by Module::Build

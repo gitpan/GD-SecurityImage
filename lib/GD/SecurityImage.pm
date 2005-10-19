@@ -3,7 +3,7 @@ use strict;
 use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 
-$VERSION = '1.57';
+$VERSION = '1.57_01';
 
 sub import {
    my $class   = shift;
@@ -531,7 +531,7 @@ a fixed angle. If you do not set an C<angle> parameter, the angle(s)
 will be random.
 
 When the scramble option is not enabled, this parameter still controls
-the angle of the text. Bu since the text will be centered inside the 
+the angle of the text. But, since the text will be centered inside the 
 image, using this parameter without scramble option will require a 
 taller image. Clipping will occur with smaller height values.
 
