@@ -2,6 +2,16 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.57_02 Fri Oct 21 19:46:11 2005
+	=> Reworked an undocumented method. New name is info_text().
+	   You can now add information strips to the generated image.
+	   The demo already uses this undocumented feature for a while.
+	   This method can be used to add copyright information. Some 
+	   free captcha services are doing that. Alternatively, you can
+	   display the image generation time like the demo does.
+	=> Added info_text() info to pod and fixed the other pod sections.
+	=> Updated test suite.
+
 1.57_01 Wed Oct 19 14:31:22 2005
         => Converted to Module::Build from ExtUtils::MakeMaker.
 	=> Nothing changed in modules. Just a test for PAUSE indexer

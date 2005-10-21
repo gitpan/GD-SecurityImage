@@ -6,6 +6,7 @@ lib/GD/SecurityImage/AC.pm
 t/gd.t
 t/magick.t
 t/backend.t
+t/info_text.t
 t/t.api
 eg/demo.pl
 Changes

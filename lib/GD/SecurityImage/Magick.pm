@@ -18,7 +18,7 @@ use constant MAX_COMPRESS => 100;
 
 use Image::Magick;
 
-$VERSION = '1.35';
+$VERSION = '1.36';
 
 sub init {
    # Create the image object
@@ -48,9 +48,7 @@ sub out {
       }
       $self->{image}->Set(quality => $opt{'compress'});
    }
-   my @all_random = @{ $self->{_RND_LIST_} };
-      @all_random = ($self->{_RANDOM_NUMBER_}) unless scalar(@all_random) > 0;
-   return $self->{image}->ImageToBlob, $type, @all_random;
+   return $self->{image}->ImageToBlob, $type, $self->{_RANDOM_NUMBER_};
 }
 
 sub insert_text {

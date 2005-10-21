@@ -11,6 +11,14 @@ BEGIN {
       gd_normal_scramble    => 6,
       gd_ttf_scramble       => 6,
       gd_ttf_scramble_fixed => 6,
+
+      gd_normal_info_text   => 6,
+      gd_ttf_info_text      => 6,
+
+      gd_normal_scramble_info_text    => 6,
+      gd_ttf_scramble_info_text       => 6,
+      gd_ttf_scramble_fixed_info_text => 6,
+
    );
    my $total  = 0;
       $total += $API{$_} foreach keys %API;
@@ -25,12 +33,35 @@ my $tapi = 'tapi';
 
 my $font = getcwd.'/StayPuft.ttf';
 
+my %info_text = (
+   text   => $tapi->the_info_text,
+   ptsize => 8,
+   color  => '#000000',
+   scolor => '#FFFFFF',
+);
+
 foreach my $api (keys %API) {
-   $tapi->options(args($api));
+   $tapi->options(args($api), extra($api));
    my $c = 1;
    foreach my $style ($tapi->styles) {
       ok($tapi->save($api->$style()->out(force => 'png', compress => 1), $style, $api, $c++));
    }
+   $tapi->clear;
+}
+
+sub extra {
+   my $name = shift;
+   if ($name =~ m/_info_text$/) {
+      my %extra = (info_text => {%info_text});
+      if ($name =~ m/normal/) {
+         $extra{info_text}->{gd} = 1;
+      }
+      if ($name =~ m/fixed/) {
+         $extra{info_text}->{gd} = 1; # yes, we can use GD' s internal font and ttf together...
+      }
+      return %extra;
+   }
+   return +();
 }
 
 sub args {
@@ -75,5 +106,10 @@ sub args {
    },
    );
    my $o = $options{$name};
+   unless ($o) {
+     (my $tmp = $name) =~ s,_info_text,,;
+      $o = $options{$tmp};
+   }
+   $o or die "Bogus arg name $name!";
    return %{$o}
 }

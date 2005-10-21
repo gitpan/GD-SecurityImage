@@ -66,7 +66,7 @@ sub style_ellipse {
 }
 
 sub style_ec {
-   my $self  = shift;
+   my $self = shift;
       $self->style_ellipse(@_) unless $self->{DISABLED}{ellipse}; # GD < 2.07
       $self->style_circle(@_);
 }

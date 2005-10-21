@@ -20,7 +20,7 @@ use constant MAX_COMPRESS => 9;
 
 use GD;
 
-$VERSION = '1.46';
+$VERSION = '1.47';
 $methTTF = $GD::VERSION >= 1.31 ? 'stringFT' : 'stringTTF'; # define the tff drawing method.
 
 sub init {
@@ -55,9 +55,7 @@ sub out {
       push @args, MAX_COMPRESS     if $type eq 'png' and not $self->{DISABLED}{_png_compression};
       push @args, $opt{'compress'} if $type eq 'jpeg';
    }
-   my @all_random = @{ $self->{_RND_LIST_} };
-      @all_random = ($self->{_RANDOM_NUMBER_}) unless @all_random;
-   return $self->{image}->$type(@args), $type, @all_random;
+   return $self->{image}->$type(@args), $type, $self->{_RANDOM_NUMBER_};
 }
 
 sub gdbox_empty {shift->{GDBOX_EMPTY}}

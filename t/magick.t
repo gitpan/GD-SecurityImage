@@ -21,9 +21,12 @@ BEGIN {
       exit;
    } else {
       %API = (
-         magick                => 6,
-         magick_scramble       => 6,
-         magick_scramble_fixed => 6,
+         magick                          => 6,
+         magick_scramble                 => 6,
+         magick_scramble_fixed           => 6,
+         magick_info_text                => 6,
+         magick_scramble_info_text       => 6,
+         magick_scramble_fixed_info_text => 6,
       );
       my $total  = 0;
          $total += $API{$_} foreach keys %API;
@@ -39,12 +42,28 @@ my $tapi = 'tapi';
 
 my $font = getcwd.'/StayPuft.ttf';
 
+my %info_text = (
+   text   => $tapi->the_info_text,
+   ptsize => 12,
+   color  => '#000000',
+   scolor => '#FFFFFF',
+);
+
 foreach my $api (keys %API) {
-   $tapi->options(args($api));
+   $tapi->options(args($api), extra($api));
    my $c = 1;
    foreach my $style ($tapi->styles) {
       ok($tapi->save($api->$style()->out(force => 'png', compress => 1), $style, $api, $c++));
    }
+   $tapi->clear;
+}
+
+sub extra {
+   my $name = shift;
+   if ($name =~ m/_info_text$/) {
+      return info_text => {%info_text};
+   }
+   return +();
 }
 
 sub args {
@@ -76,5 +95,10 @@ sub args {
    },
    );
    my $o = $options{$name};
+   unless ($o) {
+     (my $tmp = $name) =~ s,_info_text,,;
+      $o = $options{$tmp};
+   }
+   $o or die "Bogus arg name $name!";
    return %{$o}
 }

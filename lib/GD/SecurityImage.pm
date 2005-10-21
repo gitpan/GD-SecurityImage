@@ -3,7 +3,7 @@ use strict;
 use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 
-$VERSION = '1.57_01';
+$VERSION = '1.57_02';
 
 sub import {
    my $class   = shift;
@@ -40,11 +40,10 @@ sub new {
       MAGICK          => {}, # Image::Magick configuration options
       GDBOX_EMPTY     => 0,  # GD::SecurityImage::GD::insert_text() failed?
       _RANDOM_NUMBER_ => '', # random security code
-      _RND_LIST_      => [], # random codes list
       _RNDMAX_        => 6,  # maximum number of characters in a random string.
       _COLOR_         => {}, # text and line colors
       _CREATECALLED_  => 0,  # create() called? (check for particle())
-      _TEXT_LOCATION_ => {}, # see set_tl
+      _TEXT_LOCATION_ => {}, # see info_text
    };
    bless $self, $class;
    my %options = (
@@ -257,15 +256,7 @@ sub particle {
 
 sub raw {shift->{image}} # raw image object
 
-sub change_random {
-   my $self = shift;
-   my $new  = shift;
-   return unless defined $new;
-   push @{ $self->{_RND_LIST_} }, $self->{_RANDOM_NUMBER_};
-   $self->{_RANDOM_NUMBER_} = $new;
-}
-
-sub set_tl { # set text location
+sub info_text { # set text location
    # x      => 'left|right',  # text-X
    # y      => 'up|low|down', # text-Y
    # strip  => 1|0,           # add strip?
@@ -275,21 +266,25 @@ sub set_tl { # set text location
    # scolor => '#FFFFFF',     # strip color
    # text   => 'blah',        # modifies random code
    my $self = shift;
-   my %o    = scalar(@_) % 2 ? () : (@_);
+   die "info_text() must be called 'after' create()!" unless $self->{_CREATECALLED_};
+   my %o = scalar(@_) % 2 ? () : (qw/x right y up strip 1/, @_);
    return unless %o;
 
+   $o{scolor} = $self->cconvert($o{scolor}) if $o{scolor};
    $self->{_TEXT_LOCATION_}->{_place_} = 1;
-   $self->change_random(delete $o{text}) if $o{text};
-   $self->{_COLOR_}{text} = $self->cconvert(delete $o{color}) if $o{color};
-   $o{scolor}             = $self->cconvert($o{scolor})       if $o{scolor};
-   $self->{ptsize}        = delete $o{ptsize} if $o{ptsize};
+   local $self->{_RANDOM_NUMBER_} = delete $o{text} if $o{text};
+   local $self->{_COLOR_}{text}   = $self->cconvert(delete $o{color}) if $o{color};
+   local $self->{ptsize}          = delete $o{ptsize} if $o{ptsize};
 
-   $self->{scramble}      = 0; # disable
-   $self->{angle}         = 0; # disable RT:14618
+   local $self->{scramble} = 0; # disable. we need a straight text
+   local $self->{angle}    = 0; # disable. RT:14618
 
    $self->{_TEXT_LOCATION_}->{$_} = $o{$_} foreach keys %o;
+   $self->insert_text('ttf');
    $self;
 }
+
+#--------------------[ PRIVATE ]--------------------#
 
 sub add_strip { # adds a strip to the background of the text
    my $self = shift;
@@ -304,8 +299,6 @@ sub add_strip { # adds a strip to the background of the text
    $i->filledRectangle($up ? ($x-1, 0, $x2, $y+1) : ($x-1, $y2-1, $x2  , $self->{height}  ), $black);
    $i->filledRectangle($up ? ($x  , 1, $x2-2, $y) : ($x  , $y2  , $x2-2, $self->{height}-2), $white);
 }
-
-#--------------------[ PRIVATE ]--------------------#
 
 sub r2h {
    # Convert RGB to Hex
@@ -374,14 +367,12 @@ GD::SecurityImage - Security image (captcha) generator.
       $image->particle;
    my($image_data, $mime_type, $random_number) = $image->out;
 
-or you can just say (all public methods can be chained)
+or you can just say (most of the public methods can be chained)
 
    my($image, $type, $rnd) = GD::SecurityImage->new->random->create->particle->out;
 
-to create a security image with the default settings. But that may not be 
-useful.
-
-If you C<require> the module, you B<must> import it also:
+to create a security image with the default settings. But that may not 
+be useful. If you C<require> the module, you B<must> import it also:
 
    require GD::SecurityImage;
    import GD::SecurityImage;
@@ -391,14 +382,11 @@ or:
    require GD::SecurityImage;
    GD::SecurityImage->import;
 
-if you don't like indirect object syntax.
-
-If you dont C<import>, the required modules will not be loaded and probably, 
-you'll C<die()>.
-
-Beginning with v1.2, the module supports C<Image::Magick>, but the default
-interface uses C<GD> module. To enable C<Image::Magick> support, you must 
-call the module with the C<use_magick> option:
+if you don't like indirect object syntax. If you don' t C<import>, the 
+required modules will not be loaded and probably, you'll C<die()>.
+The module also supports C<Image::Magick>, but the default interface 
+uses C<GD> module. To enable C<Image::Magick> support, you must call 
+the module with the C<use_magick> option:
 
    use GD::SecurityImage use_magick => 1;
 
@@ -412,13 +400,10 @@ or:
    require GD::SecurityImage;
    GD::SecurityImage->import(use_magick => 1);
 
-if you don't like indirect object syntax.
-
-If you dont C<import>, the required modules will not be loaded and probably, 
-you'll C<die()>.
-
-The module does not I<export> anything actually. But C<import> loads the 
-necessary sub modules.
+if you don't like indirect object syntax. If you don' t C<import>, the 
+required modules will not be loaded and probably, you'll C<die()>. 
+The module does not I<export> anything actually. But C<import> loads 
+the necessary sub modules.
 
 =head1 DESCRIPTION
 
@@ -428,19 +413,22 @@ software use these in their registration screens to block robot programs
 basicaly, graphical CAPTCHAs (Completely Automated Public Turing Test to 
 Tell Computers and Humans Apart). This module gives you a basic interface 
 to create such an image. The final output is the actual graphic data, 
-the mime type of the graphic and the created random string.
-
-The module also has some I<"styles"> that are used to create the background 
+the mime type of the graphic and the created random string. The module
+also has some I<"styles"> that are used to create the background 
 of the image.
 
 If you are an C<Authen::Captcha> user, see L<GD::SecurityImage::AC>
 for migration from C<Authen::Captcha> to C<GD::SecurityImage>.
 
+This module is I<just> an I<image generator>. Not a I<captcha handler>.
+The validation of the generated graphic is left to your programming 
+taste.
+
 =head1 COLOR PARAMETERS
 
-Version 1.51 and later of this module is a little smarter than the 
-older versions. You can now use RGB and HEX values as the color 
-parameters:
+This module can use both RGB and HEX values as the color 
+parameters. HEX values are recommended, since they are  
+widely used and recognised.
 
    $color  = '#80C0F0';     # HEX
    $color2 = [15, 100, 75]; # RGB
@@ -614,7 +602,7 @@ and circles.
 
 =back
 
-Note: if you have a (very) old version of GD, you may not be able 
+I<Note>: if you have a (too) old version of GD, you may not be able 
 to use some of the styles.
 
 You can use this code to get all available style names:
@@ -649,6 +637,73 @@ other pixels near it will be used and colored.
 
 The color of the particles are the same as the color of your text 
 (defined in L<create|/create>).
+
+=head2 info_text
+
+This method must be called after L<create|/create>. If you call it
+early, you'll die. C<info_text> adds an extra text to the generated 
+image. You can also put a strip under the text. The purpose of this 
+method is to display additional information on the image. Copyright 
+informations can be an example for that. 
+
+   $image->info_text(
+      x      => 'right',
+      y      => 'up',
+      gd     => 1,
+      strip  => 1,
+      color  => '#000000',
+      scolor => '#FFFFFF',
+      text   => 'Generated by GD::SecurityImage',
+   );
+
+Options: 
+
+=over 4
+
+=item x
+
+Controls the horizontal location of the information text. Can be 
+either C<left> or C<right>.
+
+=item y
+
+Controls the vertical location of the information text. Can be 
+either C<up> or C<down>.
+
+=item strip
+
+If has a true value, a strip will be added to the background of the
+information text.
+
+=item gd
+
+This option can only be used under C<GD>. Has no effect under
+Image::Magick. If has a true value, the standard GD font C<Tiny>
+will be used for the information text.
+
+If this option is not present or has a false value, the TTF font 
+parameter passed to C<new> will be used instead.
+
+=item ptsize
+
+The ptsize value of the information text to be used with the TTF font.
+TTF font paramter can not be set with C<info_text()>. The value passed
+to C<new()> will be used instead.
+
+=item color
+
+The color of the information text.
+
+=item scolor
+
+The color of the strip.
+
+=item text
+
+This parameter controls the displayed text. If you want to display 
+long texts, be sure to adjust the image, or clipping will occur.
+
+=back
 
 =head2 out
 

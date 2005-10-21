@@ -28,7 +28,7 @@ use Cwd;
 
 #--------------> START PROGRAM <--------------#
 
-$VERSION = '1.3';
+$VERSION = '1.31';
 
 BEGIN {
    my @errors;
@@ -293,18 +293,19 @@ sub create_image { # create a security image with random options and styles
                          : ($s->{particle})
    );
    if ($i->gdbox_empty) {
-      die qq~An error occurred while opening the font file '$config{font}'. Please set font option to an "exact" path not relative. Error: $@~;
+      die qq~An error occurred while opening the font file '$config{font}'. Please set font option to an "exact" path, not relative. Error: $@~;
    }
    if ($config{img_stat}) {
-      $i->set_tl(x      => 'right',
-                 y      => 'up',
-                 gd     => 1,
-                 strip  => 1,
-                 color  => "#000000",
-                 scolor => "#FFFFFF",
-                 ptsize => $i->{IS_MAGICK} ? 12 : 8, # low-level access to an object table is not a good thing, since the author can change/delete it without notification in later releases ;)
-                 text   => sprintf "Security Image generated at %.3f seconds", Time::HiRes::time() - $START,
-      )->insert_text('ttf');
+      $i->info_text(
+         x      => 'right',
+         y      => 'up',
+         gd     => 1,
+         strip  => 1,
+         color  => "#000000",
+         scolor => "#FFFFFF",
+         ptsize => $i->{IS_MAGICK} ? 12 : 8, # low-level access to an object table is not a good thing, since the author can change/delete it without notification in later releases ;)
+         text   => sprintf "Security Image generated at %.3f seconds", Time::HiRes::time() - $START,
+      );
    }
    my @image = $i->out(force => $config{itype});
    return @image;

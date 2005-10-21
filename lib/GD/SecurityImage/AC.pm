@@ -7,7 +7,7 @@ use Digest::MD5 qw(md5_hex);
 use File::Spec;
 use Fcntl qw(:flock);
 
-$VERSION = '1.01';
+$VERSION = '1.02';
 
 sub new {
    my $class = shift;
@@ -258,10 +258,10 @@ C<gdsi>. Also see the C<CAVEATS> section for incompatibilities.
 This module uses: C<GD::SecurityImage>, C<Digest::MD5>, C<File::Spec> and 
 C<Fcntl> modules.
 
-If you are writing a captcha handler from scratch, this module is not
-recommended. You must use GD::SecurityImage directly. This module can
-be used for older Authen::Captcha applications only. And features are
-(and will be) limited with Authen::Captcha capabilities.
+If you are writing a captcha handler from scratch, this module is 
+B<not recommended>. You must use C<GD::SecurityImage> directly. This 
+module can be used for older Authen::Captcha applications only. And 
+features are (and will be) limited with Authen::Captcha capabilities.
 
 =head1 METHODS
 
@@ -356,6 +356,8 @@ Some portions of this module adapted from L<Authen::Captcha>.
 L<Authen::Captcha> Copyright 2003 by First Productions, Inc. & Seth Jackson.
 
 =head1 LICENSE
+
+This library is provided "AS IS" without warranty of any kind.
 
 This library is free software; you can redistribute it and/or modify 
 it under the same terms as Perl itself, either Perl version 5.8.6 or, 
