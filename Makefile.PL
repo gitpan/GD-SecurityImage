@@ -28,4 +28,5 @@ WriteMakefile(
    AUTHOR       => 'Burak Gursoy <burak@cpan.org>',
    ABSTRACT     => 'Security image (captcha) generator',
    ) : ()),
+   PL_FILES     => {},
 );

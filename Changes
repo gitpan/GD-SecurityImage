@@ -2,6 +2,15 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.581 Wed Oct 26 20:21:09 2005
+	=> Fixed Makefile.PL. Build.PL was causing this error:
+	   "Too early to specify a build action 'Build'.  Do 'Build Build' instead."
+	   Setting "PL_FILES" to an empty hashref solves the problem.
+	   This was mentioned in Module::Build::Compat, but I' ve
+	   missed it and this error does not seem to happen under 
+	   Windows or with the latest version of ExtUtils::MakeMaker,
+	   I'm not sure which one is the case.
+
 1.58 Wed Oct 26 13:28:35 2005
 	=> Fixed a gdbox issue in ::GD backend.
 	=> Pod fixes.
