@@ -2,6 +2,10 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.58 Wed Oct 26 13:28:35 2005
+	=> Fixed a gdbox issue in ::GD backend.
+	=> Pod fixes.
+
 1.57_02 Fri Oct 21 19:46:11 2005
 	=> Reworked an undocumented method. New name is info_text().
 	   You can now add information strips to the generated image.

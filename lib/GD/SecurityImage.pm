@@ -3,7 +3,7 @@ use strict;
 use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 
-$VERSION = '1.57_02';
+$VERSION = '1.58';
 
 sub import {
    my $class   = shift;
@@ -372,38 +372,25 @@ or you can just say (most of the public methods can be chained)
    my($image, $type, $rnd) = GD::SecurityImage->new->random->create->particle->out;
 
 to create a security image with the default settings. But that may not 
-be useful. If you C<require> the module, you B<must> import it also:
-
-   require GD::SecurityImage;
-   import GD::SecurityImage;
-
-or:
+be useful. If you C<require> the module, you B<must> import it:
 
    require GD::SecurityImage;
    GD::SecurityImage->import;
 
-if you don't like indirect object syntax. If you don' t C<import>, the 
-required modules will not be loaded and probably, you'll C<die()>.
 The module also supports C<Image::Magick>, but the default interface 
-uses C<GD> module. To enable C<Image::Magick> support, you must call 
-the module with the C<use_magick> option:
+uses the C<GD> module. To enable C<Image::Magick> support, you must 
+call the module with the C<use_magick> option:
 
    use GD::SecurityImage use_magick => 1;
 
-If you C<require> the module, you B<must> import it also:
-
-   require GD::SecurityImage;
-   import GD::SecurityImage use_magick => 1;
-
-or:
+If you C<require> the module, you B<must> import it:
 
    require GD::SecurityImage;
    GD::SecurityImage->import(use_magick => 1);
 
-if you don't like indirect object syntax. If you don' t C<import>, the 
-required modules will not be loaded and probably, you'll C<die()>. 
-The module does not I<export> anything actually. But C<import> loads 
-the necessary sub modules.
+The module does not I<export> anything actually. But C<import> loads
+the necessary sub modules. If you don' t C<import>, the required 
+modules will not be loaded and probably, you'll C<die()>.
 
 =head1 DESCRIPTION
 

@@ -20,7 +20,7 @@ use constant MAX_COMPRESS => 9;
 
 use GD;
 
-$VERSION = '1.47';
+$VERSION = '1.48';
 $methTTF = $GD::VERSION >= 1.31 ? 'stringFT' : 'stringTTF'; # define the tff drawing method.
 
 sub init {
@@ -141,6 +141,7 @@ sub insert_text {
             $x = ($self->{width}  - ($box[LOW_RIGHT_X] - $box[LOW_LEFT_X])) / 2;
             $y = ($self->{height} - ($box[UP_LEFT_Y]   - $box[LOW_LEFT_Y])) / 2;
          }
+         # this needs a fix. adjust x,y
          if ($self->{angle}) {
             require Math::Trig;
             $self->{angle} = Math::Trig::deg2rad($self->{angle});
@@ -217,6 +218,12 @@ sub ttf_info {
    my $x     = 0;
    my $y     = 0;
    my @box   = GD::Image->$methTTF($self->{_COLOR_}{text},$self->{font}, $self->{ptsize},Math::Trig::deg2rad($angle),0,0,$text);
+   unless (@box) { # use fake values instead of die-ing
+      $self->{GDBOX_EMPTY} = 1; # set this for error checking.
+      $#box    = 7;
+      # lets initialize to silence the warnings
+      $box[$_] = 1 for 0..$#box;
+   }
    my $bx    = $box[LOW_LEFT_X] - $box[LOW_RIGHT_X];
    my $by    = $box[LOW_LEFT_Y] - $box[LOW_RIGHT_Y];
 
