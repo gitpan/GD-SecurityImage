@@ -1,5 +1,5 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.44.
+signed via the Module::Signature module, version 0.50.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
@@ -15,27 +15,32 @@ not run its Makefile.PL or Build.PL.
 Hash: SHA1
 
 SHA1 98875b04595776fca49c5d3392b538fe59444e07 Build.PL
-SHA1 45368254de46080c6dae6c204fcc915c5a14e392 Changes
-SHA1 2de4014f35d29cf594d52263b7cda84492fc9c64 MANIFEST
-SHA1 dd782d79b43ed6735b8f19f44769f7a06af0f5b8 META.yml
+SHA1 e6a6242a97fce40c8af181bda0c7788676f0669b Changes
+SHA1 5d13ad52006b0bad09ab53e7cb139334cd974ff5 MANIFEST
+SHA1 b74066b0e4f546f1851696eeee3542bab6f5a4e6 MANIFEST.SKIP
+SHA1 149034f8a5a3bb08aba7bebe93e7acd78164cecd META.yml
 SHA1 42a360475114497d2b6d2bd077e858beb57e9519 Makefile.PL
 SHA1 39120f2e9532c00dd6c515a59a894bdb61cdd8fe README
 SHA1 98a627763da059ca1e1d6540d4135e6d92b995e5 StayPuft.ttf
 SHA1 8a0ab98c80f1e9b96ab63b4d4bdadcee429e6b56 eg/demo.pl
-SHA1 e58237558ecb5f57d83072b9b90b6527a12beb07 lib/GD/SecurityImage.pm
+SHA1 77d0d9b8c672e7f7548126b7c2c1ab34ddad613c lib/GD/SecurityImage.pm
 SHA1 2230aaff1a96ca1b74f866c251f1e00a4e08f49c lib/GD/SecurityImage/AC.pm
 SHA1 7d3ffe769b3f21942f663bfb4c6795634c1afc81 lib/GD/SecurityImage/GD.pm
 SHA1 175e0a16d9518059be987e07737650c4f0a4937a lib/GD/SecurityImage/Magick.pm
 SHA1 9e8c3a7e0c79e2257785dc5ccfedd537ff259373 lib/GD/SecurityImage/Styles.pm
-SHA1 a2cc3b53de043ffb410ba72a1eefc211f3642d13 t/backend.t
-SHA1 7beeea810285592a36ff31fe22c318c86fa95be8 t/gd.t
-SHA1 2c2fd471e31d141eacb8f7bd68ff1d8801c6736b t/info_text.t
-SHA1 fb090e4023a7e3596851a07a55ed7623b73ef156 t/magick.t
+SHA1 414e62c37ccef8316e79d4523cbefd359ebfc91e t/0-signature.t
+SHA1 a2cc3b53de043ffb410ba72a1eefc211f3642d13 t/1-backend.t
+SHA1 2c2fd471e31d141eacb8f7bd68ff1d8801c6736b t/2-info_text.t
+SHA1 c5f78c3de063e41cef326e3a208cce6b12bc6007 t/3-pod.t
+SHA1 7084c50c2e1c449b625d1a24d04d50ac41b922e5 t/4-pod-coverage.t
+SHA1 7beeea810285592a36ff31fe22c318c86fa95be8 t/5-gd.t
+SHA1 779e99332814aab6f9afd6725d0fb8e552637123 t/6-magick.t
+SHA1 dd777bf2ca8a1905164936ac4949c798f9f8f466 t/skip.test
 SHA1 8d007c263c63fcfec7befb1d3d9da6cad7fdb2e5 t/t.api
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (MingW32)
 
-iD8DBQFDX+f2WQFP8hSD6kQRAjc4AKC223btSqwsBVX+OQWbMTfDhso9gQCfXbWj
-wE+QHu3gqIsSBpw/hQ4yptc=
-=rXx3
+iD8DBQFDY9+qWQFP8hSD6kQRAjh7AJ4wOUCCm3EKtRZZ3uyysAvppq5kGwCfY90Y
+5CD9ANGRkWDDXj/Z/4hBnAI=
+=uGKP
 -----END PGP SIGNATURE-----

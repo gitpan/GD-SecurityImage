@@ -5,7 +5,7 @@ use Test;
 use Cwd;
 
 BEGIN {
-   eval "require Image::Magick";
+   eval "require Image::Magick;";
    my $skip;
    if ($@) {
       $skip = "You don't have Image::Magick installed.";

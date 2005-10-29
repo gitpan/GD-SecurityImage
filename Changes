@@ -2,6 +2,9 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.582 Sat Oct 29 20:43:04 2005
+	=> Updated test suite to increase kwalitee :)
+
 1.581 Wed Oct 26 20:21:09 2005
 	=> Fixed Makefile.PL. Build.PL was causing this error:
 	   "Too early to specify a build action 'Build'.  Do 'Build Build' instead."

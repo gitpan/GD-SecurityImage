@@ -3,7 +3,7 @@ use strict;
 use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 
-$VERSION = '1.581';
+$VERSION = '1.582';
 
 sub import {
    my $class   = shift;
@@ -931,18 +931,24 @@ The internal random code generator is used B<only> for demonstration
 purposes for this module. It may not be I<effective>. You must supply 
 your own random code and use this module to display it.
 
-=item [GD] png compression
+=item *
+
+B<[GD] png compression>
 
 Support for compression level argument to png() added in v2.07. If
 your GD version is smaller than this, compress option to C<out()>
 will be silently ignored.
 
-=item [GD] setThickness
+=item *
+
+B<[GD] setThickness>
 
 setThickness implemented in GD v2.07. If your GD version is smaller
 than that and you set thickness option, nothing will happen.
 
-=item [GD] ellipse
+=item *
+
+B<[GD] ellipse>
 
 C<ellipse()> method added in GD 2.07. 
 
