@@ -3,7 +3,7 @@ use strict;
 use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 
-$VERSION = '1.582';
+$VERSION = '1.583';
 
 sub import {
    my $class   = shift;
@@ -914,6 +914,30 @@ If it prints out a junk that starts with 'GIF87a', everything is OK.
 =back
 
 Contact the author if you find any bugs. You can also send requests.
+
+=head1 COMMON ERRORS
+
+=head2 Wrong GD installation
+
+I got some error reports saying that GD::SecurityImage dies
+with this error:
+
+   Can't locate object method "new" via package "GD::Image" 
+   (perhaps you forgot to load "GD::Image"?) at ...
+
+This is due to a I<wrong> installation of the L<GD> module. GD
+includes C<XS> code and it needs to be compiled. You can't just 
+copy/paste the I<GD.pm> and expect it to work. It will not.
+If you are under Windows and don't have a C compiler, you have 
+to add new repositories to install I<GD>, since ActiveState' s own 
+repositories don't include I<GD>. Randy Kobes and J-L Morel have 
+ppm repositories for both 5.6.x and 5.8.x and they both have I<GD>:
+
+   http://www.bribes.org/perl/ppmdir.html
+   http://theoryx5.uwinnipeg.ca/
+
+I<bribes.org> also has a I<GD::SecurityImage> ppd, so you can just 
+install I<GD::SecurityImage> from that repository.
 
 =head1 CAVEAT EMPTOR
 

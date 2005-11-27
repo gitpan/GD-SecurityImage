@@ -2,6 +2,15 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.583 Fri Nov 25 23:06:36 2005
+	=> Another relase for distro/sig issues. Now all files are CRLF
+	   and signature testing is disabled if !MSWin32. 
+	   Module::Signature currently (<= 0.50) can not validate CRLF
+	   files if it is working under some non-Windows OS. I'm waiting
+	   for a response from Module::Signature author on this subject.
+	=> Renamed some tests.
+	=> Updated pod.
+
 1.582 Sat Oct 29 20:43:04 2005
 	=> Updated test suite to increase kwalitee :)
 
