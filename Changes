@@ -2,6 +2,14 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.59 Fri Jan  6 13:56:41 2006
+	=> Updated ::AC. Module. It now dies if gdbox_empty().
+	   If libgd is compiled without TTF support, we'll get
+	   an empty image. Also added this to Pod.
+	=> Removed SIGNATURE file and signature test and anything
+	   Module::Signature related per RT #15346. I'm tired of
+	   Module::Signature.
+
 1.583 Fri Nov 25 23:06:36 2005
 	=> Another relase for distro/sig issues. Now all files are CRLF
 	   and signature testing is disabled if !MSWin32. 

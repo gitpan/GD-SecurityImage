@@ -7,7 +7,7 @@ use Digest::MD5 qw(md5_hex);
 use File::Spec;
 use Fcntl qw(:flock);
 
-$VERSION = '1.02';
+$VERSION = '1.04';
 
 sub new {
    my $class = shift;
@@ -55,7 +55,9 @@ sub create_image_file {
    ),             rndmax     => 1);
    $i->random($code);
    $i->create($self->{gdsi}{create} ? @{$self->{gdsi}{create}} : (normal => 'default', '#6C7186', '#917862'));
+   die "Error loading ttf font for GD: $@" if $i->gdbox_empty;
    $i->particle(@{ $self->{gdsi}{particle} }) if $self->{gdsi}{particle};
+
    my @data = $i->out(force => 'png');
    return $data[0];
 }
@@ -64,8 +66,9 @@ sub database_file {
    my $self = shift;
    my $file = File::Spec->catfile($self->{_data_folder},'codes.txt');
    unless(-e $file) { # create database file if it doesn't already exist
-      open  DATA, '>>'.$file or die "Can't create File: $file\n";
-      close DATA;
+      local *DATA;
+      open   DATA, '>>'.$file or die "Can't create File: $file\n";
+      close  DATA;
    }
    return $file;
 }
@@ -73,6 +76,7 @@ sub database_file {
 sub database_data {
    my $self = shift;
    my $db   = $self->database_file;
+   local *DATA;
    open   DATA, '<'.$db  or die "Can't open $db for reading: $!\n";
    flock  DATA, LOCK_SH;
    my @data = <DATA>;
@@ -117,10 +121,11 @@ sub check_code {
    }
 
    # update database
-   open  DATA, '>'.$db  or die "Can't open $db for writing: $!\n";
-   flock DATA, LOCK_EX;
-   print DATA $new;
-   close DATA;
+   local *DATA;
+   open   DATA, '>'.$db  or die "Can't open $db for writing: $!\n";
+   flock  DATA, LOCK_EX;
+   print  DATA $new;
+   close  DATA;
    if ($md5 eq $crypt) { # solution was correct
       if ($found) {
          $rvalue = 1;  # solution was correct and was found in database - passed
@@ -159,6 +164,8 @@ sub generate_code {
 
    # first, test if we can open all files
    my $file = File::Spec->catfile($self->{_output_folder},$md5 . '.png');
+   local  *DATA;
+   local  *FILE;
    open    FILE, '>'.$file or die "Can't open $file for writing: $!\n";
    open    DATA, '>'.$db   or die "Can't open $db   for writing: $!\n";
 
@@ -350,7 +357,7 @@ Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2005 Burak Gürsoy. All rights reserved.
+Copyright 2005-2006 Burak Gürsoy. All rights reserved.
 
 Some portions of this module adapted from L<Authen::Captcha>. 
 L<Authen::Captcha> Copyright 2003 by First Productions, Inc. & Seth Jackson.
@@ -360,7 +367,7 @@ L<Authen::Captcha> Copyright 2003 by First Productions, Inc. & Seth Jackson.
 This library is provided "AS IS" without warranty of any kind.
 
 This library is free software; you can redistribute it and/or modify 
-it under the same terms as Perl itself, either Perl version 5.8.6 or, 
+it under the same terms as Perl itself, either Perl version 5.8.7 or, 
 at your option, any later version of Perl 5 you may have available.
 
 =cut

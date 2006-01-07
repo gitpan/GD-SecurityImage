@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # -> GD::SecurityImage demo program
-# -> Burak Gürsoy (c) 2005. 
+# -> Burak Gürsoy (c) 2004-2006. 
 # See the document section after "__END__" for license and other information.
 package demo;
 use strict;
@@ -74,7 +74,7 @@ sub run {
    my $START = Time::HiRes::time();
    my $self  = bless {}, __PACKAGE__;
 
-   import GD::SecurityImage use_magick => $config{use_magick};
+   GD::SecurityImage->import(use_magick => $config{use_magick});
 
    $IS_GD           = $GD::SecurityImage::BACKEND eq 'GD';
    $self->{cgi}     = CGI->new;
@@ -513,12 +513,12 @@ Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2004-2005 Burak Gürsoy. All rights reserved.
+Copyright 2004-2006 Burak Gürsoy. All rights reserved.
 
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify 
-it under the same terms as Perl itself, either Perl version 5.8.6 or, 
+it under the same terms as Perl itself, either Perl version 5.8.7 or, 
 at your option, any later version of Perl 5 you may have available.
 
 =cut

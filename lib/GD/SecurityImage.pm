@@ -3,20 +3,20 @@ use strict;
 use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 
-$VERSION = '1.583';
+$VERSION = '1.59';
 
 sub import {
    my $class   = shift;
    my %opt     = scalar(@_) % 2 ? () : (@_);
    # init/reset globals
-   $BACKEND = ''; # name of the back-end
-   @ISA     = ();
+   $BACKEND    = ''; # name of the back-end
+   @ISA        = ();
    # load the drawing interface
    if (exists $opt{use_magick} && $opt{use_magick}) {
       require GD::SecurityImage::Magick;
       $BACKEND = 'Magick';
    } elsif (exists $opt{backend} && $opt{backend}) {
-      my $be = 'GD::SecurityImage::'.$opt{backend};
+      my $be = __PACKAGE__.'::'.$opt{backend};
       eval "require $be";
       die "Unable to locate the $class back-end $be: $@" if $@;
       $BACKEND = $opt{backend} eq 'AC' ? 'GD' : $opt{backend};
@@ -100,6 +100,7 @@ sub backends {
    foreach my $inc (@INC) {
       my $dir = "$inc/GD/SecurityImage";
       next unless -d $dir;
+      local  *DIR;
       opendir DIR, $dir or die "opendir($dir) failed: $!";
       my @dir = readdir DIR;
       closedir DIR;
@@ -107,7 +108,7 @@ sub backends {
       foreach my $file (@dir) {
          next if -d $file;
          next if $file =~ m[^\.];
-         next if $file =~ m[^(Styles|AC)\.pm$];
+         next if $file =~ m[^(Styles|AC|Handler)\.pm$];
          $file =~ s[\.pm$][];
          push @list, $file;
       }
@@ -125,7 +126,7 @@ sub backends {
 
 sub gdf {
    my $self = shift;
-   return if $self->{IS_MAGICK};
+   return if not $self->{IS_GD};
    return $self->gdfx(@_);
 }
 
@@ -356,6 +357,8 @@ GD::SecurityImage - Security image (captcha) generator.
       $image->create(normal => 'rect');
    my($image_data, $mime_type, $random_number) = $image->out;
 
+or
+
    # use external ttf font
    my $image = GD::SecurityImage->new(width    => 100,
                                       height   => 40,
@@ -397,17 +400,17 @@ modules will not be loaded and probably, you'll C<die()>.
 The (so called) I<"Security Images"> are so popular. Most internet 
 software use these in their registration screens to block robot programs
 (which may register tons of  fake member accounts). Security images are
-basicaly, graphical CAPTCHAs (Completely Automated Public Turing Test to 
-Tell Computers and Humans Apart). This module gives you a basic interface 
-to create such an image. The final output is the actual graphic data, 
-the mime type of the graphic and the created random string. The module
-also has some I<"styles"> that are used to create the background 
-of the image.
+basicaly, graphical B<CAPTCHA>s (B<C>ompletely B<A>utomated B<P>ublic 
+B<T>uring Test to Tell B<C>omputers and B<H>umans B<A>part). This 
+module gives you a basic interface to create such an image. The final 
+output is the actual graphic data, the mime type of the graphic and the 
+created random string. The module also has some I<"styles"> that are 
+used to create the background (or foreground) of the image.
 
 If you are an C<Authen::Captcha> user, see L<GD::SecurityImage::AC>
 for migration from C<Authen::Captcha> to C<GD::SecurityImage>.
 
-This module is I<just> an I<image generator>. Not a I<captcha handler>.
+This module is B<just an image generator>. Not a I<captcha handler>.
 The validation of the generated graphic is left to your programming 
 taste.
 
@@ -427,14 +430,15 @@ RGB values must be passed as an array reference including the three
 I<B<R>ed>, I<B<G>reen> and I<B<B>lue> values.
 
 Color conversion is transparent to the user. You can use hex values
-under both C<GD> and C<Image::Magick>. They' ll be automagically converted
-to RGB if you are under C<GD>.
+under both C<GD> and C<Image::Magick>. They' ll be automagically 
+converted to RGB if you are under C<GD>.
 
 =head1 METHODS
 
 =head2 new
 
-C<new()> method takes several arguments. These arguments are listed below.
+The constructor. C<new()> method takes several arguments. These 
+arguments are listed below.
 
 =over 4
 
@@ -520,7 +524,7 @@ Default values are C<1> for GD and C<0.6> for Image:Magick.
 
 =item rndmax
 
-The length of the random string. Default value is C<6>.
+The minimum length of the random string. Default value is C<6>.
 
 =item rnd_data
 
@@ -537,7 +541,7 @@ B<string.>
 
 Creates the random security string or B<sets the random string> to 
 the value you have passed. If you pass your own random string, be aware 
-that it must be at least six (defined by an object table) characters 
+that it must be at least six (defined in C<rndmax>) characters 
 long.
 
 =head2 random_str
@@ -763,6 +767,11 @@ or the raw C<Image::Magick> object:
 Can be usefull, if you want to modify the graphic yourself. If you 
 want to get an I<image type> see the C<force> option in C<out>.
 
+=head2 gdbox_empty
+
+See L</"path bug"> in L</"GD bug"> for usage and other information 
+on this method.
+
 =head1 UTILITY METHODS
 
 =head2 backends
@@ -829,10 +838,11 @@ it like:
 =head1 EXAMPLES
 
 See the tests in the distribution. Also see the demo program 
-"eg/demo.pl" for an C<Apache::Session> implementation of C<GD::SecurityImage>.
+"eg/demo.pl" for an C<Apache::Session> implementation of 
+C<GD::SecurityImage>.
 
-Download the distribution from a CPAN mirror near you, if you don't have 
-the files.
+Download the distribution from a CPAN mirror near you, if you 
+don't have the files.
 
 =head1 ERROR HANDLING
 
@@ -859,9 +869,9 @@ may prevent this.
 
 =head1 BUGS
 
-=over 8
+Contact the author if you find any bugs. You can also send requests.
 
-=item Image::Magick bug
+=head2 Image::Magick bug
 
 There is a bug in PerlMagick' s C<QueryFontMetrics()> method. ImageMagick
 versions smaller than 6.0.4 is affected. Below text is from the ImageMagick 
@@ -874,11 +884,9 @@ Please upgrade to ImageMagick 6.0.4 or any newer version, if your ImageMagick
 version is smaller than 6.0.4 and you want to use Image::Magick as the backend
 for GD::SecurityImage.
 
-=item GD bug
+=head2 GD bug
 
-=over 4
-
-=item path bug
+=head3 path bug
 
 libgd and GD.pm don't like relative paths and paths that have spaces
 in them. If you pass a font path that is not an B<exact path> or a path that
@@ -891,29 +899,6 @@ method added: C<gdbox_empty()>. It must be called after C<create()>:
    die "Error loading ttf font for GD: $@" if $image->gdbox_empty;
 
 C<gdbox_empty()> always returns false, if you are using C<Image::Magick>.
-
-=item GIF - Old libgd or libgd without GIF support enabled
-
-If your GD has a C<gif> method, but you get empty images with C<gif()>
-method, you have to update your libgd or compile it with GIF enabled.
-
-You can test if C<gif> is working from the command line:
-
-   perl -MGD -e '$_=GD::Image->new;$_->colorAllocate(0,0,0);print$_->gif'
-
-or under windows:
-
-   perl -MGD -e "$_=GD::Image->new;$_->colorAllocate(0,0,0);print$_->gif"
-
-If it dies, your GD is very old. 
-If it prints nothing, your libgd was compiled without GIF enabled (upgrade or re-compile). 
-If it prints out a junk that starts with 'GIF87a', everything is OK.
-
-=back
-
-=back
-
-Contact the author if you find any bugs. You can also send requests.
 
 =head1 COMMON ERRORS
 
@@ -938,6 +923,48 @@ ppm repositories for both 5.6.x and 5.8.x and they both have I<GD>:
 
 I<bribes.org> also has a I<GD::SecurityImage> ppd, so you can just 
 install I<GD::SecurityImage> from that repository.
+
+=head2 libgd errors
+
+There are some issues related to wrong/incomplete compiling
+of libgd and old/new version conflicts.
+
+=head3 libgd without TTF support
+
+If your libgd is compiled without TTF support, you'll get an I<empty>
+image. The lines will be drawn, but there will be no text. You can 
+check it with L</"gdbox_empty"> method.
+
+=head3 GIF - Old libgd or libgd without GIF support enabled
+
+If your GD has a C<gif> method, but you get empty images with C<gif()>
+method, you have to update your libgd or compile it with GIF enabled.
+
+You can test if C<gif> is working from the command line:
+
+   perl -MGD -e '$_=GD::Image->new;$_->colorAllocate(0,0,0);print$_->gif'
+
+or under windows:
+
+   perl -MGD -e "$_=GD::Image->new;$_->colorAllocate(0,0,0);print$_->gif"
+
+Conclusions:
+
+=over 4
+
+=item *
+
+If it dies, your GD is very old. 
+
+=item *
+
+If it prints nothing, your libgd was compiled without GIF enabled (upgrade or re-compile). 
+
+=item *
+
+If it prints out a junk that starts with 'GIF87a', everything is OK.
+
+=back
 
 =head1 CAVEAT EMPTOR
 
@@ -1017,12 +1044,12 @@ Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2004-2005 Burak Gürsoy. All rights reserved.
+Copyright 2004-2006 Burak Gürsoy. All rights reserved.
 
 =head1 LICENSE
 
 This library is free software; you can redistribute it and/or modify 
-it under the same terms as Perl itself, either Perl version 5.8.6 or, 
+it under the same terms as Perl itself, either Perl version 5.8.7 or, 
 at your option, any later version of Perl 5 you may have available.
 
 =cut

@@ -3,7 +3,6 @@ lib/GD/SecurityImage/GD.pm
 lib/GD/SecurityImage/Magick.pm
 lib/GD/SecurityImage/Styles.pm
 lib/GD/SecurityImage/AC.pm
-t/0-signature.t
 t/1-pod.t
 t/2-pod-coverage.t
 t/3-info_text.t
@@ -21,4 +20,3 @@ MANIFEST.SKIP
 README
 StayPuft.ttf
 META.yml
-SIGNATURE    Added here by Module::Build

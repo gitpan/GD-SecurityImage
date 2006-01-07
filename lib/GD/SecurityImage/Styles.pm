@@ -99,12 +99,12 @@ Burak Gürsoy, E<lt>burakE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2004-2005 Burak Gürsoy. All rights reserved.
+Copyright 2004-2006 Burak Gürsoy. All rights reserved.
 
 =head1 LICENSE
 
 This library is free software; you can redistribute it and/or modify 
-it under the same terms as Perl itself, either Perl version 5.8.6 or, 
+it under the same terms as Perl itself, either Perl version 5.8.7 or, 
 at your option, any later version of Perl 5 you may have available.
 
 =cut
