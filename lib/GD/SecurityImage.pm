@@ -3,7 +3,7 @@ use strict;
 use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 
-$VERSION = '1.59';
+$VERSION = '1.60';
 
 sub import {
    my $class   = shift;

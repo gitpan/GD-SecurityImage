@@ -2,6 +2,10 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.60 Sun Feb 19 23:33:36 2006
+	=> Removed GD::SecurityImage::AC to it's own distribution
+	   because of the increasing interest.
+
 1.59 Fri Jan  6 13:56:41 2006
 	=> Updated ::AC. Module. It now dies if gdbox_empty().
 	   If libgd is compiled without TTF support, we'll get
