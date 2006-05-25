@@ -28,18 +28,18 @@ use Cwd;
 
 #--------------> START PROGRAM <--------------#
 
-$VERSION = '1.31';
+$VERSION = '1.32';
 
 BEGIN {
    my @errors;
    my $test = sub {
       local $SIG{__DIE__}; # Storable' s [eval "use Log::Agent";] line breaks the handler, since it is not a common module and does not exist generally...
       eval "require $_[0]";
-      push @errors, [$_[0], $@] if $@
+      push @errors, [$_[0], $@] if $@;
    };
    $test->($_) foreach qw[DBI DBD::mysql Apache::Session::MySQL String::Random GD::SecurityImage Time::HiRes];
    if (@errors) {
-      my $err = header;
+      my $err  = header;
          $err .= "<pre>This demo program needs several CPAN modules to run:\n\n";
          $err .= qq~<b><span style="color:red">[FAILED]</span> $_->[0]</b>: $_->[1]<br>~ foreach @errors;
          $err .= '</pre>';
@@ -61,10 +61,11 @@ TEST_FONT_EXISTENCE: {
          die "The font path '$config{font}' has a space in it. GD hates spaces!";
       }
    }
+   local *FONTFILE;
    if (open FONTFILE, $config{font}) {
       close FONTFILE;
    } else {
-      die qq~I can not open/find the font file in '$config{font}'~;
+      die qq~I can not open/find the font file in '$config{font}': $!~;
    }
 }
 

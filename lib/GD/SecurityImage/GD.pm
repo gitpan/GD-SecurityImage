@@ -11,8 +11,8 @@ use constant UP_RIGHT_Y   => 5; # Upper right corner y
 use constant UP_LEFT_X    => 6; # Upper left  corner x
 use constant UP_LEFT_Y    => 7; # Upper left  corner y
 
-use constant _X_          => 0; # character-X
-use constant _Y_          => 1; # character-Y
+use constant CH_X         => 0; # character-X
+use constant CH_Y         => 1; # character-Y
 use constant CHAR         => 2; # character
 use constant ANGLE        => 3; # character angle
 
@@ -20,7 +20,7 @@ use constant MAX_COMPRESS => 9;
 
 use GD;
 
-$VERSION = '1.48';
+$VERSION = '1.49';
 $methTTF = $GD::VERSION >= 1.31 ? 'stringFT' : 'stringTTF'; # define the tff drawing method.
 
 sub init {
@@ -101,22 +101,22 @@ sub insert_text {
          my $total = 0;
          my $space = [$self->ttf_info(0, 'A'),0,'  '];
          my @randomy;
-         my $sy = $space->[_Y_] || 1;
+         my $sy = $space->[CH_Y] || 1;
          push(@randomy,  $_, - $_) foreach $sy*1.2,$sy, $sy/2, $sy/4, $sy/8;
          foreach (split //, $key) { # get char parameters
             $anglex = $self->random_angle;
-            $total += $space->[_X_];
+            $total += $space->[CH_X];
             push @char, [$self->ttf_info($anglex, $_), $anglex, $_], $space, $space, $space;
          }
          $total *= 2;
          my @config = ($self->{_COLOR_}{text}, $self->{font}, $self->{ptsize});
          my($x,$y);
          foreach my $box (reverse @char) {
-            $x  = $self->{width}  / 2 + ($box->[_X_] - $total);
-            $y  = $self->{height} / 2 +  $box->[_Y_];
+            $x  = $self->{width}  / 2 + ($box->[CH_X] - $total);
+            $y  = $self->{height} / 2 +  $box->[CH_Y];
             $y += $randomy[int rand @randomy];
             $self->{image}->$methTTF(@config, Math::Trig::deg2rad($box->[CHAR]), $x, $y, $box->[ANGLE]);
-            $total -= $space->[_X_];
+            $total -= $space->[CH_X];
          }
       } else {
          my(@box,$x,$y);

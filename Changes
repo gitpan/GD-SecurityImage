@@ -2,6 +2,16 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.61 Thu May 25 21:56:44 2006
+	=> Renamed constants in GD::SecurityImage::GD:
+	      _X_ is now CH_X
+	      _Y_ is now CH_Y
+	   There is a bug in the constant pragma that is bundled 
+	   with legacy perl ($] < 5.006). In these perls,
+	   the code was dying with this message:
+	   Can't define "_X_" as constant (name contains invalid 
+	   characters or is empty).
+
 1.60 Sun Feb 19 23:33:36 2006
 	=> Removed GD::SecurityImage::AC to it's own distribution
 	   because of the increasing interest.

@@ -1,8 +1,8 @@
 ---
 name: GD-SecurityImage
-version: 1.60
+version: 1.61
 author:
-  - Burak Gursoy <burak@cpan.org>
+  - 'Burak Gursoy <burak@cpan.org>'
 abstract: Security image (captcha) generator.
 license: perl
 requires:
@@ -12,10 +12,10 @@ recommends:
 provides:
   GD::SecurityImage:
     file: lib/GD/SecurityImage.pm
-    version: 1.60
+    version: 1.61
   GD::SecurityImage::GD:
     file: lib/GD/SecurityImage/GD.pm
-    version: 1.48
+    version: 1.49
   GD::SecurityImage::Magick:
     file: lib/GD/SecurityImage/Magick.pm
     version: 1.36
