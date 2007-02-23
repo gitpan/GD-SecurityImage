@@ -2,13 +2,13 @@ package tapi; # test api
 use strict;
 use vars qw[$VERSION %data %info_text $GD $MAGICK $PROBLEM];
 
-$VERSION = '0.3';
+$VERSION = '0.40';
 
 $GD      = defined($GD::VERSION)            ? $GD::VERSION            : 0;
 $MAGICK  = defined($Image::Magick::VERSION) ? $Image::Magick::VERSION : '0.0.0';
 $PROBLEM = ($GD && $GD < 2.07) ? 1 : 0;
 
-sub the_info_text {'GD::SecurityImage'}
+sub the_info_text { 'GD::SecurityImage' }
 
 sub GD::SecurityImage::__cit { # __check_info_text
    my $self = shift;
@@ -18,20 +18,23 @@ sub GD::SecurityImage::__cit { # __check_info_text
    $self;
 }
 
-sub styles { qw[default rect box circle ellipse ec] }
+sub styles { qw( default rect box circle ellipse ec ) }
 
 sub options {
    my $class = shift;
    %data = @_ if @_;
-   if ($data{info_text}) {
+   if ( $data{info_text} ) {
       %info_text = %{ delete $data{info_text} };
    }
    %data;
 }
 
 sub _can {
+   my $self = shift;
    my $name = shift || '';
-   return 'circle' if $PROBLEM && ($name =~ m[^(ellipse|ec)$]);
+   if ( $PROBLEM && ($name eq 'ellipse' or $name eq 'ec') ) {
+      return 'circle';
+   }
    return $name;
 }
 
@@ -43,7 +46,7 @@ sub set {
       if (@_) {
          my %o = @_;
          foreach(keys %o) {
-            next if $_ eq 'thickness' and $GD and $GD < 2.07;
+            next if $_ eq 'thickness' && $PROBLEM;
             $data{$_} = $o{$_};
          }
       }
@@ -59,7 +62,7 @@ sub random {
       box     => 'BOX012',
       rect    => 'RECT01',
       default => 'DFAULT',
-   };
+   }
 }
 
 sub save {
@@ -71,7 +74,7 @@ sub save {
    binmode SI;
    print   SI $image;
    close   SI;
-   print "[OK] $name\n";
+   print  "[OK] $name\n";
    return 'SUCCESS';
 }
 

@@ -4,7 +4,8 @@ BEGIN {
       require Test; # Test was first released with perl 5.005
       Test->import;
       $SKIP = 1;
-   } else {
+   }
+   else {
       Test::More->import;
    }
 }

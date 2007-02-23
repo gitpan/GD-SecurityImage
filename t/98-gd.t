@@ -1,24 +1,21 @@
 #!/usr/bin/env perl -w
 use strict;
-use vars qw[%API];
+use vars qw( %API );
 use Test;
 use Cwd;
 
 BEGIN {
    %API = (
-      gd_normal             => 6,
-      gd_ttf                => 6,
-      gd_normal_scramble    => 6,
-      gd_ttf_scramble       => 6,
-      gd_ttf_scramble_fixed => 6,
-
-      gd_normal_info_text   => 6,
-      gd_ttf_info_text      => 6,
-
+      gd_normal                       => 6,
+      gd_ttf                          => 6,
+      gd_normal_scramble              => 6,
+      gd_ttf_scramble                 => 6,
+      gd_ttf_scramble_fixed           => 6,
+      gd_normal_info_text             => 6,
+      gd_ttf_info_text                => 6,
       gd_normal_scramble_info_text    => 6,
       gd_ttf_scramble_info_text       => 6,
       gd_ttf_scramble_fixed_info_text => 6,
-
    );
    my $total  = 0;
       $total += $API{$_} foreach keys %API;
@@ -44,20 +41,31 @@ foreach my $api (keys %API) {
    $tapi->options(args($api), extra($api));
    my $c = 1;
    foreach my $style ($tapi->styles) {
-      ok($tapi->save($api->$style()->out(force => 'png', compress => 1), $style, $api, $c++));
+      ok(
+         $tapi->save(
+            $api->$style()->out(
+               force    => 'png',
+               compress => 1,
+            ),
+            $style,
+            $api,
+            $c++
+         )
+      );
    }
    $tapi->clear;
 }
 
 sub extra {
    my $name = shift;
-   if ($name =~ m/_info_text$/) {
-      my %extra = (info_text => {%info_text});
-      if ($name =~ m/normal/) {
+   if ( $name =~ m{ _info_text \z}xms ) {
+      my %extra = ( info_text => {%info_text} );
+      if ( $name =~ m{ normal }xms ) {
          $extra{info_text}->{gd} = 1;
       }
-      if ($name =~ m/fixed/) {
-         $extra{info_text}->{gd} = 1; # yes, we can use GD' s internal font and ttf together...
+      if ($name =~ m{ fixed }xms ) {
+         # yes, we can use GD' s internal font and ttf together...
+         $extra{info_text}->{gd} = 1;
       }
       return %extra;
    }
@@ -89,7 +97,7 @@ sub args {
    },
    gd_ttf_scramble =>  {
       width      => 300,
-      height     => 80,
+      height     => 90,
       send_ctobg => 1,
       font       => $font,
       ptsize     => 20,
@@ -97,7 +105,7 @@ sub args {
    },
    gd_ttf_scramble_fixed =>  {
       width      => 350,
-      height     => 80,
+      height     => 90,
       send_ctobg => 1,
       font       => $font,
       ptsize     => 25,
@@ -106,10 +114,10 @@ sub args {
    },
    );
    my $o = $options{$name};
-   unless ($o) {
-     (my $tmp = $name) =~ s,_info_text,,;
+   if ( not $o ) {
+     (my $tmp = $name) =~ s{ _info_text }{}xms;
       $o = $options{$tmp};
    }
-   $o or die "Bogus arg name $name!";
+   die "Bogus arg name $name!" if not $o;
    return %{$o}
 }

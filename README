@@ -47,8 +47,8 @@ tests. You can use another True Type in your code.
 
 COPYRIGHT AND LICENCE
 
-Copyright (c) 2004-2006 Burak Gürsoy <burak@cpan.org>. All rights reserved.
+Copyright (c) 2004-2007 Burak Gürsoy <burak@cpan.org>. All rights reserved.
 
 This library is free software; you can redistribute it and/or modify 
-it under the same terms as Perl itself, either Perl version 5.8.6 or, 
+it under the same terms as Perl itself, either Perl version 5.8.8 or, 
 at your option, any later version of Perl 5 you may have available.
