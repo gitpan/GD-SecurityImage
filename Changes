@@ -2,6 +2,12 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.63 Sat Feb 24 16:41:03 2007
+        => I didn't check the existence of Image::Magick in 
+           06-version_magick.t and this resulted with FAILs.
+           Fixed this and updated all magick tests. They now
+           show the real number of skipped tests (if they are skipped)
+
 1.62 Fri Feb 23 23:13:37 2007
         => Minor fixes in Pods. Added an image samples section
            (as HTML) and CPAN modules that are using GD::SecurityImage.

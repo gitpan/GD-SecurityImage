@@ -1,6 +1,6 @@
 ---
 name: GD-SecurityImage
-version: 1.62
+version: 1.63
 author:
   - 'Burak Gursoy <burak@cpan.org>'
 abstract: Security image (captcha) generator.
@@ -14,7 +14,7 @@ recommends:
 provides:
   GD::SecurityImage:
     file: lib/GD/SecurityImage.pm
-    version: 1.62
+    version: 1.63
   GD::SecurityImage::GD:
     file: lib/GD/SecurityImage/GD.pm
     version: 1.50

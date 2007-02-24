@@ -4,26 +4,39 @@ use Test;
 use Cwd;
 
 BEGIN {
-
    eval "require Image::Magick";
-   my $skip = $@ ? "You don't have Image::Magick installed." : '';
+   my $skip  = $@ ? "You don't have Image::Magick installed." : '';
+   my %total = (
+      magick => 2,
+      gd     => 2,
+      other  => 1,
+   );
 
-   if ($skip) {
-      plan tests => 1;
-      skip($skip . " Skipping...", sub{1});
-      exit;
-   }
-   else {
-      plan tests => 5;
-      require GD::SecurityImage;
-      eval { GD::SecurityImage->new };
-      ok($@); # if there is an error == OK [since we didn't import() so far]
-      # test if we've loaded the right library
-      import  GD::SecurityImage use_magick => 0       ; ok(GD::SecurityImage->new->raw->isa('GD::Image'    ));
-      import  GD::SecurityImage use_magick => 1       ; ok(GD::SecurityImage->new->raw->isa('Image::Magick'));
-      import  GD::SecurityImage backend    => 'GD'    ; ok(GD::SecurityImage->new->raw->isa('GD::Image'    ));
-      import  GD::SecurityImage backend    => 'Magick'; ok(GD::SecurityImage->new->raw->isa('Image::Magick'));
-      exit;
-   }
+   my $total  = 0;
+      $total += $total{$_} foreach keys %total;
+   my $class = 'GD::SecurityImage';
 
+   plan tests => $total;
+
+   require GD::SecurityImage;
+
+   eval { $class->new };
+   ok($@); # if there is an error == OK [since we didn't import() so far]
+
+   # test if we've loaded the right library
+   gd();
+   $skip ? skip_magick() : magick();
+   exit;
+
+   sub gd {
+      $class->import( use_magick => 0        ); ok( $class->new->raw->isa('GD::Image'    ) );
+      $class->import( backend    => 'GD'     ); ok( $class->new->raw->isa('GD::Image'    ) );
+   }
+   sub magick {
+      $class->import( use_magick => 1        ); ok( $class->new->raw->isa('Image::Magick') );
+      $class->import( backend    => 'Magick' ); ok( $class->new->raw->isa('Image::Magick') );
+   }
+   sub skip_magick {
+      skip($skip . " Skipping...", sub{1}) for 1..$total{magick};
+   }
 }

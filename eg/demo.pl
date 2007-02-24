@@ -13,7 +13,7 @@ use Cwd;
    table_name => 'sessions',             # only change this value, if you *really* have to use another table name. Also change the SQL code below.
    user       => 'root',                 # database user name
    pass       => '',                     # database user's password
-   font       => getcwd."/StayPuft.ttf", # ttf font. change this to an absolute path is getcwd is failing
+   font       => getcwd."/StayPuft.ttf", # ttf font. change this to an absolute path if getcwd is failing
    itype      => 'png',                  # image format. set this to gif or png or jpeg
    use_magick => 0,                      # use Image::Magick or GD
    img_stat   => 1,                      # display statistics on the image?
@@ -687,11 +687,14 @@ Here are some sample screen shots showing this demo in action.
 
 </table>
 
+=end html
+
+=begin html
+
 <p>
 All images in this document are generously hosted by
 <a href="http://imageshack.us">ImageShack</a>
 <a href="http://imageshack.us"><img src="http://imageshack.us/img/imageshack.png" border="0" /></a>
-
 </p>
 
 =end html

@@ -4,7 +4,7 @@ use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 use Carp qw(croak);
 
-$VERSION = '1.62';
+$VERSION = '1.63';
 
 sub import {
    my $class   = shift;
@@ -1031,11 +1031,14 @@ So, (for example) there is no clipping in <code>ELLIPS</code>.
 </pre>
 </p>
 
+=end html
+
+=begin html
+
 <p>
-All images in this document are generously hosted by 
+All images in this document are generously hosted by
 <a href="http://imageshack.us">ImageShack</a>
 <a href="http://imageshack.us"><img src="http://imageshack.us/img/imageshack.png" border="0" /></a>
-
 </p>
 
 =end html

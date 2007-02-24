@@ -20,25 +20,27 @@ BEGIN {
       $skip = '';
    }
 
+   %API = (
+      magick                          => 6,
+      magick_scramble                 => 6,
+      magick_scramble_fixed           => 6,
+      magick_info_text                => 6,
+      magick_scramble_info_text       => 6,
+      magick_scramble_fixed_info_text => 6,
+   );
+
+   my $total  = 0;
+      $total += $API{$_} foreach keys %API;
+
+   plan tests => $total;
+
    if ($skip) {
-      plan tests => 1;
-      skip($skip . " Skipping...", sub{1});
+      skip($skip . " Skipping...", sub{1}) for 1..$total;
       exit;
    }
    else {
-      %API = (
-         magick                          => 6,
-         magick_scramble                 => 6,
-         magick_scramble_fixed           => 6,
-         magick_info_text                => 6,
-         magick_scramble_info_text       => 6,
-         magick_scramble_fixed_info_text => 6,
-      );
-      my $total  = 0;
-         $total += $API{$_} foreach keys %API;
-      plan tests => $total;
       require GD::SecurityImage;
-      import  GD::SecurityImage use_magick => 1;
+      GD::SecurityImage->import( use_magick => 1 );
    }
 }
 
