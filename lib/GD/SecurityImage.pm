@@ -4,7 +4,7 @@ use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 use Carp qw(croak);
 
-$VERSION = '1.63';
+$VERSION = '1.64';
 
 sub import {
    my $class   = shift;
@@ -626,6 +626,10 @@ Draws ellipses.
 This is the combination of ellipse and circle styles. Draws both ellipses
 and circles.
 
+=item B<blank>
+
+Draws nothing. See L</"OTHER USES">.
+
 =back
 
 I<Note>: if you have a (too) old version of GD, you may not be able 
@@ -979,7 +983,6 @@ So, (for example) there is no clipping in <code>ELLIPS</code>.
       <td><img border="0" src="http://img521.imageshack.us/img521/7235/magickscramble03boxmb2.png" /></td>
    </tr>
 
-
    <tr><td colspan="2">&#160;</td></tr>
    <tr>
       <td>Style: <b>circle</b>. Scrambled with a fixed angle.</td>
@@ -988,7 +991,7 @@ So, (for example) there is no clipping in <code>ELLIPS</code>.
 
    <tr>
       <td><img border="0" src="http://img139.imageshack.us/img139/7227/magickscramblefixed04cihd4.png" /></td>
-      <td><img border="0" src="http://img139.imageshack.us/img139/9484/magickscramblefixedinfooj6.png" /></td>
+      <td><img border="0" src="http://img440.imageshack.us/img440/2647/magickscramblefixed05elnz6.png" /></td>
    </tr>
 
    <tr><td colspan="2">&#160;</td></tr>
@@ -1031,15 +1034,66 @@ So, (for example) there is no clipping in <code>ELLIPS</code>.
 </pre>
 </p>
 
+<p>Images hosted by <a href="http://imageshack.us">ImageShack</a>.</p>
+
 =end html
+
+=head2 OTHER USES
+
+C<GD::SecurityImage> drawing capabilities can also be used for 
+I<counter image> generation or displaying arbitrary messages:
+
+   use CGI qw(header);
+   use GD::SecurityImage 1.64; # we need the "blank" style
+   
+   my $font  = "StayPuft.ttf";
+   my $rnd   = "10.257"; # counter data
+   
+   my $image = GD::SecurityImage->new(
+      width  =>   140,
+      height =>    75,
+      ptsize =>    30,
+      rndmax =>     1, # keeping this low helps to display short strings
+      frame  =>     0, # disable borders
+      font   => $font,
+   );
+   
+   $image->random( $rnd );
+   # use the blank style, so that nothing will be drawn
+   # to distort the image.
+   $image->create( ttf => 'blank', '#CC8A00' );
+   $image->info_text(
+      text   => 'You are visitor number',
+      ptsize => 10,
+      strip  =>  0,
+      color  => '#0094CC',
+   );
+   $image->info_text(
+      text   => '( c ) 2 0 0 7   m y s i t e',
+      ptsize => 10,
+      strip  =>  0,
+      color  => '#d7d7d7',
+      y      => 'down',
+   );
+   
+   my($data, $mime, $random) = $image->out;
+   
+   binmode STDOUT;
+   print header -type => "image/$mime";
+   print $data;
 
 =begin html
 
 <p>
-All images in this document are generously hosted by
-<a href="http://imageshack.us">ImageShack</a>
-<a href="http://imageshack.us"><img src="http://imageshack.us/img/imageshack.png" border="0" /></a>
+The generated graphic will be:
+<br/>
+<br/>
+<img src    = "http://img101.imageshack.us/img101/4770/gdsicountered2.png"
+     border = "0"
+     alt    = "Image Hosted by ImageShack.us" />
 </p>
+
+<p>Image hosted by <a href="http://imageshack.us">ImageShack</a>.</p>
 
 =end html
 

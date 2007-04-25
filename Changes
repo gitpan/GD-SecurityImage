@@ -2,6 +2,11 @@ Revision history for Perl extension GD::SecurityImage.
 
 Time zone is GMT+2.
 
+1.64 Wed Apr 25 21:01:49 2007
+        => Yet another test suite update for Image::Magick.
+        => New style "blank" added for evil purposes.
+        => Fixed a regex in demo.pl
+
 1.63 Sat Feb 24 16:41:03 2007
         => I didn't check the existence of Image::Magick in 
            06-version_magick.t and this resulted with FAILs.

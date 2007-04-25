@@ -25,7 +25,7 @@ use Cwd;
 
 # - - - - - - - - - - - - - - > S T A R T   P R O G R A M < - - - - - - - - - - - - - - #
 
-$VERSION = '1.40';
+$VERSION = '1.41';
 
 use constant REQUIREDMODS => qw(
    DBI
@@ -66,6 +66,8 @@ BEGIN {
       exit;
    };
 }
+
+my $NOT_EXISTS = quotemeta "Object does not exist in the data store";
 
 run() if not caller; # if you require this, you'll need to call demo::run()
 
@@ -145,7 +147,7 @@ sub run {
    # IP and browser string to validate the session. 
    # It is also possible to put a timeout value for security_code key.
    # But, all these and anything else are all beyond this demo...
-   if ( $@ && $@ =~ m{ \A Object does not exist in the data store }xms ) {
+   if ( $@ && $@ =~ m{ \A $NOT_EXISTS }xms ) {
       $create_ses->('new');
    }
 

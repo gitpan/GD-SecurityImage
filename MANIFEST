@@ -10,6 +10,7 @@ t/05-version.t
 t/06-version_magick.t
 t/98-gd.t
 t/99-magick.t
+t/magick.pl
 t/t.api
 t/skip.test
 eg/demo.pl

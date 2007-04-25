@@ -1,29 +1,17 @@
 #!/usr/bin/env perl -w
 use strict;
+use vars qw( $MAGICK_SKIP );
 use Test;
 use Cwd;
 
 BEGIN {
-   eval "require Image::Magick;";
-   my $skip;
-
-   if ( $@ ) {
-      $skip = "You don't have Image::Magick installed.";
-   }
-   elsif ($Image::Magick::VERSION lt '6.0.4') {
-      $skip = "There may be a bug in your PerlMagick version's "
-             ."($Image::Magick::VERSION) QueryFontMetrics() method. "
-             ."Please upgrade to 6.0.4 or newer.";
-   }
-   else {
-      $skip = '';
-   }
+   do 't/magick.pl' || die "Can not include t/magick.pl: $!";
 
    my $TOTAL = 6;
    plan tests => $TOTAL;
 
-   if ($skip) {
-      skip($skip . " Skipping...", sub{1}) for 1..$TOTAL;
+   if ( $MAGICK_SKIP ) {
+      skip( $MAGICK_SKIP . " Skipping...", sub{1}) for 1..$TOTAL;
       exit;
    }
    else {

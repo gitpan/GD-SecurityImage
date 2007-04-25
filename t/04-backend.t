@@ -1,11 +1,12 @@
 #!/usr/bin/env perl -w
 use strict;
+use vars qw( $MAGICK_SKIP );
 use Test;
 use Cwd;
 
 BEGIN {
-   eval "require Image::Magick";
-   my $skip  = $@ ? "You don't have Image::Magick installed." : '';
+   do 't/magick.pl' || die "Can not include t/magick.pl: $!";
+
    my %total = (
       magick => 2,
       gd     => 2,
@@ -25,7 +26,7 @@ BEGIN {
 
    # test if we've loaded the right library
    gd();
-   $skip ? skip_magick() : magick();
+   $MAGICK_SKIP ? skip_magick() : magick();
    exit;
 
    sub gd {
@@ -37,6 +38,6 @@ BEGIN {
       $class->import( backend    => 'Magick' ); ok( $class->new->raw->isa('Image::Magick') );
    }
    sub skip_magick {
-      skip($skip . " Skipping...", sub{1}) for 1..$total{magick};
+      skip( $MAGICK_SKIP . " Skipping...", sub{1}) for 1..$total{magick};
    }
 }

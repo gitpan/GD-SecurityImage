@@ -2,7 +2,7 @@ package GD::SecurityImage::Styles;
 use strict;
 use vars qw[$VERSION];
 
-$VERSION = '1.20';
+$VERSION = '1.21';
 
 sub style_default {
    $_[0]->_drcommon(" \ lines will be drawn ");
@@ -61,6 +61,8 @@ sub style_ec {
       $self->style_ellipse(@_) if not $self->{DISABLED}{ellipse}; # GD < 2.07
       $self->style_circle(@_);
 }
+
+sub style_blank {}
 
 sub _drcommon {
    my $self  = shift;

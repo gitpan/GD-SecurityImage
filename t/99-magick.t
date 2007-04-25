@@ -1,24 +1,11 @@
 #!/usr/bin/env perl -w
 use strict;
-use vars qw( %API );
+use vars qw( %API $MAGICK_SKIP );
 use Test;
 use Cwd;
 
 BEGIN {
-   eval "require Image::Magick;";
-   my $skip;
-
-   if ( $@ ) {
-      $skip = "You don't have Image::Magick installed.";
-   }
-   elsif ($Image::Magick::VERSION lt '6.0.4') {
-      $skip = "There may be a bug in your PerlMagick version's "
-             ."($Image::Magick::VERSION) QueryFontMetrics() method. "
-             ."Please upgrade to 6.0.4 or newer.";
-   }
-   else {
-      $skip = '';
-   }
+   do 't/magick.pl' || die "Can not include t/magick.pl: $!";
 
    %API = (
       magick                          => 6,
@@ -34,8 +21,8 @@ BEGIN {
 
    plan tests => $total;
 
-   if ($skip) {
-      skip($skip . " Skipping...", sub{1}) for 1..$total;
+   if ( $MAGICK_SKIP ) {
+      skip( $MAGICK_SKIP . " Skipping...", sub{1}) for 1..$total;
       exit;
    }
    else {
