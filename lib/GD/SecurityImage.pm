@@ -4,7 +4,7 @@ use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 use Carp qw(croak);
 
-$VERSION = '1.64';
+$VERSION = '1.65';
 
 sub import {
    my $class   = shift;
@@ -259,6 +259,11 @@ sub particle {
    my $f    = shift || $big * 20; # particle density
    my $dots = shift || 1; # number of multiple dots
    my $int  = int $big / 20;
+
+   if ( ! $int ) { # RT#33629
+      warn "particle(): image dimension is so small to add particles";
+      return;
+   }
 
    my @random;
    for (my $x = $int; $x <= $big; $x += $int) {
@@ -1358,7 +1363,7 @@ Burak GE<252>rsoy, E<lt>burakE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2004-2007 Burak GE<252>rsoy. All rights reserved.
+Copyright 2004-2008 Burak GE<252>rsoy. All rights reserved.
 
 =head1 LICENSE
 

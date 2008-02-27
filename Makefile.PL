@@ -1,6 +1,6 @@
 use ExtUtils::MakeMaker;
 
-my $make = $^O eq 'MSWin32'
+my $make = $^O =~ m{MSWin}i
            ? 'nmake'
            : 'make ';
 
