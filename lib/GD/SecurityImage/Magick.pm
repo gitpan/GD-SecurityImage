@@ -18,7 +18,7 @@ use constant MAX_COMPRESS => 100;
 
 use Image::Magick;
 
-$VERSION = '1.37';
+$VERSION = '1.38';
 
 sub init {
    # Create the image object
@@ -143,6 +143,7 @@ sub rectangle {
       points      => "$x1,$y1 $x2,$y2",
       stroke      => $self->cconvert($color),
       strokewidth => $self->{MAGICK}{strokewidth},
+      fill        => 'transparent',
    );
 }
 
@@ -166,6 +167,7 @@ sub ellipse {
       points      => "$cx,$cy $width,$height 0,360",
       stroke      => $self->cconvert($color),
       strokewidth => $self->{MAGICK}{strokewidth},
+      fill        => 'transparent',
    );
 }
 
@@ -179,6 +181,7 @@ sub arc {
       points      => "$cx,$cy $width,$height $start,$end",
       stroke      => $self->cconvert($color),
       strokewidth => $self->{MAGICK}{strokewidth},
+      fill        => 'transparent',
    );
 }
 
