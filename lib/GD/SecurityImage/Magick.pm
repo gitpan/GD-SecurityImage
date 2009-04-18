@@ -18,7 +18,7 @@ use constant MAX_COMPRESS => 100;
 
 use Image::Magick;
 
-$VERSION = '1.38';
+$VERSION = '1.67';
 
 sub init {
    # Create the image object
@@ -233,6 +233,9 @@ GD::SecurityImage::Magick -  Image::Magick backend for GD::SecurityImage.
 See L<GD::SecurityImage>.
 
 =head1 DESCRIPTION
+
+This document describes version C<1.67> of C<GD::SecurityImage::Magick>
+released on C<18 April 2009>.
 
 Includes GD method emulations for Image::Magick.
 

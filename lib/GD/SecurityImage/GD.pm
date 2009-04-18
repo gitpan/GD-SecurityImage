@@ -25,7 +25,7 @@ use constant GDFONTS     => qw( Small Large MediumBold Tiny Giant );
 
 use GD;
 
-$VERSION = '1.50';
+$VERSION = '1.67';
 
 # define the tff drawing method.
 my $TTF = __PACKAGE__->_versiongt( 1.31 ) ? 'stringFT' : 'stringTTF';
@@ -325,6 +325,9 @@ GD::SecurityImage::GD - GD backend for GD::SecurityImage.
 See L<GD::SecurityImage>.
 
 =head1 DESCRIPTION
+
+This document describes version C<1.67> of C<GD::SecurityImage::GD>
+released on C<18 April 2009>.
 
 Used internally by L<GD::SecurityImage>. Nothing public here.
 
