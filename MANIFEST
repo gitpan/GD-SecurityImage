@@ -2,8 +2,6 @@ lib/GD/SecurityImage.pm
 lib/GD/SecurityImage/GD.pm
 lib/GD/SecurityImage/Magick.pm
 lib/GD/SecurityImage/Styles.pm
-t/01-pod.t
-t/02-pod-coverage.t
 t/03-info_text.t
 t/04-backend.t
 t/05-version.t
@@ -12,14 +10,19 @@ t/98-gd.t
 t/99-magick.t
 t/magick.pl
 t/t.api
-tools/Build.pm
 eg/demo.pl
 Changes
-Makefile.PL
 Build.PL
 MANIFEST
 MANIFEST.SKIP
 README
 StayPuft.ttf
-META.yml
+SPEC
+builder/Build.pm
+builder/Build/Spec.pm
+t/200-all-modules-have-the-same-version.t
+t/201-pod.t
+t/202-pod-coverage.t
+Makefile.PL	Generated automatically
 LICENSE
+META.yml

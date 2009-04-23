@@ -25,7 +25,7 @@ use constant GDFONTS     => qw( Small Large MediumBold Tiny Giant );
 
 use GD;
 
-$VERSION = '1.67';
+$VERSION = '1.68';
 
 # define the tff drawing method.
 my $TTF = __PACKAGE__->_versiongt( 1.31 ) ? 'stringFT' : 'stringTTF';
@@ -326,10 +326,40 @@ See L<GD::SecurityImage>.
 
 =head1 DESCRIPTION
 
-This document describes version C<1.67> of C<GD::SecurityImage::GD>
-released on C<18 April 2009>.
+This document describes version C<1.68> of C<GD::SecurityImage::GD>
+released on C<23 April 2009>.
 
 Used internally by L<GD::SecurityImage>. Nothing public here.
+
+=head1 METHODS
+
+=head2 arc
+
+=head2 ellipse
+
+=head2 filledRectangle
+
+=head2 gdbox_empty
+
+=head2 gdfx
+
+=head2 init
+
+=head2 insert_text
+
+=head2 line
+
+=head2 out
+
+=head2 place_gd
+
+=head2 rectangle
+
+=head2 setPixel
+
+=head2 setThickness
+
+=head2 ttf_info
 
 =head1 SEE ALSO
 

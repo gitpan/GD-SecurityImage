@@ -1,32 +1,18 @@
-#!perl
+#!/usr/bin/env perl
+use strict;
 use ExtUtils::MakeMaker;
+use lib qw( builder );
+use Build::Spec qw( mm_spec );
 
-my $make = $^O =~ m{MSWin}i
-           ? 'nmake'
-           : 'make ';
-
-print qq~
-.------------------------------------------------------------.
-| You are about to install "GD::SecurityImage".              |
-|                                                            |
-| Although it is in the GD:: namespace, the module is also   |
-| compatible with Image::Magick. If you have "Image::Magick" | 
-| installed, the required tests for "Image::Magick" will be  |
-| performed (if you do a `$make test`).                      |
-|                                                            |
-| Note that "Image::Magick" is *not* a prerequisite for      |
-| "GD::SecurityImage", but "GD" is.                          |
- ------------------------------------------------------------
-
-~;
+my %spec = mm_spec;
 
 WriteMakefile(
-   NAME         => 'GD::SecurityImage',
-   VERSION_FROM => 'lib/GD/SecurityImage.pm',
-   PREREQ_PM    => {GD => 0, 'Test::More' => '0.40'},
-   ($] >= 5.005 ? (
-   AUTHOR       => 'Burak Gursoy <burak@cpan.org>',
-   ABSTRACT     => 'Security image (captcha) generator',
-   ) : ()),
-   PL_FILES     => {},
+    NAME         => $spec{module_name},
+    VERSION_FROM => $spec{VERSION_FROM},
+    PREREQ_PM    => $spec{PREREQ_PM},
+    PL_FILES     => {},
+    ($] >= 5.005 ? (
+    AUTHOR       => $spec{dist_author},
+    ABSTRACT     => $spec{ABSTRACT},
+    ) : ()),
 );

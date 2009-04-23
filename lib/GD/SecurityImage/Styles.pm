@@ -2,7 +2,7 @@ package GD::SecurityImage::Styles;
 use strict;
 use vars qw[$VERSION];
 
-$VERSION = '1.67';
+$VERSION = '1.68';
 
 sub style_default {
    $_[0]->_drcommon(" \ lines will be drawn ");
@@ -103,12 +103,28 @@ See L<GD::SecurityImage>.
 
 =head1 DESCRIPTION
 
-This document describes version C<1.67> of C<GD::SecurityImage::Styles>
-released on C<18 April 2009>.
+This document describes version C<1.68> of C<GD::SecurityImage::Styles>
+released on C<23 April 2009>.
 
 This module contains the styles used in the security image.
 
 Used internally by L<GD::SecurityImage>. Nothing public here.
+
+=head1 METHODS
+
+=head2 style_blank
+
+=head2 style_box
+
+=head2 style_circle
+
+=head2 style_default
+
+=head2 style_ec
+
+=head2 style_ellipse
+
+=head2 style_rect
 
 =head1 SEE ALSO
 

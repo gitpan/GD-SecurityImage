@@ -4,7 +4,7 @@ use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 use Carp qw(croak);
 
-$VERSION = '1.67';
+$VERSION = '1.68';
 
 sub import {
    my $class   = shift;
@@ -434,8 +434,8 @@ modules will not be loaded and probably, you'll C<die()>.
 
 =head1 DESCRIPTION
 
-This document describes version C<1.67> of C<GD::SecurityImage>
-released on C<18 April 2009>.
+This document describes version C<1.68> of C<GD::SecurityImage>
+released on C<23 April 2009>.
 
 The (so called) I<"Security Images"> are so popular. Most internet 
 software use these in their registration screens to block robot programs
@@ -818,6 +818,20 @@ want to get an I<image type> see the C<force> option in C<out>.
 
 See L</"path bug"> in L</"GD bug"> for usage and other information 
 on this method.
+
+=head2 add_strip
+
+=head2 cconvert
+
+=head2 gdf
+
+=head2 h2r
+
+=head2 is_hex
+
+=head2 r2h
+
+=head2 random_angle
 
 =head1 UTILITY METHODS
 
