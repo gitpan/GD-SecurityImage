@@ -4,7 +4,7 @@ use vars qw[@ISA $AUTOLOAD $VERSION $BACKEND];
 use GD::SecurityImage::Styles;
 use Carp qw(croak);
 
-$VERSION = '1.69';
+$VERSION = '1.70';
 
 sub import {
    my $class   = shift;
@@ -434,7 +434,7 @@ modules will not be loaded and probably, you'll C<die()>.
 
 =head1 DESCRIPTION
 
-This document describes version C<1.69> of C<GD::SecurityImage>
+This document describes version C<1.70> of C<GD::SecurityImage>
 released on C<30 April 2009>.
 
 The (so called) I<"Security Images"> are so popular. Most internet 
