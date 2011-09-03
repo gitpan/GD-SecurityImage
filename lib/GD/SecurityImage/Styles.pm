@@ -1,15 +1,17 @@
 package GD::SecurityImage::Styles;
 use strict;
+use warnings;
 use vars qw[$VERSION];
+use constant ARC_END_DEGREES => 360;
 
-$VERSION = '1.70';
+$VERSION = '1.71';
 
 sub style_default {
-   $_[0]->_drcommon(" \ lines will be drawn ");
+   return shift->_drcommon(' \\ lines will be drawn ');
 }
 
 sub style_rect {
-   $_[0]->_drcommon;
+   return shift->_drcommon;
 }
 
 sub style_box {
@@ -21,6 +23,7 @@ sub style_box {
    my $h    = $self->{height};
    $self->filledRectangle(  0,  0, $w         , $h         , $ct );
    $self->filledRectangle( $n, $n, $w - $n - 1, $h - $n - 1, $cl );
+   return;
 }
 
 sub style_circle {
@@ -32,11 +35,11 @@ sub style_circle {
    my $max   = int $self->{width} / $n;
       $max++;
 
-   my( $i, $mi );
-   for $i ( 1..$n ) {
-      $mi = $max * $i;
-      $self->arc( $cx, $cy, $mi, $mi, 0, 360, $cl );
+   for my $i ( 1..$n ) {
+      my $mi = $max * $i;
+      $self->arc( $cx, $cy, $mi, $mi, 0, ARC_END_DEGREES, $cl );
    }
+   return;
 }
 
 sub style_ellipse {
@@ -49,17 +52,18 @@ sub style_ellipse {
    my $max   = int $self->{width} / $n;
       $max++;
 
-   my( $i, $mi );
-   for $i ( 1..$n ) {
-      $mi = $max * $i;
+   for my $i ( 1..$n ) {
+      my $mi = $max * $i;
       $self->ellipse( $cx, $cy, $mi * 2, $mi, $cl );
    }
+   return;
 }
 
 sub style_ec {
-   my $self = shift;
-      $self->style_ellipse(@_) if not $self->{DISABLED}{ellipse}; # GD < 2.07
-      $self->style_circle(@_);
+   my($self, @args) = @_;
+   $self->style_ellipse(@args) if ! $self->{DISABLED}{ellipse}; # GD < 2.07
+   $self->style_circle(@args);
+   return;
 }
 
 sub style_blank {}
@@ -87,6 +91,7 @@ sub _drcommon {
       $ify = $i * $fy;
       $self->line( 0, $ify, $w, $ify, $cl ); # - line
    }
+   return;
 }
 
 1;
@@ -103,8 +108,8 @@ See L<GD::SecurityImage>.
 
 =head1 DESCRIPTION
 
-This document describes version C<1.70> of C<GD::SecurityImage::Styles>
-released on C<30 April 2009>.
+This document describes version C<1.71> of C<GD::SecurityImage::Styles>
+released on C<4 September 2011>.
 
 This module contains the styles used in the security image.
 
@@ -132,16 +137,16 @@ L<GD::SecurityImage>.
 
 =head1 AUTHOR
 
-Burak GE<252>rsoy, E<lt>burakE<64>cpan.orgE<gt>
+Burak Gursoy <burak@cpan.org>.
 
 =head1 COPYRIGHT
 
-Copyright 2004-2008 Burak GE<252>rsoy. All rights reserved.
+Copyright 2004 - 2011 Burak Gursoy. All rights reserved.
 
 =head1 LICENSE
 
 This library is free software; you can redistribute it and/or modify 
-it under the same terms as Perl itself, either Perl version 5.8.8 or, 
+it under the same terms as Perl itself, either Perl version 5.12.1 or, 
 at your option, any later version of Perl 5 you may have available.
 
 =cut

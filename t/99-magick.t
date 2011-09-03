@@ -1,11 +1,18 @@
 #!/usr/bin/env perl -w
 use strict;
+use warnings;
 use vars qw( %API $MAGICK_SKIP );
-use Test;
+use Test::More;
 use Cwd;
+use Carp qw(croak);
+use lib qw(
+   ..
+   ../t/lib
+      t/lib
+);
 
 BEGIN {
-   do 't/magick.pl' || die "Can not include t/magick.pl: $!";
+   do 't/magick.pl' || croak "Can not include t/magick.pl: $!";
 
    %API = (
       magick                          => 6,
@@ -21,18 +28,19 @@ BEGIN {
 
    plan tests => $total;
 
-   if ( $MAGICK_SKIP ) {
-      skip( $MAGICK_SKIP . " Skipping...", sub{1}) for 1..$total;
-      exit;
-   }
-   else {
+   SKIP: {
+      if ( $MAGICK_SKIP ) {
+         skip( $MAGICK_SKIP . ' Skipping...', $total );
+      }
       require GD::SecurityImage;
       GD::SecurityImage->import( use_magick => 1 );
    }
+   exit if $MAGICK_SKIP;
 }
 
-require 't/t.api';
-my $tapi = 'tapi';
+use Test::GDSI;
+
+my $tapi = 'Test::GDSI';
    $tapi->clear;
 
 my $font = getcwd.'/StayPuft.ttf';
@@ -57,7 +65,8 @@ foreach my $api (keys %API) {
             $style,
             $api,
             $c++
-         )
+         ),
+         "$style - $api - $c++"
       );
    }
    $tapi->clear;
@@ -104,6 +113,6 @@ sub args {
      (my $tmp = $name) =~ s{ _info_text }{}xms;
       $o = $options{$tmp};
    }
-   die "Bogus arg name $name!" if not $o;
+   croak "Bogus arg name $name!" if not $o;
    return %{ $o }
 }

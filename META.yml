@@ -1,38 +1,41 @@
 ---
-name: GD-SecurityImage
-version: 1.70
+abstract: 'Security image (captcha) generator.'
 author:
   - 'Burak Gursoy <burak@cpan.org>'
-abstract: Security image (captcha) generator.
-license: perl
-resources:
-  license: http://dev.perl.org/licenses/
-  repository: http://bitbucket.org/burak/cpan-gd-securityimage/
-requires:
-  GD: 0
 build_requires:
   Test::More: 0.40
-recommends:
-  Image::Magick: 6.0.4
-provides:
-  GD::SecurityImage:
-    file: lib/GD/SecurityImage.pm
-    version: 1.70
-  GD::SecurityImage::GD:
-    file: lib/GD/SecurityImage/GD.pm
-    version: 1.70
-  GD::SecurityImage::Magick:
-    file: lib/GD/SecurityImage/Magick.pm
-    version: 1.70
-  GD::SecurityImage::Styles:
-    file: lib/GD/SecurityImage/Styles.pm
-    version: 1.70
+configure_requires:
+  Module::Build: 0.38
+dynamic_config: 1
+generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.110930'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: GD-SecurityImage
 no_index:
   directory:
     - monolithic_version
     - builder
     - t
-generated_by: Module::Build version 0.32
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+provides:
+  GD::SecurityImage:
+    file: lib/GD/SecurityImage.pm
+    version: 1.71
+  GD::SecurityImage::GD:
+    file: lib/GD/SecurityImage/GD.pm
+    version: 1.71
+  GD::SecurityImage::Magick:
+    file: lib/GD/SecurityImage/Magick.pm
+    version: 1.71
+  GD::SecurityImage::Styles:
+    file: lib/GD/SecurityImage/Styles.pm
+    version: 1.71
+recommends:
+  Image::Magick: v6.0.4
+requires:
+  GD: 0
+resources:
+  license: http://dev.perl.org/licenses/
+  repository: http://bitbucket.org/burak/cpan-gd-securityimage/
+version: 1.71
