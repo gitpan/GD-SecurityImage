@@ -16,13 +16,10 @@ lib/GD/SecurityImage.pm
 lib/GD/SecurityImage/GD.pm
 lib/GD/SecurityImage/Magick.pm
 lib/GD/SecurityImage/Styles.pm
-LICENSE
 Makefile.PL			Generated automatically
 MANIFEST
 MANIFEST.bak
 MANIFEST.SKIP
-META.json
-META.yml
 README
 SPEC
 StayPuft.ttf
@@ -36,3 +33,6 @@ t/lib/Test/GDSI.pm
 t/magick.pl
 xt/author/201-pod.t
 xt/author/202-pod-coverage.t
+LICENSE
+META.yml
+META.json

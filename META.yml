@@ -5,9 +5,9 @@ author:
 build_requires:
   Test::More: 0.40
 configure_requires:
-  Module::Build: 0.38
+  Module::Build: 0.40
 dynamic_config: 1
-generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.110930'
+generated_by: 'Module::Build version 0.4001, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -18,19 +18,20 @@ no_index:
     - monolithic_version
     - builder
     - t
+    - xt
 provides:
   GD::SecurityImage:
     file: lib/GD/SecurityImage.pm
-    version: 1.71
+    version: 1.72
   GD::SecurityImage::GD:
     file: lib/GD/SecurityImage/GD.pm
-    version: 1.71
+    version: 1.72
   GD::SecurityImage::Magick:
     file: lib/GD/SecurityImage/Magick.pm
-    version: 1.71
+    version: 1.72
   GD::SecurityImage::Styles:
     file: lib/GD/SecurityImage/Styles.pm
-    version: 1.71
+    version: 1.72
 recommends:
   Image::Magick: v6.0.4
 requires:
@@ -38,4 +39,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://bitbucket.org/burak/cpan-gd-securityimage/
-version: 1.71
+version: 1.72

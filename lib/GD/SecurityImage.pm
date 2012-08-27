@@ -19,7 +19,7 @@ use constant MAX_RGB_VALUE  => 255;
 use constant PARTICLE_MULTIPLIER => 20;
 use constant MAX_RGB_PARAMS => 3;
 
-$VERSION = '1.71';
+$VERSION = '1.72';
 
 sub import {
    my($class, @args) = @_;
@@ -474,8 +474,8 @@ modules will not be loaded and probably, you'll C<die()>.
 
 =head1 DESCRIPTION
 
-This document describes version C<1.71> of C<GD::SecurityImage>
-released on C<4 September 2011>.
+This document describes version C<1.72> of C<GD::SecurityImage>
+released on C<27 August 2012>.
 
 The (so called) I<"Security Images"> are so popular. Most internet 
 software use these in their registration screens to block robot programs
@@ -1420,12 +1420,11 @@ Burak Gursoy <burak@cpan.org>.
 
 =head1 COPYRIGHT
 
-Copyright 2004 - 2011 Burak Gursoy. All rights reserved.
+Copyright 2004 - 2012 Burak Gursoy. All rights reserved.
 
 =head1 LICENSE
 
-This library is free software; you can redistribute it and/or modify 
-it under the same terms as Perl itself, either Perl version 5.12.1 or, 
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.10.1 or,
 at your option, any later version of Perl 5 you may have available.
-
 =cut

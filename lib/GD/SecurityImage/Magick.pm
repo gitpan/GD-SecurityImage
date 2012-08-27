@@ -20,7 +20,7 @@ use constant FULL_CIRCLE  => 360;
 
 use Image::Magick;
 
-$VERSION = '1.71';
+$VERSION = '1.72';
 
 sub init {
    # Create the image object
@@ -234,8 +234,8 @@ See L<GD::SecurityImage>.
 
 =head1 DESCRIPTION
 
-This document describes version C<1.71> of C<GD::SecurityImage::Magick>
-released on C<4 September 2011>.
+This document describes version C<1.72> of C<GD::SecurityImage::Magick>
+released on C<27 August 2012>.
 
 Includes GD method emulations for Image::Magick.
 
@@ -275,12 +275,11 @@ Burak Gursoy <burak@cpan.org>.
 
 =head1 COPYRIGHT
 
-Copyright 2004 - 2011 Burak Gursoy. All rights reserved.
+Copyright 2004 - 2012 Burak Gursoy. All rights reserved.
 
 =head1 LICENSE
 
-This library is free software; you can redistribute it and/or modify 
-it under the same terms as Perl itself, either Perl version 5.12.1 or, 
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.10.1 or,
 at your option, any later version of Perl 5 you may have available.
-
 =cut
